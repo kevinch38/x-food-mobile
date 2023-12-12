@@ -1,10 +1,5 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import PinCreation from "./src/screens/PinCreation";
+import AppNavigation from './src/navigations/appNavigation';
 
 export default function App() {
-  return (
-    <PinCreation/>
-  );
+    return <AppNavigation />;
 }
-
