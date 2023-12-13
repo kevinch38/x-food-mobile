@@ -13,7 +13,11 @@ function AppNavigation() {
                     component={Profile}
                     options={{ headerShown: false }}
                 />
-                <Stack.Screen name={'EditProfile'} component={EditProfile} />
+                <Stack.Screen
+                    name={'EditProfile'}
+                    component={EditProfile}
+                    options={{ headerShown: false }}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     );
