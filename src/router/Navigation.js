@@ -3,6 +3,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import React from "react";
 import Register from "../screens/Register";
 import Home from "../screens/Home";
+import Profile from "../screens/Profile"
+import EditProfile from '../screens/Profile/EditProfile'
 
 const Stack = createStackNavigator();
 
@@ -21,6 +23,12 @@ const Navigation = () => {
           component={Home}
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name={'Profile'}
+          component={Profile}
+          options={{ headerShown: false }}
+                />
+          <Stack.Screen name={'EditProfile'} component={EditProfile} />
       </Stack.Navigator>
     </NavigationContainer>
   );
