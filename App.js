@@ -1,10 +1,13 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import PinCreation from "./src/screens/PinCreation";
+import { Provider } from "react-redux";
+import Navigation from "./src/router/Navigation";
+import setupStore from "./store";
+
+const store = setupStore();
 
 export default function App() {
   return (
-    <PinCreation/>
+    <Provider store={store}>
+      <Navigation />
+    </Provider>
   );
 }
-
