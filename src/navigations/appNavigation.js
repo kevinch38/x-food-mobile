@@ -2,6 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Profile from '../screens/Profile';
 import EditProfile from '../screens/Profile/EditProfile';
+import CompleteProfile from '../screens/Profile/CompleteProfile';
 
 const Stack = createNativeStackNavigator();
 function AppNavigation() {
@@ -16,6 +17,11 @@ function AppNavigation() {
                 <Stack.Screen
                     name={'EditProfile'}
                     component={EditProfile}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name={'CompleteProfile'}
+                    component={CompleteProfile}
                     options={{ headerShown: false }}
                 />
             </Stack.Navigator>

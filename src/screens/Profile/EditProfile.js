@@ -5,7 +5,6 @@ import {
     StatusBar,
     StyleSheet,
     Text,
-    TextInput,
     View,
 } from 'react-native';
 import BackButton from '../../components/backButton';
@@ -20,6 +19,10 @@ import InputText from '../../components/inputText';
 function EditProfile({ navigation }) {
     const handleBack = () => {
         navigation.navigate('Profile');
+    };
+
+    const handleSave = () => {
+        console.log('Save');
     };
 
     return (
@@ -65,7 +68,11 @@ function EditProfile({ navigation }) {
                 </View>
 
                 <View style={styles.wrapperButton}>
-                    <Button title={'Save'} style={styles.customButton} />
+                    <Button
+                        title={'Save'}
+                        style={styles.customButton}
+                        onPress={handleSave}
+                    />
                 </View>
             </ScrollView>
         </SafeAreaView>

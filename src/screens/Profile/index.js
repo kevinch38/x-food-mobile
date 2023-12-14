@@ -30,6 +30,7 @@ function Profile({ navigation }) {
     };
 
     const handleCompleteProfile = () => {
+        navigation.navigate('CompleteProfile');
         console.log('complete profile');
     };
 
