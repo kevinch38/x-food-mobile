@@ -25,6 +25,15 @@ function CompleteProfile({ navigation }) {
         setDate(currentDate);
     };
 
+    const showMode = (currentMode) => {
+        setShow(true);
+        setMode(currentMode);
+    };
+
+    const showDatepicker = () => {
+        showMode('date');
+    };
+
     const handleBack = () => {
         navigation.navigate('Profile');
     };
@@ -60,9 +69,10 @@ function CompleteProfile({ navigation }) {
                         <Text style={styles.textSecondary}>Date of Birth</Text>
                         <InputText
                             value={date.toLocaleDateString()}
-                            style={styles.customTextInput}
+                            showSoftInputOnFocus={false}
+                            onPressIn={showDatepicker}
                         />
-                        <View style={styles.wrapperDate}>
+                        {show && (
                             <DateTimePicker
                                 testID="dateTimePicker"
                                 value={date}
@@ -71,7 +81,7 @@ function CompleteProfile({ navigation }) {
                                 minimumDate={new Date(1950, 0, 1)}
                                 maximumDate={new Date(2030, 11, 31)}
                             />
-                        </View>
+                        )}
                     </View>
                     <View>
                         <Text style={styles.textSecondary}>City</Text>
@@ -137,19 +147,13 @@ const styles = StyleSheet.create({
     textSecondary: {
         marginTop: 29,
         color: theme.grey,
-        fontWeight: 400,
+        fontWeight: '400',
         fontSize: 16,
     },
     customButton: {
         backgroundColor: Color.secondary,
-        fontWeight: 900,
+        fontWeight: '900',
         fontSize: 15,
-    },
-    customTextInput: {
-        height: 0,
-        width: 0,
-        borderWidth: 0,
-        marginTop: 0,
     },
     changePin: {
         marginTop: 9,

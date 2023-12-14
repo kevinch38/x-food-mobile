@@ -15,15 +15,99 @@ import Color from '../../assets/Color';
 import Button from '../../components/button';
 import { theme } from '../../theme';
 import InputText from '../../components/inputText';
+import { useDispatch, useSelector } from 'react-redux';
+import { useContext, useEffect } from 'react';
+import { ServiceContext } from '../../context/ServiceContext';
+import { useFormik } from 'formik';
+import { userAction } from '../../slices/userSlice';
+import ErrorText from '../../components/errorText';
+import * as yup from 'yup';
 
 function EditProfile({ navigation }) {
+    const dispatch = useDispatch();
+    const { userService } = useContext(ServiceContext);
+
+    const Schema = yup.object().shape({
+        firstName: yup
+            .string()
+            .matches('^[a-zA-Z\\s]*$', 'Invalid Firstname')
+            .required('Firstname is Required!'),
+        lastName: yup
+            .string()
+            .matches('^[a-zA-Z\\s]*$', 'Invalid Lastname')
+            .required('Lastname is Required!'),
+        accountEmail: yup
+            .string()
+            .email('Email not valid')
+            .required('Email is Required!'),
+    });
+
+    const {
+        values: { firstName, lastName, accountEmail, phoneNumber },
+        errors,
+        touched,
+        isValid,
+        handleChange,
+        handleSubmit,
+        setValues,
+    } = useFormik({
+        initialValues: {
+            firstName: '',
+            lastName: '',
+            accountEmail: '',
+            phoneNumber: '',
+        },
+        onSubmit: async (values) => {
+            if (!isValid) return;
+
+            dispatch(
+                userAction(async () => {
+                    const result = await userService.updateUser(values);
+                    if (result.statusCode === 200) {
+                        navigation.navigate('Profile');
+                    }
+                    return null;
+                }),
+            );
+        },
+        validationSchema: Schema,
+    });
+
     const handleBack = () => {
         navigation.navigate('Profile');
     };
 
-    const handleSave = () => {
-        console.log('Save');
-    };
+    useEffect(() => {
+        if ('1') {
+            dispatch(
+                userAction(async () => {
+                    const result =
+                        await userService.fetchUserByPhoneNumber('1');
+                    const updateData = {
+                        ...result.data,
+                    };
+
+                    const values = {
+                        accountID: updateData.accountID,
+                        ktpID: updateData.ktpID,
+                        accountEmail: updateData.accountEmail,
+                        phoneNumber: updateData.phoneNumber,
+                        pinID: updateData.pinID,
+                        createdAt: updateData.createdAt,
+                        firstName: updateData.firstName,
+                        lastName: updateData.lastName,
+                        dateOfBirth: updateData.dateOfBirth,
+                        updatedAt: new Date(),
+                        balanceID: updateData.balanceID,
+                        loyaltyPointID: updateData.loyaltyPointID,
+                        otpID: updateData.otpID,
+                    };
+                    setValues(values);
+                    return null;
+                }),
+            );
+        }
+    }, [dispatch, phoneNumber, userService, setValues]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -45,24 +129,49 @@ function EditProfile({ navigation }) {
                     </View>
                 </View>
 
-                <View style={styles.wrapperName}>
-                    <Text style={styles.name}>Eljad Eendaz</Text>
-                </View>
-
                 <View style={styles.wrapperInput}>
                     <View>
-                        <Text style={styles.textSecondary}>Full name</Text>
-                        <InputText placeholder={'Eljad Eendaz'} />
+                        <Text style={styles.textSecondary}>First Name</Text>
+                        <InputText
+                            placeholder={'Eljad'}
+                            onChangeText={handleChange('firstName')}
+                            value={firstName}
+                        />
+                        {touched.firstName && errors.firstName && (
+                            <ErrorText message={errors.firstName} />
+                        )}
+                    </View>
+                    <View>
+                        <Text style={styles.textSecondary}>Last Name</Text>
+                        <InputText
+                            placeholder={'Eendaz'}
+                            onChangeText={handleChange('lastName')}
+                            value={lastName}
+                        />
+                        {touched.lastName && errors.lastName && (
+                            <ErrorText message={errors.lastName} />
+                        )}
                     </View>
                     <View>
                         <Text style={styles.textSecondary}>E-mail</Text>
-                        <InputText placeholder={'prelookstudio@gmail.com'} />
+                        <InputText
+                            placeholder={'prelookstudio@gmail.com'}
+                            onChangeText={handleChange('accountEmail')}
+                            value={accountEmail}
+                            keyboardType={'email-address'}
+                        />
+                        {touched.accountEmail && errors.accountEmail && (
+                            <ErrorText message={errors.accountEmail} />
+                        )}
                     </View>
                     <View>
                         <Text style={styles.textSecondary}>Phone Number</Text>
                         <InputText
                             placeholder={'081201234321'}
                             keyboardType={'numeric'}
+                            onChangeText={handleChange('phoneNumber')}
+                            value={phoneNumber}
+                            editable={false}
                         />
                     </View>
                 </View>
@@ -71,7 +180,7 @@ function EditProfile({ navigation }) {
                     <Button
                         title={'Save'}
                         style={styles.customButton}
-                        onPress={handleSave}
+                        onPress={handleSubmit}
                     />
                 </View>
             </ScrollView>
@@ -110,6 +219,7 @@ const styles = StyleSheet.create({
         marginTop: 154,
     },
     wrapperInput: {
+        marginTop: 78,
         paddingHorizontal: 18,
     },
     outerCircle: {
@@ -145,12 +255,12 @@ const styles = StyleSheet.create({
     textSecondary: {
         marginTop: 29,
         color: theme.grey,
-        fontWeight: 400,
+        fontWeight: '400',
         fontSize: 16,
     },
     customButton: {
         backgroundColor: Color.secondary,
-        fontWeight: 900,
+        fontWeight: '900',
         fontSize: 15,
     },
 });

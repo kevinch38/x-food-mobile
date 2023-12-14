@@ -19,8 +19,25 @@ import basket from '../../assets/icons/basket.png';
 import Color from '../../assets/Color';
 import BackButton from '../../components/backButton';
 import Button from '../../components/button';
+import { useDispatch, useSelector } from 'react-redux';
+import { useContext, useEffect, useState } from 'react';
+import { ServiceContext } from '../../context/ServiceContext';
+import { userAction } from '../../slices/userSlice';
 
 function Profile({ navigation }) {
+    const dispatch = useDispatch();
+    const { users } = useSelector((state) => state.user);
+    const { userService } = useContext(ServiceContext);
+
+    useEffect(() => {
+        const onGetUserByPhoneNumber = async () => {
+            await dispatch(
+                userAction(() => userService.fetchUserByPhoneNumber('1')),
+            );
+        };
+        onGetUserByPhoneNumber();
+    }, [dispatch, userService]);
+
     const handleEditProfile = () => {
         navigation.navigate('EditProfile');
     };
@@ -65,7 +82,9 @@ function Profile({ navigation }) {
                         marginTop: 55,
                     }}
                 >
-                    <Text style={styles.name}>Eljad Eendaz</Text>
+                    <Text style={styles.name}>
+                        {users.firstName} {users.lastName}
+                    </Text>
                     <View
                         style={{
                             flexDirection: 'row',
@@ -88,12 +107,14 @@ function Profile({ navigation }) {
                         }}
                     >
                         <View>
-                            <Text style={styles.name}>Eljad Eendaz</Text>
-                            <Text style={styles.textSecond}>
-                                prelookstudio@gmail.com
+                            <Text style={styles.name}>
+                                {users.firstName} {users.lastName}
                             </Text>
                             <Text style={styles.textSecond}>
-                                +1 (783) 0986 8786
+                                {users.accountEmail}
+                            </Text>
+                            <Text style={styles.textSecond}>
+                                {users.phoneNumber}
                             </Text>
                         </View>
                         <Text onPress={handleEditProfile} style={styles.edit}>
