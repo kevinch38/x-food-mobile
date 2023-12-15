@@ -6,6 +6,7 @@ import Home from "../screens/Home";
 import Profile from "../screens/Profile"
 import EditProfile from '../screens/Profile/EditProfile'
 import PinCreationScreen from "../screens/PinCreationScreen";
+import VerificationCodeScreen from "../screens/VerificationCodeScreen";
 
 const Stack = createStackNavigator();
 
@@ -32,6 +33,11 @@ const Navigation = () => {
           <Stack.Screen
               name={'PinCreation'}
               component={PinCreationScreen}
+              options={{ headerShown: false }}
+          />
+          <Stack.Screen
+              name={'VerificationCode'}
+              component={VerificationCodeScreen}
               options={{ headerShown: false }}
           />
           <Stack.Screen name={'EditProfile'} component={EditProfile} />

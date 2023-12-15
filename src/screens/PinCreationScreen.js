@@ -19,7 +19,7 @@ const PinSchema = Yup.object().shape({
 
 const PinCreationScreen = () => {
     const dispatch = useDispatch();
-    const [modalVisible, setModalVisible] = React.useState(true); // Set modalVisible to true initially
+    const [modalVisible, setModalVisible] = React.useState(true);
 
     useEffect(() => {
         return () => setModalVisible(false);
