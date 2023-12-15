@@ -1,19 +1,13 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import { createContext } from 'react';
 
-export const ServiceContext = React.createContext({});
+export const ServiceContext = createContext({});
 
-const ServiceProvider = ({ service, children, ...rest }) => {
+const ServiceProvider = ({ service, children, ...restParams }) => {
     return (
-        <ServiceContext.Provider value={service} {...rest}>
+        <ServiceContext.Provider value={service} {...restParams}>
             {children}
         </ServiceContext.Provider>
     );
-};
-
-ServiceProvider.propTypes = {
-    children: PropTypes.any,
-    service: PropTypes.any,
 };
 
 export default ServiceProvider;
