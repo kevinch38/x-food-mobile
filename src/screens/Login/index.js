@@ -6,12 +6,19 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import Template from "../../components/background";
 import Color from "../../assets/Color";
 import { StatusBar } from "expo-status-bar";
 
 export default function Login() {
+  const schema = Yup.object({
+    phoneNumber: Yup.string()
+      .max(15, 'Phone Number must be less than 15')
+      .required('Phone Number is required'),
+  });
+  const [phoneNumber, setPhoneNumber] = useState('')
+
   return (
     <SafeAreaView style={styles.wrapper}>
       <Template />
