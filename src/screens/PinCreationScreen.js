@@ -1,14 +1,14 @@
 
-import React, { useEffect } from 'react';
-import { useDispatch } from "react-redux";
 import { Modal, StyleSheet, Text, Pressable, View, TextInput } from 'react-native';
+import PinCreationService from "../services/PinCreationService";
+import {setPin} from "../slices/pinSlice";
 import { useSelector } from 'react-redux';
+import { useDispatch } from "react-redux";
+import React, { useEffect } from 'react';
+import Color from '../assets/Color';
 import { BlurView } from 'expo-blur';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import Color from '../assets/Color';
-import {setPin} from "../slices/pinSlice";
-import axios from "axios";
 
 const PinSchema = Yup.object().shape({
     pinValue: Yup.string().required('PIN is required').length(6, 'PIN must be 6 digits'),
@@ -34,10 +34,7 @@ const PinCreationScreen = () => {
             dispatch(setPin(values));
             hideModal();
             resetForm();
-            const response = await axios.put('http://10.0.2.2:8080/api/pins', {
-                pinValue: values.pinValue,
-            });
-
+            const response =  await PinCreationService(values.pinValue);
             console.log('API Response:', response.data);
         } catch (error) {
             console.error('API Error:', error);
