@@ -1,12 +1,14 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import PinCreationScreen from "./src/screens/PinCreationScreen";
-import VerificationCodeScreen from "./src/screens/VerificationCodeScreen";
+import { Provider } from "react-redux";
+import Navigation from "./src/router/Navigation";
+import setupStore from "./store";
+
+const store = setupStore();
 
 export default function App() {
   return (
-    // <PinCreationScreen/>
-      <VerificationCodeScreen/>
+    <Provider store={store}>
+      <Navigation />
+    </Provider>
+
   );
 }
-

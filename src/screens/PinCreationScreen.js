@@ -1,33 +1,53 @@
 
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch } from "react-redux";
 import { Modal, StyleSheet, Text, Pressable, View, TextInput } from 'react-native';
+import { useSelector } from 'react-redux';
 import { BlurView } from 'expo-blur';
-import Color from "../assets/Color";
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import Color from '../assets/Color';
+import {setPin} from "../slices/pinSlice";
+import axios from "axios";
+
+const PinSchema = Yup.object().shape({
+    pinValue: Yup.string().required('PIN is required').length(6, 'PIN must be 6 digits'),
+    confirmPinValue: Yup.string()
+        .required('Confirm PIN is required')
+        .oneOf([Yup.ref('pinValue')], 'PIN does not match'),
+});
 
 const PinCreationScreen = () => {
-    const [modalVisible, setModalVisible] = useState(false);
-    const [pinValue, setPinValue] = useState('');
-    const [confirmPinValue, setConfirmPinValue] = useState('');
-    const [pinMatchError, setPinMatchError] = useState('');
+    const dispatch = useDispatch();
+    const [modalVisible, setModalVisible] = React.useState(true); // Set modalVisible to true initially
 
-    const showModal = () => {
-        setModalVisible(true);
-        setPinValue('');
-        setConfirmPinValue('');
-        setPinMatchError('');
-    };
+    useEffect(() => {
+        return () => setModalVisible(false);
+    }, []);
 
     const hideModal = () => {
-        if (pinValue === confirmPinValue) {
-            setModalVisible(false);
-            setPinMatchError('');
-        } else {
-            setPinMatchError('PIN does not match.');
-        }
+        setModalVisible(false);
     };
 
-    return (
+    const handleFormSubmit = async (values, { resetForm }) => {
+        try {
+            dispatch(setPin(values));
+            hideModal();
+            resetForm();
+            const response = await axios.put('http://10.0.2.2:8080/api/pins', {
+                pinValue: values.pinValue,
+            });
 
+            console.log('API Response:', response.data);
+        } catch (error) {
+            console.error('API Error:', error);
+        }
+    };
+    const pinState = useSelector((state) => state.pin);
+
+    console.log('Pin State:', pinState);
+
+    return (
         <View style={styles.centeredView}>
             {modalVisible && (
                 <BlurView
@@ -41,62 +61,58 @@ const PinCreationScreen = () => {
                     }}
                 />
             )}
-            <Modal
 
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                    setModalVisible(false);
-                }}>
-                <View style={{  flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginTop: 22,}}>
+            <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={hideModal}>
+                <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <Text style={{ marginBottom: 10, fontSize: 16 }}>Create PIN for your Account</Text>
-                        <Text style={{ marginBottom: 10 }}>6 Digit Security Pin</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Enter PIN"
-                            secureTextEntry={true}
-                            keyboardType={'numeric'}
-                            value={pinValue}
-                            onChangeText={(text) => setPinValue(text)}
-                        />
-                        <Text style={{ marginBottom: 10 }}>Confirm PIN</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Confirm PIN"
-                            secureTextEntry={true}
-                            keyboardType={'numeric'}
-                            value={confirmPinValue}
-                            onChangeText={(text) => setConfirmPinValue(text)}
-                        />
-                        {pinMatchError ? (
-                            <Text style={{color:"red", marginBottom:20}}>{pinMatchError}</Text>
-                        ) : null}
-                        <Pressable
-                            style={[styles.button, styles.buttonClose]}
-                            onPress={hideModal}>
-                            <Text style={styles.textStyle}>Submit</Text>
-                        </Pressable>
 
+                        <Formik
+                            initialValues={{ pinValue: '', confirmPinValue: '' }}
+                            validationSchema={PinSchema}
+                            onSubmit={handleFormSubmit}>
+                            {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                                <>
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder="Enter PIN"
+                                        secureTextEntry={true}
+                                        keyboardType={'numeric'}
+                                        onChangeText={handleChange('pinValue')}
+                                        onBlur={handleBlur('pinValue')}
+                                        value={values.pinValue}
+                                    />
+                                    {touched.pinValue && errors.pinValue && (
+                                        <Text style={{ color: 'red', marginBottom: 20 }}>{errors.pinValue}</Text>
+                                    )}
+
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder="Confirm PIN"
+                                        secureTextEntry={true}
+                                        keyboardType={'numeric'}
+                                        onChangeText={handleChange('confirmPinValue')}
+                                        onBlur={handleBlur('confirmPinValue')}
+                                        value={values.confirmPinValue}
+                                    />
+                                    {touched.confirmPinValue && errors.confirmPinValue && (
+                                        <Text style={{ color: 'red', marginBottom: 20 }}>{errors.confirmPinValue}</Text>
+                                    )}
+
+                                    <Pressable style={[styles.button, styles.buttonSubmit]} onPress={handleSubmit}>
+                                        <Text style={styles.textStyle}>Submit</Text>
+                                    </Pressable>
+
+                                    <Pressable style={[styles.button, styles.buttonClose]} onPress={hideModal}>
+                                        <Text style={styles.textStyle}>Cancel</Text>
+                                    </Pressable>
+                                </>
+                            )}
+                        </Formik>
                     </View>
                 </View>
             </Modal>
-            <Pressable
-                style={[styles.button, styles.buttonOpen]}
-                onPress={showModal}>
-                <Text style={styles.textStyle}>Create Pin</Text>
-            </Pressable>
-            {
-                modalVisible ?
-                <BlurView  intensity={80} tint="light" style={{width:'100%', height:'100%', position:'absolute'}}>
-                </BlurView> : ``
-            }
         </View>
-
     );
 };
 
@@ -132,6 +148,11 @@ const styles = StyleSheet.create({
     },
     buttonClose: {
         backgroundColor: Color.secondary,
+        marginTop:20
+    },
+    buttonSubmit: {
+        backgroundColor: Color.primary,
+        marginTop:20
     },
     textStyle: {
         color: 'white',
