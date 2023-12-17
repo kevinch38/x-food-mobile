@@ -1,24 +1,18 @@
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+
 import { Provider } from "react-redux";
-import Splash from "./src/screens/Splash";
-import Login from "./src/screens/Login/index";
 import Navigation from "./src/router/Navigation";
 import setupStore from "./store";
+import ServiceProvider from './src/context/ServiceContext';
+import ServiceFactory from './src/services/ServiceFactory';
 
 const store = setupStore();
-
-const Stack = createStackNavigator();
+const service = ServiceFactory();
 export default function App() {
   return (
-    // <NavigationContainer>
-    //   <Stack.Navigator>
-    //     <Stack.Screen name='Splash' component={Splash} options={{headerShown: false}}/>
-    //     <Stack.Screen name='Login' component={Login}/>
-    //   </Stack.Navigator>
-    // </NavigationContainer>
-    <Provider store={store}>
-      <Navigation />
-    </Provider>
+      <Provider store={store}>
+          <ServiceProvider service={service}>
+              <Navigation />
+          </ServiceProvider>
+      </Provider>
   );
 }

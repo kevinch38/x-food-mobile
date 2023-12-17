@@ -3,7 +3,7 @@ import axios from "axios";
 const AuthService = () => {
   const fetchUserByPhoneNumber = async (phoneNumber) => {
     const { data } = await axios.get(
-      `http://10.0.2.2:8083/api/merchants/${phoneNumber}`
+      `http://10.0.2.2:8083/api/users/${phoneNumber}`
     );
     return data;
   };
