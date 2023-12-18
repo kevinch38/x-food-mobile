@@ -48,7 +48,6 @@ function Profile({ navigation }) {
 
     const handleCompleteProfile = () => {
         navigation.navigate('CompleteProfile');
-        console.log('complete profile');
     };
 
     const handleLogout = () => {
@@ -146,6 +145,7 @@ function Profile({ navigation }) {
                         <Image source={xfood} style={styles.imgXFood} />
                     </View>
                     <TouchableOpacity
+                        style={{ width: 50 }}
                         onPress={() => {
                             Alert.alert(
                                 'Log out',

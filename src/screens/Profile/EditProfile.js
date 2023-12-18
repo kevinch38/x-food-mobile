@@ -1,10 +1,10 @@
 import {
+    Alert,
     Image,
     SafeAreaView,
     ScrollView,
     StatusBar,
     StyleSheet,
-    Text,
     View,
 } from 'react-native';
 import BackButton from '../../components/backButton';
@@ -14,14 +14,14 @@ import camera from '../../assets/icons/camera.png';
 import Color from '../../assets/Color';
 import Button from '../../components/button';
 import { theme } from '../../theme';
-import InputText from '../../components/inputText';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useContext, useEffect } from 'react';
 import { ServiceContext } from '../../context/ServiceContext';
 import { useFormik } from 'formik';
 import { userAction } from '../../slices/userSlice';
 import ErrorText from '../../components/errorText';
 import * as yup from 'yup';
+import InputText from '../../components/inputText';
 
 function EditProfile({ navigation }) {
     const dispatch = useDispatch();
@@ -32,14 +32,15 @@ function EditProfile({ navigation }) {
             .string()
             .matches('^[a-zA-Z\\s]*$', 'Invalid Firstname')
             .required('Firstname is Required!'),
-        lastName: yup
-            .string()
-            .matches('^[a-zA-Z\\s]*$', 'Invalid Lastname')
-            .required('Lastname is Required!'),
+        lastName: yup.string().matches('^[a-zA-Z\\s]*$', 'Invalid Lastname'),
         accountEmail: yup
             .string()
             .email('Email not valid')
             .required('Email is Required!'),
+        phoneNumber: yup
+            .string()
+            .matches('^[0-9]*$', 'Invalid Phone number')
+            .required('Phone number is Required!'),
     });
 
     const {
@@ -52,10 +53,19 @@ function EditProfile({ navigation }) {
         setValues,
     } = useFormik({
         initialValues: {
-            firstName: '',
-            lastName: '',
+            accountID: null,
+            ktpID: '',
             accountEmail: '',
             phoneNumber: '',
+            pinID: '',
+            createdAt: new Date(),
+            firstName: '',
+            lastName: '',
+            dateOfBirth: '',
+            updatedAt: new Date(),
+            balanceID: '',
+            loyaltyPointID: '',
+            otpID: '',
         },
         onSubmit: async (values) => {
             if (!isValid) return;
@@ -64,7 +74,6 @@ function EditProfile({ navigation }) {
                 userAction(async () => {
                     const result = await userService.updateUser(values);
                     if (result.statusCode === 200) {
-                        navigation.navigate('Profile');
                     }
                     return null;
                 }),
@@ -107,7 +116,7 @@ function EditProfile({ navigation }) {
                 }),
             );
         }
-    }, [dispatch, phoneNumber, userService, setValues]);
+    }, [dispatch, userService, setValues]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -131,8 +140,9 @@ function EditProfile({ navigation }) {
 
                 <View style={styles.wrapperInput}>
                     <View>
-                        <Text style={styles.textSecondary}>First Name</Text>
                         <InputText
+                            label={'First Name'}
+                            labelRequired={'*'}
                             placeholder={'Eljad'}
                             onChangeText={handleChange('firstName')}
                             value={firstName}
@@ -142,8 +152,8 @@ function EditProfile({ navigation }) {
                         )}
                     </View>
                     <View>
-                        <Text style={styles.textSecondary}>Last Name</Text>
                         <InputText
+                            label={'Last Name'}
                             placeholder={'Eendaz'}
                             onChangeText={handleChange('lastName')}
                             value={lastName}
@@ -153,8 +163,9 @@ function EditProfile({ navigation }) {
                         )}
                     </View>
                     <View>
-                        <Text style={styles.textSecondary}>E-mail</Text>
                         <InputText
+                            label={'Email'}
+                            labelRequired={'*'}
                             placeholder={'prelookstudio@gmail.com'}
                             onChangeText={handleChange('accountEmail')}
                             value={accountEmail}
@@ -165,22 +176,26 @@ function EditProfile({ navigation }) {
                         )}
                     </View>
                     <View>
-                        <Text style={styles.textSecondary}>Phone Number</Text>
                         <InputText
-                            placeholder={'081201234321'}
-                            keyboardType={'numeric'}
+                            label={'Phone Number'}
+                            labelRequired={'*'}
+                            placeholder={'81201234321'}
+                            keyboardType={'phone-pad'}
                             onChangeText={handleChange('phoneNumber')}
                             value={phoneNumber}
                             editable={false}
                         />
+                        {touched.phoneNumber && errors.phoneNumber && (
+                            <ErrorText message={errors.phoneNumber} />
+                        )}
                     </View>
                 </View>
 
-                <View style={styles.wrapperButton}>
+                <View style={styles.buttonContainer}>
                     <Button
                         title={'Save'}
                         style={styles.customButton}
-                        onPress={handleSubmit}
+                        onPress={() => handleSubmit()}
                     />
                 </View>
             </ScrollView>
@@ -208,15 +223,16 @@ const styles = StyleSheet.create({
         right: 10,
         bottom: 2,
     },
-    wrapperButton: {
+    buttonContainer: {
         alignItems: 'center',
-        marginBottom: 50,
-        marginTop: 60,
+        marginBottom: 60,
+        marginTop: 50,
     },
     wrapperProfile: {
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 154,
+        marginBottom: 24,
     },
     wrapperInput: {
         marginTop: 78,
