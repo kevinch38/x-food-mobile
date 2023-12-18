@@ -116,9 +116,6 @@ const PinCreationScreen = () => {
                                             <Text style={styles.textStyle}>Submit</Text>
                                         </Pressable>
 
-                                        <Pressable style={[styles.button, styles.buttonClose]} onPress={hideModal}>
-                                            <Text style={styles.textStyle}>Cancel</Text>
-                                        </Pressable>
                                     </>
                                 )}
                             </Formik>
