@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
-import { Image, StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
+import {Image, StyleSheet, Text, TextInput, View, Pressable, TouchableOpacity} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Color from '../assets/Color';
+import BackButton from "../components/backButton";
 
 const VerificationCodeScreen = () => {
     const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
@@ -46,12 +47,14 @@ const VerificationCodeScreen = () => {
     };
 
     return (
+
         <View style={{ flex: 1, justifyContent: 'center', padding: 30 }}>
             <Image source={require('../../assets/images/elipse3.png')} style={{ position: 'absolute', top: 0 }} />
             <Image source={require('../../assets/images/elipse.png')} style={{ position: 'absolute', top: 0 }} />
-            <Pressable style={style.buttonImage}>
+            <TouchableOpacity style={style.buttonImage}>
                 <Image source={require('../../assets/images/button.png')} />
-            </Pressable>
+            </TouchableOpacity>
+
             <Image source={require('../../assets/images/elipse2.png')} style={{ position: 'absolute', top: 0, right: 0 }} />
 
             <Text style={{ fontSize: 37, textAlign: 'left', marginBottom: 5 }}>Verification Code</Text>
