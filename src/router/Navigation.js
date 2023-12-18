@@ -7,6 +7,7 @@ import Profile from "../screens/Profile"
 import EditProfile from '../screens/Profile/EditProfile'
 import Tabs from './Tabs';
 import CompleteProfile from '../screens/Profile/CompleteProfile'
+import Merchant from '../screens/MerchantBranch';
 
 const Stack = createStackNavigator();
 
@@ -15,25 +16,30 @@ const Navigation = () => {
         <NavigationContainer>
             <Stack.Navigator>
                 {/* <Stack.Screen name="Login" component={Login}/> */}
-                <Stack.Screen
+                {/* <Stack.Screen
                     name="Register"
                     component={Register}
                     options={{ headerShown: false }}
-                />
+                /> */}
                 <Stack.Screen
                     name="Tabs"
                     component={Tabs}
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
+                    name="Merchant"
+                    component={Merchant}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
                     name={'EditProfile'}
                     component={EditProfile}
                     options={{ headerShown: false }}
-                />                        
+                />
                 <Stack.Screen
-                  name={'CompleteProfile'}
-                  component={CompleteProfile}
-                  options={{ headerShown: false }}
+                    name={'CompleteProfile'}
+                    component={CompleteProfile}
+                    options={{ headerShown: false }}
                 />
 
                 <Stack.Screen

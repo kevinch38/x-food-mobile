@@ -16,24 +16,38 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useContext } from 'react';
 import { ServiceContext } from '../context/ServiceContext';
 import { merchantAction } from '../slices/merchantSlice';
+import { cityAction } from '../slices/citySlice';
 import { Dropdown } from 'react-native-element-dropdown';
+import { Icon } from '@rneui/themed';
 
-const Home = () => {
+const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
-    const { merchantService } = useContext(ServiceContext);
+    const cities = useSelector((state) => state.city.cities);
+    const { merchantService, cityService } = useContext(ServiceContext);
     const [value, setValue] = useState('');
     const [search, setSearch] = useState('');
-    const [items, setItems] = useState([
-        {
-            label: 'South Jakarta, Indonesia',
-            value: 'South Jakarta, Indonesia',
-        },
-        {
-            label: 'North Jakarta, Indonesia',
-            value: 'North Jakarta, Indonesia',
-        },
-    ]);
+    const [items, setItems] = useState([]);
+
+    handleCard = () => {
+        navigation.navigate('Merchant');
+    };
+
+    useEffect(() => {
+        setItems(cities);
+    }, []);
+
+    useEffect(() => {
+        const onGetCities = () => {
+            dispatch(
+                cityAction(async () => {
+                    const response = await cityService.fetchCities();
+                    return response;
+                }),
+            );
+        };
+        onGetCities();
+    }, []);
 
     useEffect(() => {
         const onGetMerchant = () => {
@@ -51,9 +65,48 @@ const Home = () => {
         <SafeAreaView style={styles.wrapper}>
             <ScrollView>
                 <View style={styles.container}>
+                    <View
+                        style={{
+                            position: 'absolute',
+                            top: '1%',
+                            right: '10%',
+                        }}
+                    >
+                        <Pressable>
+                            <Image
+                                style={{ height: 34, width: 34 }}
+                                source={require('../assets/icons/Bell.png')}
+                            />
+                        </Pressable>
+                    </View>
                     <View style={styles.topArea}>
-                        <View>
-                            <Text style={{ fontSize: 14 }}>Location</Text>
+                        <View style={styles.dropdownArea}>
+                            <View
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
+                                    alignItems: 'baseline',
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        fontSize: 14,
+                                        color: '#989CA3',
+                                        textAlign: 'center',
+                                        marginRight: 10,
+                                    }}
+                                >
+                                    Location
+                                </Text>
+                                <Icon
+                                    color="#989CA3"
+                                    name="chevron-down"
+                                    size={10}
+                                    type="font-awesome-5"
+                                />
+                            </View>
+
                             <Dropdown
                                 style={styles.dropdown}
                                 placeholderStyle={styles.placeholderStyle}
@@ -73,12 +126,6 @@ const Home = () => {
                                 }}
                             />
                         </View>
-                        <Pressable>
-                            <Image
-                                style={{ height: 34, width: 34 }}
-                                source={require('../assets/icons/Bell.png')}
-                            />
-                        </Pressable>
                     </View>
                     <Text style={styles.title}>
                         Where would you like to eat
@@ -97,12 +144,6 @@ const Home = () => {
                                 round={true}
                             />
                         </View>
-                        <Pressable style={styles.filter}>
-                            <Image
-                                style={{ width: 23, height: 23 }}
-                                source={require('../assets/icons/filter.png')}
-                            />
-                        </Pressable>
                     </View>
                     <View style={styles.summary}>
                         <Image
@@ -119,11 +160,16 @@ const Home = () => {
                         />
                         <Text>0</Text>
                     </View>
-                    <View style={{ display: 'flex', flexDirection: 'row' }}>
+                    <View
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            marginVertical: '3%',
+                        }}
+                    >
                         <Text style={styles.titleList}>
                             Featured Restaurants
                         </Text>
-                        <Text style={styles.viewAll}>View All</Text>
                     </View>
 
                     {merchants?.length !== 0 &&
@@ -131,6 +177,7 @@ const Home = () => {
                             return (
                                 <Card
                                     key={idx}
+                                    onClick={handleCard}
                                     image={
                                         'https://source.unsplash.com/random/1500x500?food'
                                     }
@@ -157,7 +204,7 @@ const styles = StyleSheet.create({
     },
     searchBar: {
         margin: 10,
-        width: '50%',
+        width: '80%',
         borderRadius: 10,
         borderColor: '#EFEFEF',
         borderWidth: 3,
@@ -166,18 +213,23 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     areaSearchBar: {
-        width: '75%',
+        width: '100%',
         justifyContent: 'center',
         marginTop: 10,
         flexDirection: 'row',
     },
-    dropdown: { width: 170, marginRight: '10%' },
+    dropdown: { width: 170 },
     topArea: {
         width: '100%',
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
         marginTop: 10,
+    },
+    dropdownArea: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
     },
     title: {
         fontSize: 30,
@@ -198,7 +250,7 @@ const styles = StyleSheet.create({
     },
     titleList: {
         fontWeight: '900',
-        fontSize: 18,
+        fontSize: 20,
         marginRight: 10,
     },
     viewAll: {

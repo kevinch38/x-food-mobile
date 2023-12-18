@@ -26,10 +26,6 @@ export default function Register({ navigation, noPhone }) {
             .string()
             .matches('^[a-zA-Z0-9.]*$', 'Invalid Firstname')
             .required('First Name Required'),
-        lastName: yup
-            .string()
-            .matches('^[a-zA-Z0-9.]*$', 'Invalid Lastname')
-            .required('Last Name Required'),
         accountEmail: yup
             .string()
             .email('Email not valid')
@@ -43,6 +39,8 @@ export default function Register({ navigation, noPhone }) {
         values,
         errors,
         touched,
+        dirty,
+        isValid,
         handleChange,
         handleBlur,
         handleSubmit,
@@ -63,14 +61,23 @@ export default function Register({ navigation, noPhone }) {
 
                 dispatch(
                     userAction(async () => {
-                        const result = await userService.register(values);
-                        if (result.status === 201) {
-                            navigation.navigate('Tabs');
+                        try {
+                            const result = await userService.register(values);
+                            if (result.status === 409) {
+                                alert('email already exist');
+                            } else if (result.status === 200) {
+                                navigation.reset({
+                                    index: 0,
+                                    routes: [{ name: 'Tabs' }],
+                                });
+                            }
+                        } catch (error) {
+                            alert('Email already exist');
                         }
                     }),
                 );
             } catch (error) {
-                console.error('Error:', error);
+                alert('Torouble in trasfering data');
             }
         },
         validationSchema: Schema,
@@ -131,11 +138,6 @@ export default function Register({ navigation, noPhone }) {
                             onBlur={handleBlur('lastName')}
                             value={values.lastName}
                         />
-                        {touched.lastName && errors.lastName && (
-                            <Text style={styles.errorText}>
-                                {errors.lastName}
-                            </Text>
-                        )}
                     </View>
                     <View>
                         <Text style={styles.labelStyle}>Email</Text>
@@ -171,10 +173,12 @@ export default function Register({ navigation, noPhone }) {
                             </Text>
                         )}
                     </View>
-                    <Pressable style={styles.button}>
-                        <Text onPress={handleSubmit} style={styles.textStyle}>
-                            Sign Up
-                        </Text>
+                    <Pressable
+                        style={styles.button}
+                        onPress={handleSubmit}
+                        disabled={!isValid || !dirty}
+                    >
+                        <Text style={styles.textStyle}>Sign Up</Text>
                     </Pressable>
                 </View>
             </View>
@@ -263,7 +267,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     input: {
-        color: '#C4C4C4',
+        color: '#000',
         height: 65,
         width: 350,
         borderWidth: 1,

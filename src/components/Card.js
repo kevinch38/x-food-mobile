@@ -1,24 +1,26 @@
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-const Card = ({ image, title }) => {
+const Card = ({ image, title, onClick }) => {
     return (
         <View style={styles.card}>
-            <Image style={styles.image} source={{ uri: image }} />
-            <Text style={styles.title}>
-                {title}{' '}
-                <Image
-                    style={styles.checklist}
-                    source={require('../assets/icons/checklist.png')}
-                />
-            </Text>
+            <Pressable onPress={onClick}>
+                <Image style={styles.image} source={{ uri: image }} />
+                <Text style={styles.title}>
+                    {title}{' '}
+                    <Image
+                        style={styles.checklist}
+                        source={require('../assets/icons/checklist.png')}
+                    />
+                </Text>
+            </Pressable>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     card: {
-        width: '70%',
+        width: '80%',
         height: 183,
         borderRadius: 10,
         backgroundColor: '#fff',
