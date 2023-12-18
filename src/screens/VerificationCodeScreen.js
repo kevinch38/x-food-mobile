@@ -1,20 +1,41 @@
 
 import React, { useState } from 'react';
-import {Image, StyleSheet, Text, TextInput, View, Pressable} from 'react-native';
-import Color from "../assets/Color";
-
-// import { useNavigation } from '@react-navigation/native';
+import { Image, StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Color from '../assets/Color';
 
 const VerificationCodeScreen = () => {
-    // const navigation = useNavigation();
     const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
     const [focusedInput, setFocusedInput] = useState(null);
+    const [isValidCode, setIsValidCode] = useState(true)
+    const navigation = useNavigation();
+
 
     const handleInputChange = (text, index) => {
         const updatedCode = [...verificationCode];
         updatedCode[index] = text;
         setVerificationCode(updatedCode);
+
+        const enteredCode = updatedCode.join('');
+        checkOTP(enteredCode);
     };
+
+    const checkOTP = async (enteredCode) => {
+        try {
+            const response = await fetch('http://10.0.2.2:8087/api/otp');
+            const data = await response.json();
+
+            if (enteredCode === data.data.otp) {
+                setIsValidCode(true);
+                navigation.navigate('Register');
+            } else {
+                setIsValidCode(false);
+            }
+        } catch (error) {
+            console.error('Error fetching OTP data:', error);
+        }
+    };
+
 
     const handleInputFocus = (index) => {
         setFocusedInput(index);
@@ -23,10 +44,6 @@ const VerificationCodeScreen = () => {
     const handleInputBlur = () => {
         setFocusedInput(null);
     };
-
-    // const handleButtonPress = () => {
-    //     navigation.navigate();
-    // };
 
     return (
         <View style={{ flex: 1, justifyContent: 'center', padding: 30 }}>
@@ -62,6 +79,9 @@ const VerificationCodeScreen = () => {
                     />
                 ))}
             </View>
+            {!isValidCode && (
+                <Text style={{ color: 'red', marginTop: 10, textAlign:"center" }}>Wrong Code. try again.</Text>
+            )}
             <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20 }}>
                 <Text style={{ fontSize: 16 }}>I don’t receive a code!</Text>
                 <Pressable onPress={() => console.log('Resend pressed')}>

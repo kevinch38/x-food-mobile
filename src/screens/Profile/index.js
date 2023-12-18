@@ -1,4 +1,5 @@
 import {
+    Alert,
     Image,
     SafeAreaView,
     ScrollView,
@@ -16,16 +17,34 @@ import camera from '../../assets/icons/camera.png';
 import dollar from '../../assets/icons/dollar.png';
 import basket from '../../assets/icons/basket.png';
 import Color from '../../assets/Color';
-import { createEntityAdapter } from '@reduxjs/toolkit/src';
+import BackButton from '../../components/backButton';
+import Button from '../../components/button';
 
 function Profile({ navigation }) {
     const handleEditProfile = () => {
         navigation.navigate('EditProfile');
     };
 
+    const handleBack = () => {
+        console.log('back');
+    };
+
+    const handleCompleteProfile = () => {
+        navigation.navigate('CompleteProfile');
+        console.log('complete profile');
+    };
+
+    const handleLogout = () => {
+        console.log('logout');
+    };
+
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView>
+            <ScrollView
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+            >
+                <BackButton onPress={handleBack} />
                 <View style={{ alignItems: 'center' }}>
                     <Image source={bgProfile} style={styles.bgProfile} />
                 </View>
@@ -81,7 +100,6 @@ function Profile({ navigation }) {
                             Edit Profile
                         </Text>
                     </View>
-
                     <View
                         style={{
                             flexDirection: 'row',
@@ -94,9 +112,8 @@ function Profile({ navigation }) {
                             <Text style={styles.name}>Balance</Text>
                             <Text style={styles.textSecond}>Rp 37,000</Text>
                         </View>
-                        <Text style={styles.textTopup}>TOP UP</Text>
+                        <Text style={styles.textTopUp}>TOP UP</Text>
                     </View>
-
                     <View
                         style={{
                             alignItems: 'center',
@@ -107,21 +124,37 @@ function Profile({ navigation }) {
                         <Image source={basket} style={styles.iconBasket} />
                         <Image source={xfood} style={styles.imgXFood} />
                     </View>
-
-                    <Text style={styles.logout}>Logout</Text>
-
-                    <View style={{ alignItems: 'center' }}>
-                        <TouchableOpacity style={styles.button}>
-                            <Text
-                                style={{
-                                    fontWeight: '900',
-                                    fontSize: 15,
-                                    color: 'white',
-                                }}
-                            >
-                                Complete Profile
-                            </Text>
-                        </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            Alert.alert(
+                                'Log out',
+                                'Do you want to logout?',
+                                [
+                                    {
+                                        text: 'Cancel',
+                                        onPress: () => {
+                                            return null;
+                                        },
+                                    },
+                                    {
+                                        text: 'Log out',
+                                        onPress: () => {
+                                            handleLogout();
+                                        },
+                                    },
+                                ],
+                                { cancelable: false },
+                            );
+                        }}
+                    >
+                        <Text style={styles.logout}>Logout</Text>
+                    </TouchableOpacity>
+                    <View style={{ alignItems: 'center', marginBottom: 50 }}>
+                        <Button
+                            title={'Complete Profile'}
+                            style={styles.customButton}
+                            onPress={handleCompleteProfile}
+                        />
                     </View>
                 </View>
             </ScrollView>
@@ -133,14 +166,13 @@ const styles = StyleSheet.create({
     container: {
         paddingTop: StatusBar.currentHeight,
     },
-
     wrapper: {
         paddingHorizontal: 20,
     },
     profile: {
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: -100,
+        marginTop: 154,
     },
     outerCircle: {
         position: 'absolute',
@@ -154,15 +186,18 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         width: 27,
         height: 27,
-        borderRadius: 27 / 2,
+        borderRadius: 25,
         justifyContent: 'center',
         alignItems: 'center',
         right: 10,
         bottom: 2,
     },
     bgProfile: {
+        marginTop: -23,
         resizeMode: 'contain',
+        width: 378,
         height: 285,
+        position: 'absolute',
     },
     photo: {
         position: 'absolute',
@@ -215,7 +250,7 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         fontSize: 17,
     },
-    textTopup: {
+    textTopUp: {
         fontWeight: '400',
         fontSize: 16,
         color: '#5681A5',
@@ -232,14 +267,10 @@ const styles = StyleSheet.create({
         marginTop: 13,
         marginBottom: 28,
     },
-    button: {
+    customButton: {
         backgroundColor: Color.secondary,
-        width: 248,
-        height: 60,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 50,
-        marginBottom: 41,
+        fontWeight: 900,
+        fontSize: 15,
     },
 });
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 const PinCreationService = async (pinValue) => {
     try {
-        const response = await axios.put(`${BASE_URL}/pins`, {
+        const response = await axios.put(`http://10.0.2.2:8087/api/pins`, {
             pinValue : pinValue
         });
         return response.data;
