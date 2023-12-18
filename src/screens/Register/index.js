@@ -8,17 +8,18 @@ import {
   SafeAreaView,
   StatusBar,
 } from "react-native";
-import React from "react";
-import Color from "../../assets/Color";
-import { CheckBox, Icon } from "@rneui/themed";
-import { useFormik } from "formik";
-import * as yup from "yup";
-import { useDispatch } from "react-redux";
-import { registerUser } from "../../slices/userSlice";
-import axios from 'axios';
+import React, { useContext } from 'react';
+import Color from '../../assets/Color';
+import { CheckBox, Icon } from '@rneui/themed';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+import { useDispatch } from 'react-redux';
+import { userAction } from '../../slices/userSlice';
+import { ServiceContext } from '../../context/ServiceContext';
 
 export default function Register({ navigation, noPhone }) {
     const dispatch = useDispatch();
+    const { userService } = useContext(ServiceContext);
 
     const Schema = yup.object().shape({
         firstName: yup
@@ -49,28 +50,25 @@ export default function Register({ navigation, noPhone }) {
     } = useFormik({
         initialValues: {
             firstName: '',
-            phoneNumber: '028391273',
+            phoneNumber: { noPhone },
             lastName: '',
             accountEmail: '',
             aggrement: false,
         },
         onSubmit: async (formValues) => {
             try {
-                console.log('onsumbit', formValues);
                 if (!formValues) return;
 
                 const { aggrement, ...values } = formValues;
 
-                console.log('onSubmit', values);
-
-                const response = await axios.post(
-                    `http://10.0.2.2:3003/api/users/register`,
-                    values,
+                dispatch(
+                    userAction(async () => {
+                        const result = await userService.register(values);
+                        if (result.status === 201) {
+                            navigation.navigate('Tabs');
+                        }
+                    }),
                 );
-
-                console.log(response.data);
-
-                navigation.navigate('Home');
             } catch (error) {
                 console.error('Error:', error);
             }

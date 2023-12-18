@@ -10,16 +10,31 @@ import React, { useState } from 'react';
 import Template from '../../components/background';
 import Color from '../../assets/Color';
 import { StatusBar } from 'expo-status-bar';
-import * as Yup from 'yup';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectedUserPhoneNumberAction } from '../../slices/uiSlice';
+
 
 export default function Login({ navigation }) {
-    const schema = Yup.object({
-        phoneNumber: Yup.string()
-            .max(15, 'Phone Number must be less than 15')
-            .required('Phone Number is required'),
-    });
+    const dispatch = useDispatch();
     const [phoneNumber, setPhoneNumber] = useState('');
-    const handleClick = () => {};
+    const user = useSelector(
+        (state) => state.user.selectedUserPhoneNumberAction,
+    );
+
+    const handleClick = async () => {
+        try {
+            await dispatch(selectedUserPhoneNumberAction(phoneNumber));
+
+            if (user) {
+                navigation.navigate('Home');
+            } else {
+                // Jika tidak terdaftar, navigasi ke menu register
+                navigation.navigate('Register');
+            }
+        } catch (error) {
+            console.error('Error checking phone number:', error.message);
+        }
+    };
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -46,7 +61,7 @@ export default function Login({ navigation }) {
                     </TextInput>
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={() => navigation.navigate('Register')}
+                        onPress={handleClick}
                     >
                         <Text style={styles.textButton}>
                             Receive OTP via SMS
