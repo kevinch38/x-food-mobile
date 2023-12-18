@@ -1,5 +1,5 @@
 import { StyleSheet, Text } from 'react-native';
-import { theme } from '../theme';
+import { theme } from '../../theme';
 
 const ErrorText = ({ message }) => {
     return <Text style={styles.errorText}>{message}</Text>;

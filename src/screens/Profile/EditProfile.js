@@ -7,7 +7,6 @@ import {
     StyleSheet,
     View,
 } from 'react-native';
-import BackButton from '../../components/backButton';
 import bgProfile from '../../assets/images/bg-profile.png';
 import photo from '../../assets/images/profile.png';
 import camera from '../../assets/icons/camera.png';
@@ -19,9 +18,10 @@ import { useContext, useEffect } from 'react';
 import { ServiceContext } from '../../context/ServiceContext';
 import { useFormik } from 'formik';
 import { userAction } from '../../slices/userSlice';
-import ErrorText from '../../components/errorText';
 import * as yup from 'yup';
 import InputText from '../../components/inputText';
+import ErrorText from '../../components/errorText';
+import BackButton from '../../components/backButton';
 
 function EditProfile({ navigation }) {
     const dispatch = useDispatch();
@@ -37,10 +37,6 @@ function EditProfile({ navigation }) {
             .string()
             .email('Email not valid')
             .required('Email is Required!'),
-        phoneNumber: yup
-            .string()
-            .matches('^[0-9]*$', 'Invalid Phone number')
-            .required('Phone number is Required!'),
     });
 
     const {
@@ -74,6 +70,19 @@ function EditProfile({ navigation }) {
                 userAction(async () => {
                     const result = await userService.updateUser(values);
                     if (result.statusCode === 200) {
+                        Alert.alert(
+                            'Success',
+                            'Data updated successfully',
+                            [
+                                {
+                                    text: 'Ok',
+                                    onPress: () => {
+                                        navigation.navigate('Profile');
+                                    },
+                                },
+                            ],
+                            { cancelable: false },
+                        );
                     }
                     return null;
                 }),
@@ -172,7 +181,7 @@ function EditProfile({ navigation }) {
                             keyboardType={'email-address'}
                         />
                         {touched.accountEmail && errors.accountEmail && (
-                            <ErrorText message={errors.accountEmail} />
+                            <Index message={errors.accountEmail} />
                         )}
                     </View>
                     <View>

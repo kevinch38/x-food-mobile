@@ -1,5 +1,4 @@
 import {
-    Alert,
     SafeAreaView,
     ScrollView,
     StatusBar,
@@ -8,7 +7,6 @@ import {
     View,
 } from 'react-native';
 import React, { useContext, useEffect } from 'react';
-import BackButton from '../../components/backButton';
 import Color from '../../assets/Color';
 import Button from '../../components/button';
 import { theme } from '../../theme';
@@ -17,8 +15,9 @@ import { ServiceContext } from '../../context/ServiceContext';
 import { userAction } from '../../slices/userSlice';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import ErrorText from '../../components/errorText';
 import InputText from '../../components/inputText';
+import ErrorText from '../../components/errorText';
+import BackButton from '../../components/backButton';
 
 function CompleteProfile({ navigation }) {
     const dispatch = useDispatch();

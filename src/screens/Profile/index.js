@@ -17,12 +17,12 @@ import camera from '../../assets/icons/camera.png';
 import dollar from '../../assets/icons/dollar.png';
 import basket from '../../assets/icons/basket.png';
 import Color from '../../assets/Color';
-import BackButton from '../../components/backButton';
-import Button from '../../components/button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useContext, useEffect, useState } from 'react';
 import { ServiceContext } from '../../context/ServiceContext';
 import { userAction } from '../../slices/userSlice';
+import Button from '../../components/button';
+import BackButton from '../../components/backButton';
 
 function Profile({ navigation }) {
     const dispatch = useDispatch();
