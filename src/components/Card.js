@@ -1,10 +1,11 @@
+import { Button } from '@rneui/base';
 import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-const Card = ({ image, title, onClick }) => {
+const Card = ({ image, title, onPress }) => {
     return (
         <View style={styles.card}>
-            <Pressable onPress={onClick}>
+            <Pressable onPress={onPress}>
                 <Image style={styles.image} source={{ uri: image }} />
                 <Text style={styles.title}>
                     {title}{' '}
@@ -21,7 +22,7 @@ const Card = ({ image, title, onClick }) => {
 const styles = StyleSheet.create({
     card: {
         width: '80%',
-        height: 183,
+        height: 200,
         borderRadius: 10,
         backgroundColor: '#fff',
         margin: 10,
@@ -33,7 +34,7 @@ const styles = StyleSheet.create({
     },
     image: {
         width: '100%',
-        height: 136,
+        height: 145,
         resizeMode: 'cover',
         borderTopRightRadius: 10,
         borderTopLeftRadius: 10,

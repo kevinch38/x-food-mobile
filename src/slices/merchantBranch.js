@@ -9,14 +9,14 @@ export const merchantBranchAction = createAsyncThunk(
 const merchantBranchSlice = createSlice({
     name: 'merchantBranch',
     initialState: {
-        branch: [],
+        branchs: [],
     },
     extraReducers: (builder) => {
         builder.addCase(
             merchantBranchAction.fulfilled,
             (state, { payload }) => {
                 if (payload) {
-                    state.branch = payload.data;
+                    state.branchs = payload.data;
                 }
             },
         );

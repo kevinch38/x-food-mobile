@@ -26,7 +26,7 @@ const merchantSlice = createSlice({
             selectedMerchantAction.fulfilled,
             (state, { payload }) => {
                 if (payload) {
-                    state.selectedMerchant = payload;
+                    state.selectedMerchant = payload.data;
                 }
             },
         );

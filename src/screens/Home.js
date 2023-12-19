@@ -23,55 +23,41 @@ import { Icon } from '@rneui/themed';
 const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
-    const cities = useSelector((state) => state.city.cities);
+    const { cities } = useSelector((state) => state.city);
     const { merchantService, cityService } = useContext(ServiceContext);
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState('8a8ae47d8c805f11018c805f3d060108');
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
 
-    handleCard = () => {
-        navigation.navigate('Merchant');
+    handleCard = (id, cityId) => {
+        navigation.navigate('Merchant', { id, cityId });
     };
 
     useEffect(() => {
         setItems(cities);
-    }, []);
+    }, [cities]);
 
     useEffect(() => {
-        const onGetCities = () => {
-            dispatch(
-                cityAction(async () => {
-                    const response = await cityService.fetchCities();
-                    return response;
-                }),
-            );
+        const onGetCities = async () => {
+            await dispatch(cityAction(() => cityService.fetchCities()));
         };
         onGetCities();
-    }, []);
+    }, [dispatch, cityService]);
 
     useEffect(() => {
-        const onGetMerchant = () => {
-            dispatch(
-                merchantAction(async () => {
-                    const response = await merchantService.fetchMerchants();
-                    return response;
-                }),
+        const onGetMerchants = async () => {
+            await dispatch(
+                merchantAction(() => merchantService.fetchMerchants()),
             );
         };
-        onGetMerchant();
+        onGetMerchants();
     }, [dispatch, merchantService]);
 
     return (
         <SafeAreaView style={styles.wrapper}>
             <ScrollView>
                 <View style={styles.container}>
-                    <View
-                        style={{
-                            position: 'absolute',
-                            top: '1%',
-                            right: '10%',
-                        }}
-                    >
+                    <View style={styles.notifBell}>
                         <Pressable>
                             <Image
                                 style={{ height: 34, width: 34 }}
@@ -81,22 +67,8 @@ const Home = ({ navigation }) => {
                     </View>
                     <View style={styles.topArea}>
                         <View style={styles.dropdownArea}>
-                            <View
-                                style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'baseline',
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        fontSize: 14,
-                                        color: '#989CA3',
-                                        textAlign: 'center',
-                                        marginRight: 10,
-                                    }}
-                                >
+                            <View style={styles.viewLocation}>
+                                <Text style={styles.textLocation}>
                                     Location
                                 </Text>
                                 <Icon
@@ -116,13 +88,13 @@ const Home = ({ navigation }) => {
                                 data={items}
                                 search
                                 maxHeight={400}
-                                labelField="label"
-                                valueField="value"
+                                labelField="cityName"
+                                valueField="cityID"
                                 placeholder="Select city"
                                 searchPlaceholder="Search..."
                                 value={value}
                                 onChange={(item) => {
-                                    setValue(item.value);
+                                    setValue(item.cityID);
                                 }}
                             />
                         </View>
@@ -160,24 +132,21 @@ const Home = ({ navigation }) => {
                         />
                         <Text>0</Text>
                     </View>
-                    <View
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            marginVertical: '3%',
-                        }}
-                    >
+                    <View style={styles.viewTitle}>
                         <Text style={styles.titleList}>
                             Featured Restaurants
                         </Text>
                     </View>
 
-                    {merchants?.length !== 0 &&
+                    {Array.isArray(merchants) &&
+                        merchants.length > 0 &&
                         merchants.map((m, idx) => {
                             return (
                                 <Card
                                     key={idx}
-                                    onClick={handleCard}
+                                    onPress={() =>
+                                        handleCard(m.merchantID, value)
+                                    }
                                     image={
                                         'https://source.unsplash.com/random/1500x500?food'
                                     }
@@ -202,6 +171,23 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
     },
+    notifBell: {
+        position: 'absolute',
+        top: '1%',
+        right: '10%',
+    },
+    viewLocation: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'baseline',
+    },
+    textLocation: {
+        fontSize: 14,
+        color: '#989CA3',
+        textAlign: 'center',
+        marginRight: 10,
+    },
     searchBar: {
         margin: 10,
         width: '80%',
@@ -217,6 +203,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: 10,
         flexDirection: 'row',
+    },
+    viewTitle: {
+        display: 'flex',
+        flexDirection: 'row',
+        marginVertical: '3%',
     },
     dropdown: { width: 170 },
     topArea: {
@@ -235,7 +226,7 @@ const styles = StyleSheet.create({
         fontSize: 30,
         fontWeight: '900',
         width: 290,
-        marginTop: 50,
+        marginTop: 40,
     },
     filter: {
         justifyContent: 'center',
