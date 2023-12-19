@@ -18,17 +18,15 @@ const PinSchema = Yup.object().shape({
         .oneOf([Yup.ref('pinValue')], 'PIN does not match'),
 });
 
-const PinCreationScreen = () => {
+const PinCreationScreen = ({ navigation }) => {
     const dispatch = useDispatch();
     const [modalVisible, setModalVisible] = React.useState(false);
     const [pinIDExists, setPinIDExists] = React.useState(false);
 
-
-
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const userId = "2c9290818c661605018c66169bae0002";
+                const userId = '2c9290818c661605018c66169bae0002';
                 const userData = await userService().fetchUserById(userId);
 
                 if (userData.data && userData.data.pin) {
@@ -53,7 +51,7 @@ const PinCreationScreen = () => {
             dispatch(setPin(values));
             hideModal();
             resetForm();
-            const response =  await PinCreationService(values.pinValue);
+            const response = await PinCreationService(values.pinValue);
             console.log('API Response:', response.data);
         } catch (error) {
             console.error('API Error:', error);
@@ -62,8 +60,8 @@ const PinCreationScreen = () => {
 
     return (
         <View style={styles.centeredView}>
-            <Home/>
-            {!modalVisible && pinIDExists !== undefined && !pinIDExists &&  (
+            <Home navigation={navigation} />
+            {!modalVisible && pinIDExists !== undefined && !pinIDExists && (
                 <BlurView
                     intensity={20}
                     tint="light"
@@ -75,55 +73,101 @@ const PinCreationScreen = () => {
                     }}
                 />
             )}
-                <Modal animationType="slide" transparent={true} visible={!modalVisible && !pinIDExists} onRequestClose={hideModal}>
-                    <View style={{flex: 1, alignItems: "center", justifyContent: "center"}}>
-                        <View style={styles.modalView}>
-                            <Text style={{marginBottom: 10, fontSize: 16}}>Create PIN for your Account</Text>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={!modalVisible && !pinIDExists}
+                onRequestClose={hideModal}
+            >
+                <View
+                    style={{
+                        flex: 1,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <View style={styles.modalView}>
+                        <Text style={{ marginBottom: 10, fontSize: 16 }}>
+                            Create PIN for your Account
+                        </Text>
 
-                            <Formik
-                                initialValues={{pinValue: '', confirmPinValue: ''}}
-                                validationSchema={PinSchema}
-                                onSubmit={handleFormSubmit}>
-                                {({handleChange, handleBlur,    handleSubmit, values, errors, touched}) => (
-                                    <>
-                                        <TextInput
-                                            style={styles.input}
-                                            placeholder="Enter PIN"
-                                            secureTextEntry={true}
-                                            keyboardType={'numeric'}
-                                            onChangeText={handleChange('pinValue')}
-                                            onBlur={handleBlur('pinValue')}
-                                            value={values.pinValue}
-                                        />
-                                        {touched.pinValue && errors.pinValue && (
-                                            <Text style={{color: 'red', marginBottom: 20}}>{errors.pinValue}</Text>
+                        <Formik
+                            initialValues={{
+                                pinValue: '',
+                                confirmPinValue: '',
+                            }}
+                            validationSchema={PinSchema}
+                            onSubmit={handleFormSubmit}
+                        >
+                            {({
+                                handleChange,
+                                handleBlur,
+                                handleSubmit,
+                                values,
+                                errors,
+                                touched,
+                            }) => (
+                                <>
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder="Enter PIN"
+                                        secureTextEntry={true}
+                                        keyboardType={'numeric'}
+                                        onChangeText={handleChange('pinValue')}
+                                        onBlur={handleBlur('pinValue')}
+                                        value={values.pinValue}
+                                    />
+                                    {touched.pinValue && errors.pinValue && (
+                                        <Text
+                                            style={{
+                                                color: 'red',
+                                                marginBottom: 20,
+                                            }}
+                                        >
+                                            {errors.pinValue}
+                                        </Text>
+                                    )}
+
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder="Confirm PIN"
+                                        secureTextEntry={true}
+                                        keyboardType={'numeric'}
+                                        onChangeText={handleChange(
+                                            'confirmPinValue',
+                                        )}
+                                        onBlur={handleBlur('confirmPinValue')}
+                                        value={values.confirmPinValue}
+                                    />
+                                    {touched.confirmPinValue &&
+                                        errors.confirmPinValue && (
+                                            <Text
+                                                style={{
+                                                    color: 'red',
+                                                    marginBottom: 20,
+                                                }}
+                                            >
+                                                {errors.confirmPinValue}
+                                            </Text>
                                         )}
 
-                                        <TextInput
-                                            style={styles.input}
-                                            placeholder="Confirm PIN"
-                                            secureTextEntry={true}
-                                            keyboardType={'numeric'}
-                                            onChangeText={handleChange('confirmPinValue')}
-                                            onBlur={handleBlur('confirmPinValue')}
-                                            value={values.confirmPinValue}
-                                        />
-                                        {touched.confirmPinValue && errors.confirmPinValue && (
-                                            <Text style={{color: 'red', marginBottom: 20}}>{errors.confirmPinValue}</Text>
-                                        )}
-
-                                        <Pressable style={[styles.button, styles.buttonSubmit]} onPress={handleSubmit}>
-                                            <Text style={styles.textStyle}>Submit</Text>
-                                        </Pressable>
-
-                                    </>
-                                )}
-                            </Formik>
-                        </View>
+                                    <Pressable
+                                        style={[
+                                            styles.button,
+                                            styles.buttonSubmit,
+                                        ]}
+                                        onPress={handleSubmit}
+                                    >
+                                        <Text style={styles.textStyle}>
+                                            Submit
+                                        </Text>
+                                    </Pressable>
+                                </>
+                            )}
+                        </Formik>
                     </View>
-                </Modal>
-
-
+                </View>
+            </Modal>
         </View>
     );
 };

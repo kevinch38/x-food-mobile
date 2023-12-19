@@ -34,6 +34,17 @@ const userSlice = createSlice({
             if (payload) {
                 state.registerUser = payload.data;
             }
+        }).addCase(userAction.rejected, ({payload}) => {
+            const errorPayload = payload
+            if (
+                errorPayload &&
+                errorPayload.response &&
+                errorPayload.response.status === 409
+            ) {
+                alert('Email sudah terpakai');
+            } else {
+                alert(errorPayload);
+            }
         });
     },
 });

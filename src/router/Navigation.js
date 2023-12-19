@@ -12,6 +12,7 @@ import CompleteProfile from '../screens/Profile/CompleteProfile'
 import OrderScreen from "../screens/History/OrderScreen";
 import PaymentScreen from "../screens/History/PaymentScreen";
 import History from "../screens/History";
+import Merchant from '../screens/MerchantBranch';
 
 const Stack = createStackNavigator();
 
@@ -26,13 +27,18 @@ const Navigation = () => {
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
-                    name={'Register'}
+                    name="Register"
                     component={Register}
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
                     name="Tabs"
                     component={Tabs}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="Merchant"
+                    component={Merchant}
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
@@ -44,11 +50,11 @@ const Navigation = () => {
                     name={'EditProfile'}
                     component={EditProfile}
                     options={{ headerShown: false }}
-                />                        
+                />
                 <Stack.Screen
-                  name={'CompleteProfile'}
-                  component={CompleteProfile}
-                  options={{ headerShown: false }}
+                    name={'CompleteProfile'}
+                    component={CompleteProfile}
+                    options={{ headerShown: false }}
                 />
 
                 <Stack.Screen
@@ -56,7 +62,6 @@ const Navigation = () => {
                     component={History}
                     options={{ headerShown: false }}
                 />
-
             </Stack.Navigator>
         </NavigationContainer>
     );
