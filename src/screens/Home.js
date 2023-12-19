@@ -18,7 +18,7 @@ import { ServiceContext } from '../context/ServiceContext';
 import { merchantAction } from '../slices/merchantSlice';
 import { Dropdown } from 'react-native-element-dropdown';
 
-const Home = () => {
+const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
     const { merchantService } = useContext(ServiceContext);
@@ -46,6 +46,10 @@ const Home = () => {
         };
         onGetMerchant();
     }, [dispatch, merchantService]);
+
+    const handleTopUp = () => {
+        navigation.navigate('TopUp');
+    };
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -110,7 +114,7 @@ const Home = () => {
                             source={require('../assets/images/card.png')}
                         />
                         <Text>Rp.0</Text>
-                        <Pressable>
+                        <Pressable onPress={handleTopUp}>
                             <Text style={{ color: '#5681A5' }}>TOP UP</Text>
                         </Pressable>
                         <Image

@@ -15,8 +15,8 @@ const styles = StyleSheet.create({
         zIndex: 1,
     },
     iconBack: {
-        marginTop: 37,
-        marginLeft: 20,
+        marginTop: 28,
+        marginLeft: 27,
         height: 80,
         width: 80,
     },
