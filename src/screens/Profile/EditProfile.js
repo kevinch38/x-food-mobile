@@ -43,6 +43,7 @@ function EditProfile({ navigation }) {
         values: { firstName, lastName, accountEmail, phoneNumber },
         errors,
         touched,
+        dirty,
         isValid,
         handleChange,
         handleSubmit,
@@ -127,17 +128,20 @@ function EditProfile({ navigation }) {
         }
     }, [dispatch, userService, setValues]);
 
-    return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-            >
+    const renderHeader = () => {
+        return (
+            <View>
                 <BackButton onPress={handleBack} />
                 <View style={{ alignItems: 'center' }}>
                     <Image source={bgProfile} style={styles.bgProfile} />
                 </View>
+            </View>
+        );
+    };
 
+    const renderEditProfile = () => {
+        return (
+            <View>
                 <View style={styles.wrapperProfile}>
                     <View style={styles.outerCircle}>
                         <Image source={photo} style={styles.photo} />
@@ -181,7 +185,7 @@ function EditProfile({ navigation }) {
                             keyboardType={'email-address'}
                         />
                         {touched.accountEmail && errors.accountEmail && (
-                            <Index message={errors.accountEmail} />
+                            <ErrorText message={errors.accountEmail} />
                         )}
                     </View>
                     <View>
@@ -199,14 +203,38 @@ function EditProfile({ navigation }) {
                         )}
                     </View>
                 </View>
+            </View>
+        );
+    };
 
-                <View style={styles.buttonContainer}>
-                    <Button
-                        title={'Save'}
-                        style={styles.customButton}
-                        onPress={() => handleSubmit()}
-                    />
-                </View>
+    const renderButtonSave = () => {
+        return (
+            <View style={styles.buttonContainer}>
+                <Button
+                    title={'Save'}
+                    buttonStyle={[
+                        styles.customButton,
+                        {
+                            opacity: isValid && dirty ? 1 : 0.5,
+                        },
+                    ]}
+                    titleStyle={styles.customTitle}
+                    onPress={() => handleSubmit()}
+                    disabled={!isValid || !dirty}
+                />
+            </View>
+        );
+    };
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <ScrollView
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+            >
+                {renderHeader()}
+                {renderEditProfile()}
+                {renderButtonSave()}
             </ScrollView>
         </SafeAreaView>
     );
@@ -285,7 +313,9 @@ const styles = StyleSheet.create({
     },
     customButton: {
         backgroundColor: Color.secondary,
-        fontWeight: '900',
+    },
+    customTitle: {
+        fontWeight: 900,
         fontSize: 15,
     },
 });

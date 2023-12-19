@@ -1,4 +1,5 @@
 import {
+    Alert,
     SafeAreaView,
     ScrollView,
     StatusBar,
@@ -59,6 +60,7 @@ function CompleteProfile({ navigation }) {
         errors,
         touched,
         isValid,
+        dirty,
         handleChange,
         handleSubmit,
         setValues,
@@ -80,12 +82,24 @@ function CompleteProfile({ navigation }) {
         },
         onSubmit: async (values) => {
             if (!isValid) return;
-            console.log('values => ', values);
+
             dispatch(
                 userAction(async () => {
                     const result = await userService.updateUser(values);
                     if (result.statusCode === 200) {
-                        navigation.navigate('Profile');
+                        Alert.alert(
+                            'Success',
+                            'Data updated successfully',
+                            [
+                                {
+                                    text: 'Ok',
+                                    onPress: () => {
+                                        navigation.navigate('Profile');
+                                    },
+                                },
+                            ],
+                            { cancelable: false },
+                        );
                     }
                     return null;
                 }),
@@ -134,62 +148,84 @@ function CompleteProfile({ navigation }) {
         }
     }, [dispatch, userService, setValues]);
 
+    const renderHeader = () => {
+        return (
+            <View>
+                <BackButton onPress={handleBack} />
+                <View style={{ alignItems: 'center' }}>
+                    <Text style={styles.title}>Profile Info</Text>
+                </View>
+            </View>
+        );
+    };
+
+    const renderInput = () => {
+        return (
+            <View style={styles.wrapperInput}>
+                <View>
+                    <InputText
+                        label={'NIK'}
+                        labelRequired={'*'}
+                        placeholder={'3347891801970001'}
+                        keyboardType={'numeric'}
+                        onChangeText={handleChange('ktpID')}
+                        value={ktpID}
+                    />
+                    {touched.ktpID && errors.ktpID && (
+                        <ErrorText message={errors.ktpID} />
+                    )}
+                </View>
+                <View>
+                    <InputText
+                        label={'Date of Birth'}
+                        labelRequired={'*'}
+                        placeholder={'1990-02-24'}
+                        keyboardType={'numeric'}
+                        onChangeText={handleChange('dateOfBirth')}
+                        value={dateOfBirth}
+                    />
+                    {touched.dateOfBirth && errors.dateOfBirth && (
+                        <ErrorText message={errors.dateOfBirth} />
+                    )}
+                </View>
+                <View>
+                    <Text style={styles.textSecondary}>Pin</Text>
+                    <Text onPress={handleChangePin} style={styles.changePin}>
+                        Create/Change PIN
+                    </Text>
+                </View>
+            </View>
+        );
+    };
+
+    const renderButtonSave = () => {
+        return (
+            <View style={styles.wrapperButton}>
+                <Button
+                    title={'Save'}
+                    buttonStyle={[
+                        styles.customButton,
+                        {
+                            opacity: isValid && dirty ? 1 : 0.5,
+                        },
+                    ]}
+                    titleStyle={styles.customTitle}
+                    onPress={() => handleSubmit()}
+                    disabled={!isValid || !dirty}
+                />
+            </View>
+        );
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView
                 showsHorizontalScrollIndicator={false}
                 showsVerticalScrollIndicator={false}
             >
-                <BackButton onPress={handleBack} />
-                <View style={{ alignItems: 'center' }}>
-                    <Text style={styles.title}>Profile Info</Text>
-                </View>
-
-                <View style={styles.wrapperInput}>
-                    <View>
-                        <InputText
-                            label={'NIK'}
-                            labelRequired={'*'}
-                            placeholder={'3347891801970001'}
-                            keyboardType={'numeric'}
-                            onChangeText={handleChange('ktpID')}
-                            value={ktpID}
-                        />
-                        {touched.ktpID && errors.ktpID && (
-                            <ErrorText message={errors.ktpID} />
-                        )}
-                    </View>
-                    <View>
-                        <InputText
-                            label={'Date of Birth'}
-                            labelRequired={'*'}
-                            placeholder={'1990-02-24'}
-                            keyboardType={'numeric'}
-                            onChangeText={handleChange('dateOfBirth')}
-                            value={dateOfBirth}
-                        />
-                        {touched.dateOfBirth && errors.dateOfBirth && (
-                            <ErrorText message={errors.dateOfBirth} />
-                        )}
-                    </View>
-                    <View>
-                        <Text style={styles.textSecondary}>Pin</Text>
-                        <Text
-                            onPress={handleChangePin}
-                            style={styles.changePin}
-                        >
-                            Create/Change PIN
-                        </Text>
-                    </View>
-                </View>
-
-                <View style={styles.wrapperButton}>
-                    <Button
-                        title={'Save'}
-                        style={styles.customButton}
-                        onPress={() => handleSubmit()}
-                    />
-                </View>
+                {renderHeader()}
+                {renderInput()}
+                {renderButtonSave()}
             </ScrollView>
         </SafeAreaView>
     );
@@ -245,6 +281,10 @@ const styles = StyleSheet.create({
         fontWeight: '900',
         fontSize: 15,
         color: theme.secondary,
+    },
+    customTitle: {
+        fontWeight: 900,
+        fontSize: 15,
     },
 });
 export default CompleteProfile;

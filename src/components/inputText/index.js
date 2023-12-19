@@ -13,6 +13,8 @@ function InputText({
     showSoftInputOnFocus,
     onChangeText,
     editable,
+    onBlur,
+    ...otherProps
 }) {
     const [isFocused, setFocused] = useState(false);
     const handleFocus = () => {
@@ -21,6 +23,13 @@ function InputText({
 
     const handleBlur = () => {
         setFocused(false);
+        if (onBlur) {
+            onBlur();
+        }
+
+        if (otherProps.value === '') {
+            console.log('Input is empty! Display error message here.');
+        }
     };
 
     const borderColor = isFocused ? theme.secondary : theme.grey;
@@ -42,6 +51,7 @@ function InputText({
                     keyboardType={keyboardType}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
+                    {...otherProps}
                     onPressIn={onPressIn}
                     value={value}
                     showSoftInputOnFocus={showSoftInputOnFocus}
