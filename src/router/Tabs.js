@@ -4,6 +4,7 @@ import Home from '../screens/Home';
 import Profile from '../screens/Profile';
 import { Image } from 'react-native';
 import PinCreationScreen from "../screens/PinCreationScreen";
+import History from "../screens/History";
 
 const Tab = createBottomTabNavigator();
 
@@ -45,8 +46,8 @@ export default () => {
                 }}
             />
             <Tab.Screen
-                name="Profile"
-                component={Profile}
+                name="History"
+                component={History}
                 options={{
                     headerShown: false,
                     tabBarLabel: '',
@@ -59,7 +60,7 @@ export default () => {
                 }}
             />
             <Tab.Screen
-                name="History"
+                name="Profile"
                 component={Profile}
                 options={{
                     headerShown: false,

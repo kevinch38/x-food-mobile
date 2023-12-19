@@ -5,7 +5,7 @@ import OrderScreen from "./OrderScreen";
 import PaymentScreen from "./PaymentScreen";
 import TopUpScreen from "./TopUpScreen";
 
-const Index = () => {
+const History = () => {
     const [activeButton, setActiveButton] = useState(null);
 
     const handleButtonPress = (buttonName) => {
@@ -32,7 +32,7 @@ const Index = () => {
     }
 
     return (
-        <View style={{ marginTop: -30 }}>
+        <View>
             <View
                 style={{
                     flexDirection: 'row',
@@ -115,4 +115,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Index;
+export default History;

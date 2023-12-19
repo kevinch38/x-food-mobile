@@ -11,6 +11,7 @@ import Tabs from './Tabs';
 import CompleteProfile from '../screens/Profile/CompleteProfile'
 import OrderScreen from "../screens/History/OrderScreen";
 import PaymentScreen from "../screens/History/PaymentScreen";
+import History from "../screens/History";
 
 const Stack = createStackNavigator();
 
@@ -49,21 +50,13 @@ const Navigation = () => {
                     component={Profile}
                     options={{ headerShown: false }}
                 />
+
                 <Stack.Screen
-                    name={'Order'}
-                    component={OrderScreen}
+                    name={'History'}
+                    component={History}
                     options={{ headerShown: false }}
                 />
-                <Stack.Screen
-                    name={'TopUp'}
-                    component={OrderScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name={'Payment'}
-                    component={PaymentScreen}
-                    options={{ headerShown: false }}
-                />
+
             </Stack.Navigator>
         </NavigationContainer>
     );

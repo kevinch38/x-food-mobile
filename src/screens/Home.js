@@ -17,7 +17,6 @@ import { useContext } from 'react';
 import { ServiceContext } from '../context/ServiceContext';
 import { merchantAction } from '../slices/merchantSlice';
 import { Dropdown } from 'react-native-element-dropdown';
-import Index from "./History";
 
 const Home = () => {
     const dispatch = useDispatch();
@@ -50,7 +49,6 @@ const Home = () => {
 
     return (
         <SafeAreaView style={styles.wrapper}>
-            <Index/>
             <ScrollView>
                 <View style={styles.container}>
                     <View style={styles.topArea}>
