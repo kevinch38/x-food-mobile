@@ -9,6 +9,8 @@ import PinCreationScreen from "../screens/PinCreationScreen";
 import VerificationCodeScreen from "../screens/VerificationCodeScreen";
 import Tabs from './Tabs';
 import CompleteProfile from '../screens/Profile/CompleteProfile'
+import OrderScreen from "../screens/History/OrderScreen";
+import PaymentScreen from "../screens/History/PaymentScreen";
 
 const Stack = createStackNavigator();
 
@@ -27,11 +29,6 @@ const Navigation = () => {
                     component={Register}
                     options={{ headerShown: false }}
                 />
-                {/*<Stack.Screen*/}
-                {/*    name='PinCreation'*/}
-                {/*    component={PinCreationScreen}*/}
-                {/*    options={{ headerShown: false }}*/}
-                {/*/>*/}
                 <Stack.Screen
                     name="Tabs"
                     component={Tabs}
@@ -47,10 +44,24 @@ const Navigation = () => {
                   component={CompleteProfile}
                   options={{ headerShown: false }}
                 />
-
                 <Stack.Screen
                     name={'Profile'}
                     component={Profile}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name={'Order'}
+                    component={OrderScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name={'TopUp'}
+                    component={OrderScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name={'Payment'}
+                    component={PaymentScreen}
                     options={{ headerShown: false }}
                 />
             </Stack.Navigator>

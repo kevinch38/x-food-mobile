@@ -84,7 +84,7 @@ const PinCreationScreen = () => {
                                 initialValues={{pinValue: '', confirmPinValue: ''}}
                                 validationSchema={PinSchema}
                                 onSubmit={handleFormSubmit}>
-                                {({handleChange, handleBlur, handleSubmit, values, errors, touched}) => (
+                                {({handleChange, handleBlur,    handleSubmit, values, errors, touched}) => (
                                     <>
                                         <TextInput
                                             style={styles.input}
