@@ -17,10 +17,27 @@ import camera from '../../assets/icons/camera.png';
 import dollar from '../../assets/icons/dollar.png';
 import basket from '../../assets/icons/basket.png';
 import Color from '../../assets/Color';
-import BackButton from '../../components/backButton';
+import { useDispatch, useSelector } from 'react-redux';
+import { useContext, useEffect, useState } from 'react';
+import { ServiceContext } from '../../context/ServiceContext';
+import { userAction } from '../../slices/userSlice';
 import Button from '../../components/button';
+import BackButton from '../../components/backButton';
 
 function Profile({ navigation }) {
+    const dispatch = useDispatch();
+    const { users } = useSelector((state) => state.user);
+    const { userService } = useContext(ServiceContext);
+
+    useEffect(() => {
+        const onGetUserByPhoneNumber = async () => {
+            await dispatch(
+                userAction(() => userService.fetchUserByPhoneNumber('1')),
+            );
+        };
+        onGetUserByPhoneNumber();
+    }, [dispatch, userService]);
+
     const handleEditProfile = () => {
         navigation.navigate('EditProfile');
     };
@@ -31,33 +48,39 @@ function Profile({ navigation }) {
 
     const handleCompleteProfile = () => {
         navigation.navigate('CompleteProfile');
-        console.log('complete profile');
     };
 
     const handleLogout = () => {
         console.log('logout');
     };
 
-    return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-            >
+    const renderHeader = () => {
+        return (
+            <View>
                 <BackButton onPress={handleBack} />
                 <View style={{ alignItems: 'center' }}>
                     <Image source={bgProfile} style={styles.bgProfile} />
                 </View>
+            </View>
+        );
+    };
 
+    const renderProfile = () => {
+        return (
+            <View>
                 <View style={styles.profile}>
                     <View style={styles.outerCircle}>
                         <Image source={photo} style={styles.photo} />
                         <View style={styles.cameraWrapper}>
-                            <Image source={camera} style={styles.iconCamera} />
+                            <TouchableOpacity onPress={handleEditProfile}>
+                                <Image
+                                    source={camera}
+                                    style={styles.iconCamera}
+                                />
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>
-
                 <View
                     style={{
                         alignItems: 'center',
@@ -65,7 +88,9 @@ function Profile({ navigation }) {
                         marginTop: 55,
                     }}
                 >
-                    <Text style={styles.name}>Eljad Eendaz</Text>
+                    <Text style={styles.name}>
+                        {users.firstName} {users.lastName}
+                    </Text>
                     <View
                         style={{
                             flexDirection: 'row',
@@ -77,85 +102,129 @@ function Profile({ navigation }) {
                         <Text style={styles.price}>980</Text>
                     </View>
                 </View>
+            </View>
+        );
+    };
+
+    const renderEditProfile = () => {
+        return (
+            <View
+                style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: 20,
+                }}
+            >
+                <View>
+                    <Text style={styles.name}>
+                        {users.firstName} {users.lastName}
+                    </Text>
+                    <Text style={styles.textSecond}>{users.accountEmail}</Text>
+                    <Text style={styles.textSecond}>{users.phoneNumber}</Text>
+                </View>
+                <TouchableOpacity onPress={handleEditProfile}>
+                    <Text style={styles.edit}>Edit Profile</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    };
+
+    const renderTopUp = () => {
+        return (
+            <View>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        alignItems: 'flex-end',
+                        justifyContent: 'space-between',
+                        marginBottom: 14,
+                    }}
+                >
+                    <View>
+                        <Text style={styles.name}>Balance</Text>
+                        <Text style={styles.textSecond}>Rp 37,000</Text>
+                    </View>
+                    <Text style={styles.textTopUp}>TOP UP</Text>
+                </View>
+                <View
+                    style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Image source={card} style={styles.imgCard} />
+                    <Image source={basket} style={styles.iconBasket} />
+                    <Image source={xfood} style={styles.imgXFood} />
+                </View>
+            </View>
+        );
+    };
+
+    const renderLogout = () => {
+        return (
+            <TouchableOpacity
+                style={{ width: 50 }}
+                onPress={() => {
+                    Alert.alert(
+                        'Log out',
+                        'Do you want to logout?',
+                        [
+                            {
+                                text: 'Cancel',
+                                onPress: () => {
+                                    return null;
+                                },
+                            },
+                            {
+                                text: 'Log out',
+                                onPress: () => {
+                                    handleLogout();
+                                },
+                            },
+                        ],
+                        { cancelable: false },
+                    );
+                }}
+            >
+                <Text style={styles.logout}>Logout</Text>
+            </TouchableOpacity>
+        );
+    };
+
+    const renderCompleteProfile = () => {
+        return (
+            <Button
+                title={'Complete Profile'}
+                buttonStyle={styles.customButton}
+                titleStyle={styles.customTitle}
+                onPress={handleCompleteProfile}
+            />
+        );
+    };
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <ScrollView
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+            >
+                {renderHeader()}
+                {renderProfile()}
 
                 <View style={styles.wrapper}>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            marginBottom: 20,
-                        }}
-                    >
-                        <View>
-                            <Text style={styles.name}>Eljad Eendaz</Text>
-                            <Text style={styles.textSecond}>
-                                prelookstudio@gmail.com
-                            </Text>
-                            <Text style={styles.textSecond}>
-                                +1 (783) 0986 8786
-                            </Text>
+                    {renderEditProfile()}
+                    {renderTopUp()}
+                    {renderLogout()}
+                    {users.ktpID ? (
+                        <></>
+                    ) : (
+                        <View
+                            style={{ alignItems: 'center', marginBottom: 50 }}
+                        >
+                            {renderCompleteProfile()}
                         </View>
-                        <Text onPress={handleEditProfile} style={styles.edit}>
-                            Edit Profile
-                        </Text>
-                    </View>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'flex-end',
-                            justifyContent: 'space-between',
-                            marginBottom: 14,
-                        }}
-                    >
-                        <View>
-                            <Text style={styles.name}>Balance</Text>
-                            <Text style={styles.textSecond}>Rp 37,000</Text>
-                        </View>
-                        <Text style={styles.textTopUp}>TOP UP</Text>
-                    </View>
-                    <View
-                        style={{
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <Image source={card} style={styles.imgCard} />
-                        <Image source={basket} style={styles.iconBasket} />
-                        <Image source={xfood} style={styles.imgXFood} />
-                    </View>
-                    <TouchableOpacity
-                        onPress={() => {
-                            Alert.alert(
-                                'Log out',
-                                'Do you want to logout?',
-                                [
-                                    {
-                                        text: 'Cancel',
-                                        onPress: () => {
-                                            return null;
-                                        },
-                                    },
-                                    {
-                                        text: 'Log out',
-                                        onPress: () => {
-                                            handleLogout();
-                                        },
-                                    },
-                                ],
-                                { cancelable: false },
-                            );
-                        }}
-                    >
-                        <Text style={styles.logout}>Logout</Text>
-                    </TouchableOpacity>
-                    <View style={{ alignItems: 'center', marginBottom: 50 }}>
-                        <Button
-                            title={'Complete Profile'}
-                            style={styles.customButton}
-                            onPress={handleCompleteProfile}
-                        />
-                    </View>
+                    )}
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -269,6 +338,8 @@ const styles = StyleSheet.create({
     },
     customButton: {
         backgroundColor: Color.secondary,
+    },
+    customTitle: {
         fontWeight: 900,
         fontSize: 15,
     },

@@ -36,6 +36,11 @@ const Navigation = () => {
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
+                    name={'Profile'}
+                    component={Profile}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
                     name={'EditProfile'}
                     component={EditProfile}
                     options={{ headerShown: false }}
@@ -44,11 +49,6 @@ const Navigation = () => {
                   name={'CompleteProfile'}
                   component={CompleteProfile}
                   options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name={'Profile'}
-                    component={Profile}
-                    options={{ headerShown: false }}
                 />
 
                 <Stack.Screen

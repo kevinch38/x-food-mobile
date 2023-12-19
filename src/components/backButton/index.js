@@ -1,5 +1,5 @@
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import back from '../assets/icons/back.png';
+import back from '../../assets/icons/back.png';
 
 const BackButton = ({ onPress }) => {
     return (

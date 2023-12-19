@@ -1,41 +1,147 @@
 import {
+    Alert,
     Image,
     SafeAreaView,
     ScrollView,
     StatusBar,
     StyleSheet,
-    Text,
     View,
 } from 'react-native';
-import BackButton from '../../components/backButton';
 import bgProfile from '../../assets/images/bg-profile.png';
 import photo from '../../assets/images/profile.png';
 import camera from '../../assets/icons/camera.png';
 import Color from '../../assets/Color';
 import Button from '../../components/button';
 import { theme } from '../../theme';
+import { useDispatch } from 'react-redux';
+import { useContext, useEffect } from 'react';
+import { ServiceContext } from '../../context/ServiceContext';
+import { useFormik } from 'formik';
+import { userAction } from '../../slices/userSlice';
+import * as yup from 'yup';
 import InputText from '../../components/inputText';
+import ErrorText from '../../components/errorText';
+import BackButton from '../../components/backButton';
 
 function EditProfile({ navigation }) {
+    const dispatch = useDispatch();
+    const { userService } = useContext(ServiceContext);
+
+    const Schema = yup.object().shape({
+        firstName: yup
+            .string()
+            .matches('^[a-zA-Z\\s]*$', 'Invalid Firstname')
+            .required('Firstname is Required!'),
+        lastName: yup.string().matches('^[a-zA-Z\\s]*$', 'Invalid Lastname'),
+        accountEmail: yup
+            .string()
+            .email('Email not valid')
+            .required('Email is Required!'),
+    });
+
+    const {
+        values: { firstName, lastName, accountEmail, phoneNumber },
+        errors,
+        touched,
+        dirty,
+        isValid,
+        handleChange,
+        handleSubmit,
+        setValues,
+    } = useFormik({
+        initialValues: {
+            accountID: null,
+            ktpID: '',
+            accountEmail: '',
+            phoneNumber: '',
+            pinID: '',
+            createdAt: new Date(),
+            firstName: '',
+            lastName: '',
+            dateOfBirth: '',
+            updatedAt: new Date(),
+            balanceID: '',
+            loyaltyPointID: '',
+            otpID: '',
+        },
+        onSubmit: async (values) => {
+            if (!isValid) return;
+
+            dispatch(
+                userAction(async () => {
+                    const result = await userService.updateUser(values);
+                    if (result.statusCode === 200) {
+                        Alert.alert(
+                            'Success',
+                            'Data updated successfully',
+                            [
+                                {
+                                    text: 'Ok',
+                                    onPress: () => {
+                                        navigation.navigate('Profile');
+                                    },
+                                },
+                            ],
+                            { cancelable: false },
+                        );
+                    }
+                    return null;
+                }),
+            );
+        },
+        validationSchema: Schema,
+    });
+
     const handleBack = () => {
         navigation.navigate('Profile');
     };
 
-    const handleSave = () => {
-        console.log('Save');
-    };
+    useEffect(() => {
+        if ('1') {
+            dispatch(
+                userAction(async () => {
+                    const result =
+                        await userService.fetchUserByPhoneNumber('1');
+                    const updateData = {
+                        ...result.data,
+                    };
 
-    return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-            >
+                    const values = {
+                        accountID: updateData.accountID,
+                        ktpID: updateData.ktpID,
+                        accountEmail: updateData.accountEmail,
+                        phoneNumber: updateData.phoneNumber,
+                        pinID: updateData.pinID,
+                        createdAt: updateData.createdAt,
+                        firstName: updateData.firstName,
+                        lastName: updateData.lastName,
+                        dateOfBirth: updateData.dateOfBirth,
+                        updatedAt: new Date(),
+                        balanceID: updateData.balanceID,
+                        loyaltyPointID: updateData.loyaltyPointID,
+                        otpID: updateData.otpID,
+                    };
+                    setValues(values);
+                    return null;
+                }),
+            );
+        }
+    }, [dispatch, userService, setValues]);
+
+    const renderHeader = () => {
+        return (
+            <View>
                 <BackButton onPress={handleBack} />
                 <View style={{ alignItems: 'center' }}>
                     <Image source={bgProfile} style={styles.bgProfile} />
                 </View>
+            </View>
+        );
+    };
 
+    const renderEditProfile = () => {
+        return (
+            <View>
                 <View style={styles.wrapperProfile}>
                     <View style={styles.outerCircle}>
                         <Image source={photo} style={styles.photo} />
@@ -45,35 +151,90 @@ function EditProfile({ navigation }) {
                     </View>
                 </View>
 
-                <View style={styles.wrapperName}>
-                    <Text style={styles.name}>Eljad Eendaz</Text>
-                </View>
-
                 <View style={styles.wrapperInput}>
                     <View>
-                        <Text style={styles.textSecondary}>Full name</Text>
-                        <InputText placeholder={'Eljad Eendaz'} />
-                    </View>
-                    <View>
-                        <Text style={styles.textSecondary}>E-mail</Text>
-                        <InputText placeholder={'prelookstudio@gmail.com'} />
-                    </View>
-                    <View>
-                        <Text style={styles.textSecondary}>Phone Number</Text>
                         <InputText
-                            placeholder={'081201234321'}
-                            keyboardType={'numeric'}
+                            label={'First Name'}
+                            labelRequired={'*'}
+                            placeholder={'Eljad'}
+                            onChangeText={handleChange('firstName')}
+                            value={firstName}
                         />
+                        {touched.firstName && errors.firstName && (
+                            <ErrorText message={errors.firstName} />
+                        )}
+                    </View>
+                    <View>
+                        <InputText
+                            label={'Last Name'}
+                            placeholder={'Eendaz'}
+                            onChangeText={handleChange('lastName')}
+                            value={lastName}
+                        />
+                        {touched.lastName && errors.lastName && (
+                            <ErrorText message={errors.lastName} />
+                        )}
+                    </View>
+                    <View>
+                        <InputText
+                            label={'Email'}
+                            labelRequired={'*'}
+                            placeholder={'prelookstudio@gmail.com'}
+                            onChangeText={handleChange('accountEmail')}
+                            value={accountEmail}
+                            keyboardType={'email-address'}
+                        />
+                        {touched.accountEmail && errors.accountEmail && (
+                            <ErrorText message={errors.accountEmail} />
+                        )}
+                    </View>
+                    <View>
+                        <InputText
+                            label={'Phone Number'}
+                            labelRequired={'*'}
+                            placeholder={'81201234321'}
+                            keyboardType={'phone-pad'}
+                            onChangeText={handleChange('phoneNumber')}
+                            value={phoneNumber}
+                            editable={false}
+                        />
+                        {touched.phoneNumber && errors.phoneNumber && (
+                            <ErrorText message={errors.phoneNumber} />
+                        )}
                     </View>
                 </View>
+            </View>
+        );
+    };
 
-                <View style={styles.wrapperButton}>
-                    <Button
-                        title={'Save'}
-                        style={styles.customButton}
-                        onPress={handleSave}
-                    />
-                </View>
+    const renderButtonSave = () => {
+        return (
+            <View style={styles.buttonContainer}>
+                <Button
+                    title={'Save'}
+                    buttonStyle={[
+                        styles.customButton,
+                        {
+                            opacity: isValid && dirty ? 1 : 0.5,
+                        },
+                    ]}
+                    titleStyle={styles.customTitle}
+                    onPress={() => handleSubmit()}
+                    disabled={!isValid || !dirty}
+                />
+            </View>
+        );
+    };
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <ScrollView
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+            >
+                {renderHeader()}
+                {renderEditProfile()}
+                {renderButtonSave()}
             </ScrollView>
         </SafeAreaView>
     );
@@ -99,17 +260,19 @@ const styles = StyleSheet.create({
         right: 10,
         bottom: 2,
     },
-    wrapperButton: {
+    buttonContainer: {
         alignItems: 'center',
-        marginBottom: 50,
-        marginTop: 60,
+        marginBottom: 60,
+        marginTop: 50,
     },
     wrapperProfile: {
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 154,
+        marginBottom: 24,
     },
     wrapperInput: {
+        marginTop: 78,
         paddingHorizontal: 18,
     },
     outerCircle: {
@@ -145,11 +308,13 @@ const styles = StyleSheet.create({
     textSecondary: {
         marginTop: 29,
         color: theme.grey,
-        fontWeight: 400,
+        fontWeight: '400',
         fontSize: 16,
     },
     customButton: {
         backgroundColor: Color.secondary,
+    },
+    customTitle: {
         fontWeight: 900,
         fontSize: 15,
     },
