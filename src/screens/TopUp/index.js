@@ -25,8 +25,8 @@ function TopUp({ navigation }) {
             title: 'Virtual Account',
             data: [
                 {
-                    image: require('../../assets/images/bca.png'),
-                    title: 'BCA Virtual Account',
+                    image: require('../../assets/images/danamon.png'),
+                    title: 'Danamon Virtual Account',
                 },
                 {
                     image: require('../../assets/images/mandiri.png'),
@@ -37,8 +37,8 @@ function TopUp({ navigation }) {
                     title: 'BNI Virtual Account',
                 },
                 {
-                    image: require('../../assets/images/danamon.png'),
-                    title: 'Danamon Virtual Account',
+                    image: require('../../assets/images/bca.png'),
+                    title: 'BCA Virtual Account',
                 },
             ],
         },

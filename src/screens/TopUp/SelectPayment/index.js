@@ -4,13 +4,30 @@ import {
     StatusBar,
     StyleSheet,
     Text,
+    TouchableOpacity,
     View,
 } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import BackButton from '../../../components/backButton';
 import { theme } from '../../../theme';
+import { useSelector } from 'react-redux';
+import * as Clipboard from 'expo-clipboard';
 
 function SelectPayment({ navigation }) {
+    const { users } = useSelector((state) => state.user);
+    const [vaNumber, setVANumber] = useState('');
+
+    useEffect(() => {
+        if (users.phoneNumber) {
+            const newNumber = users.phoneNumber.replace(/^\+62/, '12340');
+            setVANumber(newNumber);
+        }
+    }, []);
+
+    const copyToClipboard = async () => {
+        await Clipboard.setStringAsync(vaNumber);
+    };
+
     const handleBack = () => {
         navigation.goBack();
     };
@@ -39,22 +56,24 @@ function SelectPayment({ navigation }) {
             <View>
                 <View style={styles.sectionContainer}>
                     <Image
-                        source={require('../../../assets/images/bca.png')}
+                        source={require('../../../assets/images/danamon.png')}
                         style={styles.imageSection}
                     />
-                    <Text style={styles.titleSection}>BCA Virtual Account</Text>
+                    <Text style={styles.titleSection}>
+                        Danamon Virtual Account
+                    </Text>
                 </View>
 
                 <View style={styles.paymentContainer}>
                     <View>
                         <Text style={styles.methodPayment}>Payment Method</Text>
                         <Text style={styles.bankPayment}>
-                            BCA Virtual Account
+                            Danamon Virtual Account
                         </Text>
                     </View>
                     <View>
                         <Image
-                            source={require('../../../assets/images/bca.png')}
+                            source={require('../../../assets/images/danamon.png')}
                             style={styles.imageSection}
                         />
                     </View>
@@ -64,13 +83,15 @@ function SelectPayment({ navigation }) {
                         <Text style={styles.methodPayment}>
                             Virtual Account Number
                         </Text>
-                        <Text style={styles.bankPayment}>117342009003596</Text>
+                        <Text style={styles.bankPayment}>{vaNumber}</Text>
                     </View>
                     <View>
-                        <Image
-                            source={require('../../../assets/icons/copy.png')}
-                            style={styles.imagePayment}
-                        />
+                        <TouchableOpacity onPress={copyToClipboard}>
+                            <Image
+                                source={require('../../../assets/icons/copy.png')}
+                                style={styles.imagePayment}
+                            />
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>
@@ -85,10 +106,9 @@ function SelectPayment({ navigation }) {
                     <View style={styles.wrapper}>
                         <Text style={styles.stepInstruction}>1. </Text>
                         <Text style={styles.stepInstruction}>
-                            Login ke mBanking-mu. Pilih{' '}
-                            <Text style={styles.stepBold}>Top-Up</Text>,
-                            kemudian pilih{' '}
-                            <Text style={styles.stepBold}>e-Wallet</Text>.
+                            Login ke D-Bank Pro. Pilih{' '}
+                            <Text style={styles.stepBold}>Top-Up E-Wallet</Text>
+                            .
                         </Text>
                     </View>
                     <View style={styles.wrapper}>
@@ -102,10 +122,8 @@ function SelectPayment({ navigation }) {
                             <Text style={styles.stepBold}>
                                 nomor Virtual Account
                             </Text>{' '}
-                            <Text style={styles.stepColor}>
-                                117342009003596
-                            </Text>
-                            , kemudian pilih{' '}
+                            <Text style={styles.stepColor}>{vaNumber}</Text>,
+                            kemudian pilih{' '}
                             <Text style={styles.stepBold}>Lanjut.</Text>
                         </Text>
                     </View>
