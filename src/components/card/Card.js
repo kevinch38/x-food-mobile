@@ -1,25 +1,35 @@
+import { Button } from '@rneui/base';
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import {
+    Image,
+    Pressable,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 
-const Card = ({ image, title }) => {
+const Card = ({ image, title, onPress }) => {
     return (
         <View style={styles.card}>
-            <Image style={styles.image} source={{ uri: image }} />
-            <Text style={styles.title}>
-                {title}{' '}
-                <Image
-                    style={styles.checklist}
-                    source={require('../assets/icons/checklist.png')}
-                />
-            </Text>
+            <TouchableOpacity onPress={onPress}>
+                <Image style={styles.image} source={{ uri: image }} />
+                <Text style={styles.title}>
+                    {title}{' '}
+                    <Image
+                        style={styles.checklist}
+                        source={require('../../assets/icons/checklist.png')}
+                    />
+                </Text>
+            </TouchableOpacity>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     card: {
-        width: '70%',
-        height: 183,
+        width: '80%',
+        height: 200,
         borderRadius: 10,
         backgroundColor: '#fff',
         margin: 10,
@@ -31,7 +41,7 @@ const styles = StyleSheet.create({
     },
     image: {
         width: '100%',
-        height: 136,
+        height: 145,
         resizeMode: 'cover',
         borderTopRightRadius: 10,
         borderTopLeftRadius: 10,

@@ -9,51 +9,80 @@ import {
     ScrollView,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import Card from '../components/Card';
+import Card from '../components/card/Card';
 import { SearchBar } from '@rneui/base';
 import Color from '../assets/Color';
 import { useDispatch, useSelector } from 'react-redux';
 import { useContext } from 'react';
 import { ServiceContext } from '../context/ServiceContext';
 import { merchantAction } from '../slices/merchantSlice';
+import { cityAction } from '../slices/citySlice';
 import { Dropdown } from 'react-native-element-dropdown';
+import { Icon } from '@rneui/themed';
 
-const Home = () => {
+const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
-    const { merchantService } = useContext(ServiceContext);
-    const [value, setValue] = useState('');
+    const { cities } = useSelector((state) => state.city);
+    const { merchantService, cityService } = useContext(ServiceContext);
+    const [value, setValue] = useState('4028c7f08c813f12018c813f1eb20108');
     const [search, setSearch] = useState('');
-    const [items, setItems] = useState([
-        {
-            label: 'South Jakarta, Indonesia',
-            value: 'South Jakarta, Indonesia',
-        },
-        {
-            label: 'North Jakarta, Indonesia',
-            value: 'North Jakarta, Indonesia',
-        },
-    ]);
+    const [items, setItems] = useState([]);
+
+    // const filteredActiveMerchants = merchants.filter(
+    //     (m) => m.status === 'ACTIVE',
+    // );
+
+    handleCard = (id, cityId) => {
+        navigation.navigate('Merchant', { id, cityId });
+    };
 
     useEffect(() => {
-        const onGetMerchant = () => {
-            dispatch(
-                merchantAction(async () => {
-                    const response = await merchantService.fetchMerchants();
-                    return response;
-                }),
+        setItems(cities);
+    }, [cities]);
+
+    useEffect(() => {
+        const onGetCities = async () => {
+            await dispatch(cityAction(() => cityService.fetchCities()));
+        };
+        onGetCities();
+    }, [dispatch, cityService]);
+
+    useEffect(() => {
+        const onGetMerchants = async () => {
+            await dispatch(
+                merchantAction(() => merchantService.fetchMerchants()),
             );
         };
-        onGetMerchant();
+        onGetMerchants();
     }, [dispatch, merchantService]);
 
     return (
         <SafeAreaView style={styles.wrapper}>
             <ScrollView>
                 <View style={styles.container}>
+                    <View style={styles.notifBell}>
+                        <Pressable>
+                            <Image
+                                style={{ height: 34, width: 34 }}
+                                source={require('../assets/icons/Bell.png')}
+                            />
+                        </Pressable>
+                    </View>
                     <View style={styles.topArea}>
-                        <View>
-                            <Text style={{ fontSize: 14 }}>Location</Text>
+                        <View style={styles.dropdownArea}>
+                            <View style={styles.viewLocation}>
+                                <Text style={styles.textLocation}>
+                                    Location
+                                </Text>
+                                <Icon
+                                    color="#989CA3"
+                                    name="chevron-down"
+                                    size={10}
+                                    type="font-awesome-5"
+                                />
+                            </View>
+
                             <Dropdown
                                 style={styles.dropdown}
                                 placeholderStyle={styles.placeholderStyle}
@@ -63,22 +92,16 @@ const Home = () => {
                                 data={items}
                                 search
                                 maxHeight={400}
-                                labelField="label"
-                                valueField="value"
+                                labelField="cityName"
+                                valueField="cityID"
                                 placeholder="Select city"
                                 searchPlaceholder="Search..."
                                 value={value}
                                 onChange={(item) => {
-                                    setValue(item.value);
+                                    setValue(item.cityID);
                                 }}
                             />
                         </View>
-                        <Pressable>
-                            <Image
-                                style={{ height: 34, width: 34 }}
-                                source={require('../assets/icons/Bell.png')}
-                            />
-                        </Pressable>
                     </View>
                     <Text style={styles.title}>
                         Where would you like to eat
@@ -97,12 +120,6 @@ const Home = () => {
                                 round={true}
                             />
                         </View>
-                        <Pressable style={styles.filter}>
-                            <Image
-                                style={{ width: 23, height: 23 }}
-                                source={require('../assets/icons/filter.png')}
-                            />
-                        </Pressable>
                     </View>
                     <View style={styles.summary}>
                         <Image
@@ -119,18 +136,21 @@ const Home = () => {
                         />
                         <Text>0</Text>
                     </View>
-                    <View style={{ display: 'flex', flexDirection: 'row' }}>
+                    <View style={styles.viewTitle}>
                         <Text style={styles.titleList}>
                             Featured Restaurants
                         </Text>
-                        <Text style={styles.viewAll}>View All</Text>
                     </View>
 
-                    {merchants?.length !== 0 &&
+                    {Array.isArray(merchants) &&
+                        merchants.length > 0 &&
                         merchants.map((m, idx) => {
                             return (
                                 <Card
                                     key={idx}
+                                    onPress={() =>
+                                        handleCard(m.merchantID, value)
+                                    }
                                     image={
                                         'https://source.unsplash.com/random/1500x500?food'
                                     }
@@ -155,9 +175,26 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
     },
+    notifBell: {
+        position: 'absolute',
+        top: '1%',
+        right: '10%',
+    },
+    viewLocation: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'baseline',
+    },
+    textLocation: {
+        fontSize: 14,
+        color: '#989CA3',
+        textAlign: 'center',
+        marginRight: 10,
+    },
     searchBar: {
         margin: 10,
-        width: '50%',
+        width: '80%',
         borderRadius: 10,
         borderColor: '#EFEFEF',
         borderWidth: 3,
@@ -166,12 +203,17 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     areaSearchBar: {
-        width: '75%',
+        width: '100%',
         justifyContent: 'center',
         marginTop: 10,
         flexDirection: 'row',
     },
-    dropdown: { width: 170, marginRight: '10%' },
+    viewTitle: {
+        display: 'flex',
+        flexDirection: 'row',
+        marginVertical: '3%',
+    },
+    dropdown: { width: 170 },
     topArea: {
         width: '100%',
         display: 'flex',
@@ -179,11 +221,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: 10,
     },
+    dropdownArea: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+    },
     title: {
         fontSize: 30,
         fontWeight: '900',
         width: 290,
-        marginTop: 50,
+        marginTop: 40,
     },
     filter: {
         justifyContent: 'center',
@@ -198,7 +245,7 @@ const styles = StyleSheet.create({
     },
     titleList: {
         fontWeight: '900',
-        fontSize: 18,
+        fontSize: 20,
         marginRight: 10,
     },
     viewAll: {

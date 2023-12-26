@@ -7,8 +7,9 @@ import {
   Image,
   SafeAreaView,
   StatusBar,
+    TouchableOpacity
 } from "react-native";
-import React, { useContext } from 'react';
+import React, {useContext, useState} from 'react';
 import Color from '../../assets/Color';
 import { CheckBox, Icon } from '@rneui/themed';
 import { useFormik } from 'formik';
@@ -16,8 +17,9 @@ import * as yup from 'yup';
 import { useDispatch } from 'react-redux';
 import { userAction } from '../../slices/userSlice';
 import { ServiceContext } from '../../context/ServiceContext';
-
+import {theme} from "../../theme";
 export default function Register({ navigation, noPhone }) {
+    const [focusedInput, setFocusedInput] = useState(null);
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
 
@@ -26,10 +28,6 @@ export default function Register({ navigation, noPhone }) {
             .string()
             .matches('^[a-zA-Z0-9.]*$', 'Invalid Firstname')
             .required('First Name Required'),
-        lastName: yup
-            .string()
-            .matches('^[a-zA-Z0-9.]*$', 'Invalid Lastname')
-            .required('Last Name Required'),
         accountEmail: yup
             .string()
             .email('Email not valid')
@@ -43,6 +41,8 @@ export default function Register({ navigation, noPhone }) {
         values,
         errors,
         touched,
+        dirty,
+        isValid,
         handleChange,
         handleBlur,
         handleSubmit,
@@ -50,7 +50,7 @@ export default function Register({ navigation, noPhone }) {
     } = useFormik({
         initialValues: {
             firstName: '',
-            phoneNumber: { noPhone },
+            phoneNumber: '121415135',
             lastName: '',
             accountEmail: '',
             aggrement: false,
@@ -63,18 +63,31 @@ export default function Register({ navigation, noPhone }) {
 
                 dispatch(
                     userAction(async () => {
-                        const result = await userService.register(values);
-                        if (result.status === 201) {
-                            navigation.navigate('Tabs');
+                        try {
+                            const result = await userService.register(values);
+                            if (result.status === 409) {
+                                alert('email already exist');
+                            } else if (result.status === 200) {
+                                navigation.reset({
+                                    index: 0,
+                                    routes: [{ name: 'Tabs' }],
+                                });
+                            }
+                        } catch (error) {
+                            alert('Email already exist');
                         }
                     }),
                 );
             } catch (error) {
-                console.error('Error:', error);
+                alert('Torouble in trasfering data');
             }
         },
         validationSchema: Schema,
     });
+
+    const handleInputFocus = (input) => {
+        setFocusedInput(input);
+    };
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -92,7 +105,7 @@ export default function Register({ navigation, noPhone }) {
                 <Image source={require('../../assets/images/leftTop1.png')} />
             </View>
 
-            <Pressable style={styles.buttonBack}>
+            <TouchableOpacity style={styles.buttonBack}>
                 <Text style={styles.backIcon}>
                     <Icon
                         color="#111719"
@@ -101,7 +114,7 @@ export default function Register({ navigation, noPhone }) {
                         type="fontawsome"
                     />
                 </Text>
-            </Pressable>
+            </TouchableOpacity>
             <View>
                 <Text style={styles.titleStyle}>Get Started</Text>
             </View>
@@ -110,7 +123,14 @@ export default function Register({ navigation, noPhone }) {
                     <View>
                         <Text style={styles.labelStyle}>First Name</Text>
                         <TextInput
-                            style={styles.input}
+                            style={[
+                                styles.input,
+                                {
+                                    borderColor: focusedInput === 'firstName' ? Color.primary : '#000000',
+                                    borderWidth: focusedInput === 'firstName' ? 1 : 0.3
+                                },
+                            ]}
+                            onFocus={() => handleInputFocus('firstName')}
                             placeholder="John"
                             onChangeText={handleChange('firstName')}
                             onBlur={handleBlur('firstName')}
@@ -125,22 +145,31 @@ export default function Register({ navigation, noPhone }) {
                     <View>
                         <Text style={styles.labelStyle}>Last Name</Text>
                         <TextInput
-                            style={styles.input}
+                            style={[
+                                styles.input,
+                                {
+                                    borderColor: focusedInput === 'lastName' ? Color.primary : '#000000',
+                                    borderWidth: focusedInput === 'lastName' ? 1 : 0.3
+                                },
+                            ]}
+                            onFocus={() => handleInputFocus('lastName')}
                             placeholder="Doe"
                             onChangeText={handleChange('lastName')}
                             onBlur={handleBlur('lastName')}
                             value={values.lastName}
                         />
-                        {touched.lastName && errors.lastName && (
-                            <Text style={styles.errorText}>
-                                {errors.lastName}
-                            </Text>
-                        )}
                     </View>
                     <View>
                         <Text style={styles.labelStyle}>Email</Text>
                         <TextInput
-                            style={styles.input}
+                            style={[
+                                styles.input,
+                                {
+                                    borderColor: focusedInput === 'accountEmail' ? Color.primary : '#000000',
+                                    borderWidth: focusedInput === 'accountEmail' ? 1 : 0.3
+                                },
+                            ]}
+                            onFocus={() => handleInputFocus('accountEmail')}
                             placeholder="johndoe@address.com"
                             onChangeText={handleChange('accountEmail')}
                             onBlur={handleBlur('accountEmail')}
@@ -155,7 +184,7 @@ export default function Register({ navigation, noPhone }) {
                     </View>
                     <View style={styles.checkBox}>
                         <CheckBox
-                            textStyle={{ color: '#C4C4C4' }}
+                            textStyle={{ color: values.aggrement ? theme.dark : theme.grey }}
                             title={
                                 'I agree to our Terms and Conditions and Privacy Policy'
                             }
@@ -171,10 +200,12 @@ export default function Register({ navigation, noPhone }) {
                             </Text>
                         )}
                     </View>
-                    <Pressable style={styles.button}>
-                        <Text onPress={handleSubmit} style={styles.textStyle}>
-                            Sign Up
-                        </Text>
+                    <Pressable
+                        style={styles.button}
+                        onPress={handleSubmit}
+                        disabled={!isValid || !dirty}
+                    >
+                        <Text style={styles.textStyle}>Sign Up</Text>
                     </Pressable>
                 </View>
             </View>
@@ -231,7 +262,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         textAlign: 'left',
         fontWeight: '400',
-        color: '#9796A1',
+        color: theme.dark,
         fontSize: 16,
     },
     titleStyle: {
@@ -263,7 +294,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     input: {
-        color: '#C4C4C4',
+        color: theme.dark,
         height: 65,
         width: 350,
         borderWidth: 1,
