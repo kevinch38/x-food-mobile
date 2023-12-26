@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import AuthService from '../services/AuthService';
 import RequestHelper from '../services/RequestHelper';
 
 export const userAction = createAsyncThunk('user/addUser', RequestHelper);
@@ -9,7 +10,16 @@ export const selectUserAction = createAsyncThunk(
 
 export const userRegisterAction = createAsyncThunk(
     'user/registerAction',
-    RequestHelper,
+    RequestHelper,);
+
+
+export const selectedUserPhoneNumberAction = createAsyncThunk(
+    'user/selectedUserPhoneNumberAction',
+    async (phoneNumber) => {
+        const authService = AuthService();
+        const response = await authService.fetchUserByPhoneNumber(phoneNumber);
+        return response;
+    },
 );
 
 const userSlice = createSlice({
@@ -46,6 +56,24 @@ const userSlice = createSlice({
                 alert(errorPayload);
             }
         });
+        builder.addCase(
+            selectedUserPhoneNumberAction.fulfilled,
+            (state, { payload }) => {
+                if (payload) {
+                    state.selectedUserPhoneNumberAction = payload;
+                }
+            },
+        );
+        builder.addCase(
+            selectedUserPhoneNumberAction.rejected,
+            (state, action) => {
+                // Handle jika nomor telepon tidak terdaftar
+                console.error(
+                    'Error fetching user by phone number:',
+                    action.error.message,
+                );
+            },
+        );
     },
 });
 

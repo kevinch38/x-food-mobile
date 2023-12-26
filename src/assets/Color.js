@@ -1,4 +1,6 @@
 export default {
     primary : '#F08D18',
-    secondary : '#FE724C'
+    secondary : '#FFC529',
+    typography: '#1A1D29',
+    gray: '#9A9FAE'
 }

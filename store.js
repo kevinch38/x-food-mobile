@@ -6,6 +6,7 @@ import asyncMiddlewareAction from './src/middlewares/asyncMiddlewareAction';
 import merchantSlice from './src/slices/merchantSlice';
 import citySlice from './src/slices/citySlice';
 import merchantBranchSlice from './src/slices/merchantBranch';
+import authSlice from "./src/slices/authSlice";
 
 const setupStore = () =>
     configureStore({
@@ -15,7 +16,8 @@ const setupStore = () =>
             merchantBranch: merchantBranchSlice.reducer,
             city: citySlice.reducer,
             ui: uiSlice.reducer,
-            pin:pinReducer
+            pin:pinReducer,
+            auth: authSlice.reducer
         },
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware().concat(asyncMiddlewareAction),
