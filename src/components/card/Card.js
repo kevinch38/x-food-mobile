@@ -1,20 +1,27 @@
 import { Button } from '@rneui/base';
 import React from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+    Image,
+    Pressable,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 
 const Card = ({ image, title, onPress }) => {
     return (
         <View style={styles.card}>
-            <Pressable onPress={onPress}>
+            <TouchableOpacity onPress={onPress}>
                 <Image style={styles.image} source={{ uri: image }} />
                 <Text style={styles.title}>
                     {title}{' '}
                     <Image
                         style={styles.checklist}
-                        source={require('../assets/icons/checklist.png')}
+                        source={require('../../assets/icons/checklist.png')}
                     />
                 </Text>
-            </Pressable>
+            </TouchableOpacity>
         </View>
     );
 };

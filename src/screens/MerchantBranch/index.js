@@ -6,8 +6,11 @@ import {
     StyleSheet,
     StatusBar,
     Text,
+    ActivityIndicator,
+    TouchableOpacity,
+    Pressable,
 } from 'react-native';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import BackButton from '../../components/backButton';
 import Logo from '../../assets/images/mechant-logo.png';
 import Verified from '../../assets/images/verified.png';
@@ -17,123 +20,137 @@ import { selectedMerchantAction } from '../../slices/merchantSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import { merchantBranchAction } from '../../slices/merchantBranch';
+import CardBranch from '../../components/card/CardBranch';
+import Loading from '../../components/loading';
 
 const Merchant = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchant = useSelector((state) => state.merchant.selectedMerchant);
-    const branchs = useSelector((state) => state.merchantBranch.branchs);
+    // const branchs = useSelector((state) => state.merchantBranch.branchs);
     const { merchantService, merchantBranchService } =
         useContext(ServiceContext);
     const route = useRoute();
     const receivedId = route.params?.id;
     const cityId = route.params?.cityId;
 
-    const filteredBranch = branchs.filter(
-        (branch) =>
-            branch.merchantID === receivedId && branch.cityID === cityId,
-    );
+    const [isLoading, setIsLoading] = useState(true);
+
+    // const filteredBranch = branchs.filter(
+    //     (branch) =>
+    //         branch.merchantID === receivedId && branch.cityID === cityId,
+    // );
 
     handleBack = () => {
         navigation.navigate('Tabs');
     };
 
+    handleToMenu = (branchId) => {
+        navigation.navigate('Menu', { branchId });
+    };
     useEffect(() => {
         const onGetMerchant = async () => {
-            await dispatch(
-                selectedMerchantAction(() =>
-                    merchantService.fetchMerchantById(receivedId),
-                ),
-            );
+            try {
+                setIsLoading(true);
+
+                await dispatch(
+                    selectedMerchantAction(() =>
+                        merchantService.fetchMerchantById(receivedId),
+                    ),
+                );
+
+                setIsLoading(false);
+            } catch (error) {
+                console.error('Error fetching merchant:', error);
+                setIsLoading(false);
+            }
         };
         onGetMerchant();
     }, [dispatch, merchantService]);
 
-    useEffect(() => {
-        const onGetMerchantBranch = async () => {
-            await dispatch(
-                merchantBranchAction(() =>
-                    merchantBranchService.fetchMerchantBranchs(receivedId),
-                ),
-            );
-        };
-        onGetMerchantBranch();
-    }, [dispatch, merchantBranchService]);
+    // useEffect(() => {
+    //     const onGetMerchantBranch = async () => {
+    //         try {
+    //             setIsLoading(true);
+
+    //             await dispatch(
+    //                 merchantBranchAction(() =>
+    //                     merchantBranchService.fetchMerchantBranchs(receivedId),
+    //                 ),
+    //             );
+
+    //             setIsLoading(false);
+    //         } catch (error) {
+    //             console.error('Error fetching merchant:', error);
+    //             setIsLoading(false);
+    //         }
+    //     };
+    //     onGetMerchantBranch();
+    // }, [dispatch, merchantBranchService]);
 
     return (
         <SafeAreaView style={styles.wrapper}>
-            <ScrollView>
-                <BackButton onPress={handleBack} />
-                <View style={{ alignItems: 'center' }}>
-                    <Image source={BgMerchantBranch} style={styles.bgProfile} />
-                </View>
-                <View style={styles.wrapperProfile}>
-                    <View style={styles.outerCircle}>
-                        <View style={styles.outerInnerCircle}>
-                            <Image source={Logo} style={styles.logo} />
-                        </View>
-                        <View style={styles.wrapperCamera}>
-                            <Image
-                                source={Verified}
-                                style={styles.iconVerified}
-                            />
+            {isLoading ? (
+                <Loading />
+            ) : (
+                <ScrollView>
+                    <BackButton onPress={handleBack} />
+                    <View style={{ alignItems: 'center' }}>
+                        <Image
+                            source={BgMerchantBranch}
+                            style={styles.bgProfile}
+                        />
+                    </View>
+                    <View style={styles.wrapperProfile}>
+                        <View style={styles.outerCircle}>
+                            <View style={styles.outerInnerCircle}>
+                                <Image source={Logo} style={styles.logo} />
+                            </View>
+                            <View style={styles.wrapperCamera}>
+                                <Image
+                                    source={Verified}
+                                    style={styles.iconVerified}
+                                />
+                            </View>
                         </View>
                     </View>
-                </View>
-                <View style={{ marginTop: '20%', justifyContent: 'center' }}>
-                    <Text
-                        style={{
-                            fontSize: 20,
-                            fontWeight: '900',
-                            textAlign: 'center',
-                        }}
+                    <View
+                        style={{ marginTop: '20%', justifyContent: 'center' }}
                     >
-                        {/* {merchant.merchantName} */}
-                    </Text>
-                    <Text
-                        style={{
-                            textAlign: 'center',
-                            fontSize: 12,
-                            fontWeight: '300',
-                        }}
-                    >
-                        {/* {merchant.merchantDescription} */}
-                    </Text>
-                </View>
+                        <Text
+                            style={{
+                                fontSize: 20,
+                                fontWeight: '900',
+                                textAlign: 'center',
+                            }}
+                        >
+                            {merchant.merchantName}
+                        </Text>
+                        <Text
+                            style={{
+                                textAlign: 'center',
+                                fontSize: 12,
+                                fontWeight: '300',
+                            }}
+                        >
+                            {merchant.merchantDescription}
+                            {/* itemDescription */}
+                        </Text>
+                    </View>
 
-                {Array.isArray(filteredBranch) &&
-                    filteredBranch.length > 0 &&
-                    filteredBranch.map((b, idx) => {
-                        return (
-                            <View style={styles.card} key={idx}>
-                                <Image
-                                    source={require('../../assets/images/ph-kalibata.png')}
-                                    style={styles.image}
+                    {Array.isArray(merchant.merchantBranches) &&
+                        merchant.merchantBranches.length > 0 &&
+                        merchant.merchantBranches.map((b, idx) => {
+                            return (
+                                <CardBranch
+                                    key={idx}
+                                    onPress={() => handleToMenu(b.branchID)}
+                                    branchName={b.branchName}
+                                    branchAddress={b.branchAddress}
                                 />
-                                <View
-                                    style={{ marginLeft: '2%', padding: '2%' }}
-                                >
-                                    <Text
-                                        style={{
-                                            fontSize: 18,
-                                            marginTop: '1%',
-                                            fontWeight: '900',
-                                        }}
-                                    >
-                                        {b.branchName}
-                                    </Text>
-                                    <Text
-                                        style={{
-                                            fontSize: 10,
-                                            fontWeight: '400',
-                                        }}
-                                    >
-                                        {b.address}
-                                    </Text>
-                                </View>
-                            </View>
-                        );
-                    })}
-            </ScrollView>
+                            );
+                        })}
+                </ScrollView>
+            )}
         </SafeAreaView>
     );
 };
@@ -193,26 +210,6 @@ const styles = StyleSheet.create({
         width: 378,
         height: 285,
         position: 'absolute',
-    },
-    card: {
-        width: '80%',
-        marginHorizontal: '10%',
-        marginTop: '5%',
-        marginBottom: '2%',
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
-        elevation: 5,
-    },
-    image: {
-        width: '100%',
-        height: 145,
-        resizeMode: 'cover',
-        borderTopRightRadius: 10,
-        borderTopLeftRadius: 10,
     },
 });
 
