@@ -2,7 +2,9 @@ import axios from 'axios';
 
 const MerchantService = () => {
     const fetchMerchants = async () => {
-        const { data } = await axios.get(`http://10.0.2.2:8087/api/merchants`);
+        const { data } = await axios.get(
+            `http://10.0.2.2:8087/api/merchants?paging=true`,
+        );
         return data;
     };
 

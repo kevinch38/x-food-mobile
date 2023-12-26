@@ -5,11 +5,16 @@ export const merchantBranchAction = createAsyncThunk(
     'merchantBranch/fetchMerchantBranch',
     RequestHelper,
 );
+export const selectedMerchantBranchAction = createAsyncThunk(
+    'merchantBranch/selectedMerchantBranch',
+    RequestHelper,
+);
 
 const merchantBranchSlice = createSlice({
     name: 'merchantBranch',
     initialState: {
         branchs: [],
+        selectedBranch: null,
     },
     extraReducers: (builder) => {
         builder.addCase(
@@ -17,6 +22,14 @@ const merchantBranchSlice = createSlice({
             (state, { payload }) => {
                 if (payload) {
                     state.branchs = payload.data;
+                }
+            },
+        );
+        builder.addCase(
+            selectedMerchantBranchAction.fulfilled,
+            (state, { payload }) => {
+                if (payload) {
+                    state.selectedBranch = payload.data;
                 }
             },
         );

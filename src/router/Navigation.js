@@ -12,7 +12,9 @@ import CompleteProfile from '../screens/Profile/CompleteProfile'
 import OrderScreen from "../screens/History/OrderScreen";
 import PaymentScreen from "../screens/History/PaymentScreen";
 import History from "../screens/History";
-import Merchant from '../screens/MerchantBranch';
+import MerchantBranch from '../screens/MerchantBranch';
+import Menu from '../screens/Menu';
+import Detail from '../screens/Menu/Detail';
 
 const Stack = createStackNavigator();
 
@@ -21,7 +23,7 @@ const Navigation = () => {
         <NavigationContainer>
             <Stack.Navigator initialRouteName="InitialScreen">
                 {/* <Stack.Screen name="Login" component={Login}/> */}
-                <Stack.Screen
+                {/* <Stack.Screen
                     name="VerificationCode"
                     component={VerificationCodeScreen}
                     options={{ headerShown: false }}
@@ -30,7 +32,7 @@ const Navigation = () => {
                     name="Register"
                     component={Register}
                     options={{ headerShown: false }}
-                />
+                /> */}
                 <Stack.Screen
                     name="Tabs"
                     component={Tabs}
@@ -38,7 +40,17 @@ const Navigation = () => {
                 />
                 <Stack.Screen
                     name="Merchant"
-                    component={Merchant}
+                    component={MerchantBranch}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name={'Menu'}
+                    component={Menu}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name={'MenuDetail'}
+                    component={Detail}
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen

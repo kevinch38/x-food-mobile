@@ -9,7 +9,7 @@ import {
     ScrollView,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import Card from '../components/Card';
+import Card from '../components/card/Card';
 import { SearchBar } from '@rneui/base';
 import Color from '../assets/Color';
 import { useDispatch, useSelector } from 'react-redux';
@@ -25,9 +25,13 @@ const Home = ({ navigation }) => {
     const merchants = useSelector((state) => state.merchant.merchants);
     const { cities } = useSelector((state) => state.city);
     const { merchantService, cityService } = useContext(ServiceContext);
-    const [value, setValue] = useState('8a8ae47d8c805f11018c805f3d060108');
+    const [value, setValue] = useState('4028c7f08c813f12018c813f1eb20108');
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
+
+    // const filteredActiveMerchants = merchants.filter(
+    //     (m) => m.status === 'ACTIVE',
+    // );
 
     handleCard = (id, cityId) => {
         navigation.navigate('Merchant', { id, cityId });
