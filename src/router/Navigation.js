@@ -10,6 +10,8 @@ import CompleteProfile from '../screens/Profile/CompleteProfile';
 import History from '../screens/History';
 import TopUp from '../screens/TopUp';
 import SelectPayment from '../screens/TopUp/SelectPayment';
+import Cart from '../screens/Cart';
+import Pin from '../screens/Pin';
 
 const Stack = createStackNavigator();
 
@@ -21,23 +23,29 @@ const Navigation = () => {
                 screenOptions={{ headerShown: false }}
             >
                 {/* <Stack.Screen name="Login" component={Login}/> */}
+                {/*<Stack.Screen*/}
+                {/*    name="VerificationCode"*/}
+                {/*    component={VerificationCodeScreen}*/}
+                {/*/>*/}
+                {/*<Stack.Screen name={'Register'} component={Register} />*/}
+                {/*<Stack.Screen name="Tabs" component={Tabs} />*/}
+                {/*<Stack.Screen name={'Profile'} component={Profile} />*/}
+                {/*<Stack.Screen name={'EditProfile'} component={EditProfile} />*/}
+                {/*<Stack.Screen*/}
+                {/*    name={'CompleteProfile'}*/}
+                {/*    component={CompleteProfile}*/}
+                {/*/>*/}
+                {/*<Stack.Screen name={'History'} component={History} />*/}
+                {/*<Stack.Screen name={'TopUp'} component={TopUp} />*/}
+                {/*<Stack.Screen*/}
+                {/*    name={'SelectPayment'}*/}
+                {/*    component={SelectPayment}*/}
+                {/*/>*/}
+                <Stack.Screen name={'Cart'} component={Cart} />
                 <Stack.Screen
-                    name="VerificationCode"
-                    component={VerificationCodeScreen}
-                />
-                <Stack.Screen name={'Register'} component={Register} />
-                <Stack.Screen name="Tabs" component={Tabs} />
-                <Stack.Screen name={'Profile'} component={Profile} />
-                <Stack.Screen name={'EditProfile'} component={EditProfile} />
-                <Stack.Screen
-                    name={'CompleteProfile'}
-                    component={CompleteProfile}
-                />
-                <Stack.Screen name={'History'} component={History} />
-                <Stack.Screen name={'TopUp'} component={TopUp} />
-                <Stack.Screen
-                    name={'SelectPayment'}
-                    component={SelectPayment}
+                    name={'Pin'}
+                    options={{ presentation: 'modal' }}
+                    component={Pin}
                 />
             </Stack.Navigator>
         </NavigationContainer>
