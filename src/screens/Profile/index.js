@@ -22,7 +22,6 @@ import { useContext, useEffect, useState } from 'react';
 import { ServiceContext } from '../../context/ServiceContext';
 import { userAction } from '../../slices/userSlice';
 import Button from '../../components/button';
-import BackButton from '../../components/backButton';
 
 function Profile({ navigation }) {
     const dispatch = useDispatch();
@@ -42,8 +41,8 @@ function Profile({ navigation }) {
         navigation.navigate('EditProfile');
     };
 
-    const handleBack = () => {
-        console.log('back');
+    const handleTopUp = () => {
+        navigation.navigate('TopUp');
     };
 
     const handleCompleteProfile = () => {
@@ -57,7 +56,6 @@ function Profile({ navigation }) {
     const renderHeader = () => {
         return (
             <View>
-                <BackButton onPress={handleBack} />
                 <View style={{ alignItems: 'center' }}>
                     <Image source={bgProfile} style={styles.bgProfile} />
                 </View>
@@ -145,7 +143,9 @@ function Profile({ navigation }) {
                         <Text style={styles.name}>Balance</Text>
                         <Text style={styles.textSecond}>Rp 37,000</Text>
                     </View>
-                    <Text style={styles.textTopUp}>TOP UP</Text>
+                    <TouchableOpacity onPress={handleTopUp}>
+                        <Text style={styles.textTopUp}>TOP UP</Text>
+                    </TouchableOpacity>
                 </View>
                 <View
                     style={{
@@ -234,6 +234,7 @@ function Profile({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         paddingTop: StatusBar.currentHeight,
+        backgroundColor: '#fff',
     },
     wrapper: {
         paddingHorizontal: 20,

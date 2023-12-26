@@ -85,6 +85,7 @@ const Detail = ({ navigation }) => {
 
     const handleAddToCart = () => {
         addToCart(itemToAddCart);
+        navigation.navigate('Cart');
     };
 
     return (

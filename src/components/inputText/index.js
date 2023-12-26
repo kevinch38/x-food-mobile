@@ -14,6 +14,7 @@ function InputText({
     onChangeText,
     editable,
     onBlur,
+    inputContainerCustom,
     ...otherProps
 }) {
     const [isFocused, setFocused] = useState(false);
@@ -42,7 +43,13 @@ function InputText({
                     <Text style={styles.labelRequired}> {labelRequired}</Text>
                 )}
             </View>
-            <View style={[styles.inputContainer, { borderColor }]}>
+            <View
+                style={[
+                    styles.inputContainer,
+                    { borderColor },
+                    inputContainerCustom,
+                ]}
+            >
                 {icon && <Image source={icon} style={styles.iconContainer} />}
                 <TextInput
                     style={styles.textInput}
@@ -81,6 +88,7 @@ const styles = StyleSheet.create({
     iconContainer: {
         width: 24,
         height: 24,
+        marginRight: 12,
     },
     inputContainer: {
         height: 65,

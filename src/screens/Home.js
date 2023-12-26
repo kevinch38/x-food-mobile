@@ -57,6 +57,10 @@ const Home = ({ navigation }) => {
         onGetMerchants();
     }, [dispatch, merchantService]);
 
+    const handleTopUp = () => {
+        navigation.navigate('TopUp');
+    };
+
     return (
         <SafeAreaView style={styles.wrapper}>
             <ScrollView>
@@ -127,7 +131,7 @@ const Home = ({ navigation }) => {
                             source={require('../assets/images/card.png')}
                         />
                         <Text>Rp.0</Text>
-                        <Pressable>
+                        <Pressable onPress={handleTopUp}>
                             <Text style={{ color: '#5681A5' }}>TOP UP</Text>
                         </Pressable>
                         <Image
