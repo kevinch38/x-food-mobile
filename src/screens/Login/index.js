@@ -6,17 +6,71 @@ import {
     TouchableOpacity,
     SafeAreaView,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
 import Template from '../../components/background';
 import Color from '../../assets/Color';
 import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectedUserPhoneNumberAction } from '../../slices/uiSlice';
-
+import { ServiceContext } from '../../context/ServiceContext';
+import { AsyncStorage } from 'react-native';
+import { authAction } from '../../slices/authSlice';
 
 export default function Login({ navigation }) {
+    const schema = Yup.object({
+        phoneNumber: Yup.string()
+            .matches(/^\d+$/, 'Invalid Phone Number')
+            .min(10, 'Phone Number must be at least 10 digits')
+            .max(16, 'Phone Number must be at most 16 digits')
+            .required('Phone Number is required'),
+    });
+
     const dispatch = useDispatch();
-    const [phoneNumber, setPhoneNumber] = useState('');
+    // const [phoneNumber, setPhoneNumber] = useState('');
+    const { authService } = useContext(ServiceContext);
+
+    const {
+        values: { phoneNumber },
+        errors,
+        dirty,
+        isValid,
+        touched,
+        handleChange,
+        handleBlur,
+        handleSubmit,
+    } = useFormik({
+        initialValues: {
+            phoneNumber: '',
+        },
+        onSubmit: async (values) => {
+            dispatch(
+                authAction(async () => {
+                    const result = await authService.login(values);
+                    if (result.statusCode === 200) {
+                        AsyncStorage.setItem('token', result.data.token);
+                        navigation.navigate('Register');
+                    }
+                    const resultInfo = await authService.getUserInfo();
+                    return resultInfo;
+                }),
+            );
+        },
+        validationSchema: schema,
+    });
+
+    useEffect(() => {
+        const onGetUserInfo = async () => {
+            const result = await authService.getUserInfo();
+            if (result.statusCode === 200) {
+                navigation.navigate('Register')
+            }
+            return result;
+        };
+        onGetUserInfo();
+    }, [authService, navigation.navigate]);
+
     const user = useSelector(
         (state) => state.user.selectedUserPhoneNumberAction,
     );
@@ -24,11 +78,9 @@ export default function Login({ navigation }) {
     const handleClick = async () => {
         try {
             await dispatch(selectedUserPhoneNumberAction(phoneNumber));
-
             if (user) {
                 navigation.navigate('Home');
             } else {
-                // Jika tidak terdaftar, navigasi ke menu register
                 navigation.navigate('Register');
             }
         } catch (error) {
@@ -53,24 +105,22 @@ export default function Login({ navigation }) {
                         style={styles.phoneNumberInput}
                         placeholder="+62"
                         keyboardType="phone-pad"
-                        // value={phoneNumber}
-                        onChangeText={setPhoneNumber}
+                        onChangeText={handleChange('phoneNumber')}
+                        onBlur={handleBlur('phoneNumber')}
+                        value={phoneNumber}
+                        defaultValue='(+62)'
                     >
                         {console.log(phoneNumber)}
-                        +62
+                        
                     </TextInput>
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={handleClick}
+                        onPress={handleSubmit}
                     >
                         <Text style={styles.textButton}>
                             Receive OTP via SMS
                         </Text>
                     </TouchableOpacity>
-                    <Text style={styles.textAlready}>
-                        Already have an account?{' '}
-                        <Text style={{ color: Color.primary }}>Login</Text>
-                    </Text>
                 </View>
             </View>
         </SafeAreaView>
@@ -115,9 +165,5 @@ const styles = StyleSheet.create({
         borderRadius: 40,
         height: 50,
         width: 240,
-    },
-    textAlready: {
-        alignSelf: 'center',
-        marginVertical: '50%',
     },
 });
