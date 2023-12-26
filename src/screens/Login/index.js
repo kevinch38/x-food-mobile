@@ -103,15 +103,14 @@ export default function Login({ navigation }) {
                     <Text style={styles.textPhoneNumber}>Phone Number</Text>
                     <TextInput
                         style={styles.phoneNumberInput}
-                        placeholder="+62"
+                        placeholder="(+62)"
                         keyboardType="phone-pad"
                         onChangeText={handleChange('phoneNumber')}
                         onBlur={handleBlur('phoneNumber')}
                         value={phoneNumber}
-                        defaultValue='(+62)'
+                        defaultValue='+62'
                     >
                         {console.log(phoneNumber)}
-                        
                     </TextInput>
                     <TouchableOpacity
                         style={styles.button}
