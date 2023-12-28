@@ -116,6 +116,21 @@ const Menu = ({ navigation }) => {
                                 {branch.address}
                             </Text>
                         </View>
+                        <View
+                            style={{
+                                width: '100%',
+                                marginHorizontal: '5%',
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    fontWeight: '900',
+                                    fontSize: 30,
+                                }}
+                            >
+                                Menu
+                            </Text>
+                        </View>
                         {Array.isArray(branch.items) &&
                             branch.items.length > 0 &&
                             branch.items.map((item, idx) => {
@@ -229,7 +244,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     wrapperProfile: {
-        height: 339,
+        height: 270,
         width: 314,
         marginTop: '5%',
         marginLeft: '40%',

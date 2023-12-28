@@ -68,7 +68,7 @@ const Detail = ({ navigation }) => {
         // console.log(itemToAdd.variety, '=== variety');
 
         try {
-            const existingItems = await AsyncStorage.getItem('cartItem');
+            const existingItems = await AsyncStorage.getItem('cartItems');
             let updatedItems = existingItems ? JSON.parse(existingItems) : [];
 
             updatedItems.push(itemToAdd);

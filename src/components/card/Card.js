@@ -10,10 +10,14 @@ import {
 } from 'react-native';
 
 const Card = ({ image, title, onPress }) => {
+    const base64StringImage = `data:image/png;base64,${image}`;
     return (
         <View style={styles.card}>
             <TouchableOpacity onPress={onPress}>
-                <Image style={styles.image} source={{ uri: image }} />
+                <Image
+                    style={styles.image}
+                    source={{ uri: base64StringImage }}
+                />
                 <Text style={styles.title}>
                     {title}{' '}
                     <Image
@@ -28,7 +32,7 @@ const Card = ({ image, title, onPress }) => {
 
 const styles = StyleSheet.create({
     card: {
-        width: '80%',
+        width: '85%',
         height: 200,
         borderRadius: 10,
         backgroundColor: '#fff',

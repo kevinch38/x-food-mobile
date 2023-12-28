@@ -9,12 +9,14 @@ import {
     View,
 } from 'react-native';
 import BackButton from '../../components/backButton';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as Icon from 'react-native-feather';
 import { theme } from '../../theme';
 import InputText from '../../components/inputText';
 import { SelectCountry } from 'react-native-element-dropdown';
 import Button from '../../components/button';
+import asyncStorage from '@react-native-async-storage/async-storage/src/AsyncStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function Cart({ navigation }) {
     const [order, setOrder] = useState(0);
@@ -41,6 +43,30 @@ function Cart({ navigation }) {
             value: '4',
         },
     ];
+
+    useEffect(() => {
+        // const getData = async () => {
+        //     try {
+        //         const value = await asyncStorage.getItem('cartItems');
+        //         if (value !== null) {
+        //             console.log(value);
+        //         }
+        //     } catch (e) {
+        //         console.error('error null data', e);
+        //     }
+        // };
+
+        const getData = async () => {
+            try {
+                const jsonValue = await AsyncStorage.getItem('cartItems');
+                jsonValue != null ? JSON.parse(jsonValue) : null;
+                console.log(jsonValue);
+            } catch (e) {
+                console.error('error null data', e);
+            }
+        };
+        getData();
+    }, []);
 
     const handleMinus = () => {
         setOrder(order - 1);
