@@ -6,8 +6,10 @@ import Color from '../assets/Color';
 import BackButton from '../components/backButton';
 import UserService from '../services/UserService';
 import axios from "axios"; // Import UserService
+import { useSelector } from 'react-redux';
 
 const VerificationCodeScreen = () => {
+    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
     const [focusedInput, setFocusedInput] = useState(null);
     const [isValidCode, setIsValidCode] = useState(true);
@@ -17,8 +19,8 @@ const VerificationCodeScreen = () => {
     const userService = UserService();
 
     useEffect(() => {
-        fetchOtpID('+62821948080');
-    }, []);
+        fetchOtpID(phoneNumber);
+    }, [phoneNumber]);
 
     const fetchOtpID = async (phoneNumber) => {
         try {
@@ -56,7 +58,7 @@ const VerificationCodeScreen = () => {
 
                 console.log('Check OTP response:', data);
 
-                if (data.statusCode === 200) {
+                if (data.data) {
                     setIsValidCode(true);
                     console.log('Code is valid. Navigating to Register.');
                     navigation.navigate('Register');
@@ -79,6 +81,7 @@ const VerificationCodeScreen = () => {
     const handleInputBlur = () => {
         setFocusedInput(null);
     };
+
 
     return (
 

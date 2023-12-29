@@ -14,13 +14,13 @@ import CompleteProfile from '../screens/Profile/CompleteProfile'
 import OrderScreen from "../screens/History/OrderScreen";
 import PaymentScreen from "../screens/History/PaymentScreen";
 import History from "../screens/History";
+import MerchantBranch from '../screens/MerchantBranch';
+import Menu from '../screens/Menu';
+import Detail from '../screens/Menu/Detail';
 import TopUp from '../screens/TopUp';
 import SelectPayment from '../screens/TopUp/SelectPayment';
 import Cart from '../screens/Cart';
 import Pin from '../screens/Pin';
-import MerchantBranch from '../screens/MerchantBranch';
-import Menu from '../screens/Menu';
-import Detail from '../screens/Menu/Detail';
 
 
 const Stack = createStackNavigator();
@@ -32,9 +32,9 @@ const Navigation = () => {
                 initialRouteName="InitialScreen"
                 screenOptions={{ headerShown: false }}
             >
-                {/*<Stack.Screen name="Splash" component={Splash} />*/}
-                {/*<Stack.Screen name="Welcome" component={Welcome} />*/}
-                {/*<Stack.Screen name="Login" component={Login} />*/}
+                <Stack.Screen name="Splash" component={Splash} />
+                <Stack.Screen name="Welcome" component={Welcome} />
+                <Stack.Screen name="Login" component={Login} />
                 <Stack.Screen
                     name="VerificationCode"
                     component={VerificationCodeScreen}
@@ -58,6 +58,7 @@ const Navigation = () => {
                     name={'SelectPayment'}
                     component={SelectPayment}
                 />
+
                 <Stack.Screen
                     name={'Cart'}
                     component={Cart}

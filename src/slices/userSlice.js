@@ -10,16 +10,12 @@ export const selectUserAction = createAsyncThunk(
 
 export const userRegisterAction = createAsyncThunk(
     'user/registerAction',
-    RequestHelper,);
+    RequestHelper,
+);
 
-
-export const selectedUserPhoneNumberAction = createAsyncThunk(
-    'user/selectedUserPhoneNumberAction',
-    async (phoneNumber) => {
-        const authService = AuthService();
-        const response = await authService.fetchUserByPhoneNumber(phoneNumber);
-        return response;
-    },
+export const selectUserByPhoneNumberAction = createAsyncThunk(
+    'user/selectUserByPhoneNumber',
+    RequestHelper,
 );
 
 const userSlice = createSlice({
@@ -40,32 +36,34 @@ const userSlice = createSlice({
                 state.selectedUser = payload;
             }
         });
-        builder.addCase(userRegisterAction.fulfilled, (state, { payload }) => {
-            if (payload) {
-                state.registerUser = payload.data;
-            }
-        }).addCase(userAction.rejected, ({payload}) => {
-            const errorPayload = payload
-            if (
-                errorPayload &&
-                errorPayload.response &&
-                errorPayload.response.status === 409
-            ) {
-                alert('Email sudah terpakai');
-            } else {
-                alert(errorPayload);
-            }
-        });
+        builder
+            .addCase(userRegisterAction.fulfilled, (state, { payload }) => {
+                if (payload) {
+                    state.registerUser = payload.data;
+                }
+            })
+            .addCase(userAction.rejected, ({ payload }) => {
+                const errorPayload = payload;
+                if (
+                    errorPayload &&
+                    errorPayload.response &&
+                    errorPayload.response.status === 409
+                ) {
+                    alert('Email sudah terpakai');
+                } else {
+                    alert(errorPayload);
+                }
+            });
         builder.addCase(
-            selectedUserPhoneNumberAction.fulfilled,
+            selectUserByPhoneNumberAction.fulfilled,
             (state, { payload }) => {
                 if (payload) {
-                    state.selectedUserPhoneNumberAction = payload;
+                    state.selectUserByPhoneNumberAction = payload;
                 }
             },
         );
         builder.addCase(
-            selectedUserPhoneNumberAction.rejected,
+            selectUserByPhoneNumberAction.rejected,
             (state, action) => {
                 // Handle jika nomor telepon tidak terdaftar
                 console.error(
