@@ -53,7 +53,7 @@ const Merchant = ({ navigation }) => {
                 setIsLoading(true);
 
                 await dispatch(
-                    selectedMerchantAction(() =>
+                    selectUserByPhoneNumberAction(() =>
                         merchantService.fetchMerchantById(receivedId),
                     ),
                 );

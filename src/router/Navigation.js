@@ -17,79 +17,57 @@ import History from "../screens/History";
 import MerchantBranch from '../screens/MerchantBranch';
 import Menu from '../screens/Menu';
 import Detail from '../screens/Menu/Detail';
+import TopUp from '../screens/TopUp';
+import SelectPayment from '../screens/TopUp/SelectPayment';
+import Cart from '../screens/Cart';
+import Pin from '../screens/Pin';
+
 
 const Stack = createStackNavigator();
 
 const Navigation = () => {
     return (
         <NavigationContainer>
-            <Stack.Navigator initialRouteName="InitialScreen">
-                
-                <Stack.Screen
-                    name="Splash"
-                    component={Splash}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Welcome"
-                    component={Welcome}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Login"
-                    component={Login}
-                    options={{ headerShown: false }}
-                />
+            <Stack.Navigator
+                initialRouteName="InitialScreen"
+                screenOptions={{ headerShown: false }}
+            >
+                <Stack.Screen name="Splash" component={Splash} />
+                <Stack.Screen name="Welcome" component={Welcome} />
+                <Stack.Screen name="Login" component={Login} />
                 <Stack.Screen
                     name="VerificationCode"
-                    component={VerificationCodeScreen} 
-                    options={{ headerShown: false }}
-                    />
-                <Stack.Screen
-                    name="Register"
-                    component={Register}
-                    options={{ headerShown: false }}
+                    component={VerificationCodeScreen}
                 />
-                <Stack.Screen
-                    name="Tabs"
-                    component={Tabs}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Merchant"
-                    component={MerchantBranch}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name={'Menu'}
-                    component={Menu}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name={'MenuDetail'}
-                    component={Detail}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name={'Profile'}
-                    component={Profile}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name={'EditProfile'}
-                    component={EditProfile}
-                    options={{ headerShown: false }}
-                />
+                <Stack.Screen name="Register" component={Register} />
+                <Stack.Screen name="Tabs" component={Tabs} />
+                <Stack.Screen name="Merchant" component={MerchantBranch} />
+                <Stack.Screen name={'Menu'} component={Menu} />
+                <Stack.Screen name={'MenuDetail'} component={Detail} />
+                <Stack.Screen name={'Profile'} component={Profile} />
+                <Stack.Screen name={'EditProfile'} component={EditProfile} />
                 <Stack.Screen
                     name={'CompleteProfile'}
                     component={CompleteProfile}
-                    options={{ headerShown: false }}
+                />
+
+                <Stack.Screen name={'History'} component={History} />
+
+                <Stack.Screen name={'TopUp'} component={TopUp} />
+                <Stack.Screen
+                    name={'SelectPayment'}
+                    component={SelectPayment}
                 />
 
                 <Stack.Screen
-                    name={'History'}
-                    component={History}
-                    options={{ headerShown: false }}
+                    name={'Cart'}
+                    component={Cart}
+                    options={{ presentation: 'modal' }}
+                />
+                <Stack.Screen
+                    name={'Pin'}
+                    options={{ presentation: 'modal' }}
+                    component={Pin}
                 />
             </Stack.Navigator>
         </NavigationContainer>

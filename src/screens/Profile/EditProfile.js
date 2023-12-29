@@ -78,7 +78,7 @@ function EditProfile({ navigation }) {
                                 {
                                     text: 'Ok',
                                     onPress: () => {
-                                        navigation.navigate('Profile');
+                                        navigation.goBack();
                                     },
                                 },
                             ],
@@ -93,7 +93,7 @@ function EditProfile({ navigation }) {
     });
 
     const handleBack = () => {
-        navigation.navigate('Profile');
+        navigation.goBack();
     };
 
     useEffect(() => {
@@ -244,6 +244,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingTop: StatusBar.currentHeight,
+        backgroundColor: '#fff',
     },
     wrapperName: {
         alignItems: 'center',

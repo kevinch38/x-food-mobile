@@ -1,15 +1,18 @@
 
 import React, { useState } from 'react';
 import {Image, StyleSheet, Text, TextInput, View, Pressable, TouchableOpacity} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Color from '../assets/Color';
 import BackButton from "../components/backButton";
+import { useSelector } from 'react-redux';
 
 const VerificationCodeScreen = () => {
     const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
     const [focusedInput, setFocusedInput] = useState(null);
     const [isValidCode, setIsValidCode] = useState(true)
     const navigation = useNavigation();
+    const route = useRoute();
+    const isRegistered = route.params?.isRegistered;
 
 
     const handleInputChange = (text, index) => {
@@ -28,7 +31,7 @@ const VerificationCodeScreen = () => {
 
             if (enteredCode === data.data.otp) {
                 setIsValidCode(true);
-                navigation.navigate('Register');
+                isRegistered ? navigation.navigate('Tabs') : navigation.navigate('Register');
             } else {
                 setIsValidCode(false);
             }
@@ -45,6 +48,7 @@ const VerificationCodeScreen = () => {
     const handleInputBlur = () => {
         setFocusedInput(null);
     };
+
 
     return (
 

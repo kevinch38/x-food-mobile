@@ -94,7 +94,7 @@ function CompleteProfile({ navigation }) {
                                 {
                                     text: 'Ok',
                                     onPress: () => {
-                                        navigation.navigate('Profile');
+                                        navigation.goBack();
                                     },
                                 },
                             ],
@@ -109,7 +109,7 @@ function CompleteProfile({ navigation }) {
     });
 
     const handleBack = () => {
-        navigation.navigate('Profile');
+        navigation.goBack();
     };
 
     const handleChangePin = () => {
@@ -235,9 +235,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingTop: StatusBar.currentHeight,
+        backgroundColor: '#fff',
     },
     title: {
-        marginTop: 60,
+        marginTop: 45,
         fontWeight: '500',
         fontSize: 18,
     },

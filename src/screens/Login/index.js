@@ -13,10 +13,10 @@ import Template from '../../components/background';
 import Color from '../../assets/Color';
 import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectedUserPhoneNumberAction } from '../../slices/uiSlice';
+import { setPhoneNumber } from '../../slices/uiSlice';
+import { selectUserByPhoneNumberAction } from '../../slices/userSlice';
 import { ServiceContext } from '../../context/ServiceContext';
-import { AsyncStorage } from 'react-native';
-import { authAction } from '../../slices/authSlice';
+import { useRoute } from '@react-navigation/native';
 
 export default function Login({ navigation }) {
     const schema = Yup.object({
@@ -28,65 +28,44 @@ export default function Login({ navigation }) {
     });
 
     const dispatch = useDispatch();
-    // const [phoneNumber, setPhoneNumber] = useState('');
-    const { authService } = useContext(ServiceContext);
+    const { userService } = useContext(ServiceContext);
+    const phoneNumberRedux = useSelector((state) => state.ui.phoneNumber);
+    const [isRegistered, setIsRegistered] = useState(false);
 
     const {
         values: { phoneNumber },
-        errors,
-        dirty,
-        isValid,
-        touched,
         handleChange,
         handleBlur,
         handleSubmit,
+        errors,
     } = useFormik({
         initialValues: {
-            phoneNumber: '',
+            phoneNumber: phoneNumberRedux,
         },
         onSubmit: async (values) => {
-            dispatch(
-                authAction(async () => {
-                    const result = await authService.login(values);
-                    if (result.statusCode === 200) {
-                        AsyncStorage.setItem('token', result.data.token);
-                        navigation.navigate('Register');
-                    }
-                    const resultInfo = await authService.getUserInfo();
-                    return resultInfo;
-                }),
+            const user = await userService.fetchUserByPhoneNumber(
+                values.phoneNumber,
             );
+            console.log(user.data.phoneNumber);
+            if (user) {
+                setIsRegistered(true);
+                console.log("values.phoneNumber");
+            } else {
+                setIsRegistered(false);
+                dispatch(
+                    userAction(async (values) => {
+                        await userService.register(values.phoneNumber);
+                    }),
+                );
+            }
+
+            dispatch(setPhoneNumber(values.phoneNumber));
+            navigation.navigate('VerificationCode', { isRegistered });
+            // console.log(phoneNumber);
+            // console.log(isRegistered);
         },
         validationSchema: schema,
     });
-
-    useEffect(() => {
-        const onGetUserInfo = async () => {
-            const result = await authService.getUserInfo();
-            if (result.statusCode === 200) {
-                navigation.navigate('Register')
-            }
-            return result;
-        };
-        onGetUserInfo();
-    }, [authService, navigation.navigate]);
-
-    const user = useSelector(
-        (state) => state.user.selectedUserPhoneNumberAction,
-    );
-
-    const handleClick = async () => {
-        try {
-            await dispatch(selectedUserPhoneNumberAction(phoneNumber));
-            if (user) {
-                navigation.navigate('Home');
-            } else {
-                navigation.navigate('Register');
-            }
-        } catch (error) {
-            console.error('Error checking phone number:', error.message);
-        }
-    };
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -108,10 +87,15 @@ export default function Login({ navigation }) {
                         onChangeText={handleChange('phoneNumber')}
                         onBlur={handleBlur('phoneNumber')}
                         value={phoneNumber}
-                        defaultValue='+62'
+                        defaultValue="+62"
                     >
-                        {console.log(phoneNumber)}
+                        {/* {console.log(phoneNumber)} */}
                     </TextInput>
+                    {errors.phoneNumber && (
+                        <Text style={styles.errorText}>
+                            {errors.phoneNumber}
+                        </Text>
+                    )}
                     <TouchableOpacity
                         style={styles.button}
                         onPress={handleSubmit}
@@ -164,5 +148,9 @@ const styles = StyleSheet.create({
         borderRadius: 40,
         height: 50,
         width: 240,
+    },
+    errorText: {
+        color: 'red',
+        marginTop: 5,
     },
 });
