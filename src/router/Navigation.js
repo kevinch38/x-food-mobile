@@ -41,8 +41,8 @@ const Navigation = () => {
                 {/*/>*/}
                 {/*<Stack.Screen name="Register" component={Register} />*/}
                 {/*<Stack.Screen name="Voucher" component={Voucher} />*/}
-                <Stack.Screen name="Tabs" component={Tabs} />
-                <Stack.Screen name="Merchant" component={MerchantBranch} />
+                {/*<Stack.Screen name="Tabs" component={Tabs} />*/}
+                {/*<Stack.Screen name="Merchant" component={MerchantBranch} />*/}
                 <Stack.Screen name={'Menu'} component={Menu} />
                 <Stack.Screen name={'MenuDetail'} component={Detail} />
                 <Stack.Screen name={'Profile'} component={Profile} />

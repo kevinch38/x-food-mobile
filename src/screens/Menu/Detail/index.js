@@ -1,47 +1,55 @@
-import { View, Text, SafeAreaView, StyleSheet, ScrollView } from 'react-native';
+import {
+    Image,
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import React, { useState } from 'react';
-import { StatusBar } from 'react-native';
-import bgDetail from '../../../assets/images/bg-menu-details.png';
-import { Image } from 'react-native';
 import BackButton from '../../../components/backButton';
 import { Button } from '@rneui/themed';
 import Color from '../../../assets/Color';
-import { TouchableOpacity } from 'react-native';
 import iconBag from '../../../assets/icons/bag.png';
 import { RoundedCheckbox } from 'react-native-rounded-checkbox';
 import { useRoute } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+    addToCart,
+    removeFromCart,
+    selectCartItems,
+    selectCartItemsById,
+} from '../../../slices/cartSlice';
 
 const Detail = ({ navigation }) => {
+    const dispatch = useDispatch();
     const route = useRoute();
-    const itemID = route.params?.itemID;
-    const itemDescription = route.params?.itemDescription;
-    const itemVarieties = route.params?.itemVarieties;
-    const priceParams = route.params?.priceItem;
-    const itemName = route.params?.itemName;
-    const image = route.params?.image;
+    const cartItems = useSelector(selectCartItems);
+    const item = route.params?.item;
 
-    let [price, setPrice] = useState(priceParams);
     let [qty, setQty] = useState(1);
     const [itemVariety, setItemVariety] = useState([]);
 
-    const base64StringImage = `data:image/jpeg;base64,${image}`;
+    const base64StringImage = `data:image/jpeg;base64,${item.image}`;
 
-    handleBack = () => {
+    const totalItems = useSelector((state) =>
+        selectCartItemsById(state, item.itemID),
+    );
+    const handleIncrease = () => {
+        const cartItem = { ...item, itemVarieties: itemVariety };
+        dispatch(addToCart(cartItem));
+    };
+    const handleDecrease = () => {
+        dispatch(removeFromCart({ id: item.itemID }));
+    };
+
+    const handleBack = () => {
         navigation.navigate('Menu');
     };
 
-    handleIncreQty = () => {
-        setQty(qty++);
-    };
-    handleDecreQty = () => {
-        if (qty > 0) setQty(qty--);
-    };
-
-    handleVariety = (checked, varietyPrice, varietyName) => {
-        const newPrice = checked ? price + varietyPrice : price - varietyPrice;
-        setPrice(newPrice);
-
+    const handleVariety = (checked, varietyPrice, varietyName) => {
         if (checked) {
             setItemVariety([...itemVariety, varietyName]);
         } else {
@@ -52,45 +60,15 @@ const Detail = ({ navigation }) => {
         }
     };
 
-    const itemToAddCart = {
-        id: itemID,
-        image: image,
-        qty: qty,
-        desc: itemDescription,
-        variety: itemVariety,
-    };
-
-    const addToCart = async (itemToAdd) => {
-        // console.log(itemToAdd.id, '==== item id');
-        // console.log(itemToAdd.image, '=== image');
-        // console.log(itemToAdd.qty, '=== qty');
-        // console.log(itemToAdd.desc, '=== desc');
-        // console.log(itemToAdd.variety, '=== variety');
-
-        try {
-            const existingItems = await AsyncStorage.getItem('cartItems');
-            let updatedItems = existingItems ? JSON.parse(existingItems) : [];
-
-            updatedItems.push(itemToAdd);
-
-            await AsyncStorage.setItem(
-                'cartItems',
-                JSON.stringify(updatedItems),
-            );
-            console.log('item berhasil ditambah');
-        } catch (error) {
-            console.error('gagal menambhkan item', error);
-        }
-    };
-
     const handleAddToCart = () => {
-        addToCart(itemToAddCart);
+        // addItemToCart(itemToAddCart);
         navigation.navigate('Cart');
     };
 
     return (
         <SafeAreaView style={styles.wrapper}>
             <ScrollView>
+                {/*<Button title={'hh'} onPress={console.log(item.itemID)} />*/}
                 <BackButton onPress={handleBack} />
                 <Image
                     source={{ uri: base64StringImage }}
@@ -110,7 +88,7 @@ const Detail = ({ navigation }) => {
                         marginHorizontal: '5%',
                     }}
                 >
-                    {itemName}
+                    {item.itemName}
                 </Text>
 
                 <View
@@ -129,12 +107,13 @@ const Detail = ({ navigation }) => {
                             marginHorizontal: '5%',
                         }}
                     >
-                        Rp. {price * qty}
+                        {/*Rp. {price * qty}*/}
+                        Rp. {item.price}
                     </Text>
 
                     <View style={{ display: 'flex', flexDirection: 'row' }}>
                         <Button
-                            onPress={handleDecreQty}
+                            onPress={handleDecrease}
                             title="-"
                             buttonStyle={{
                                 width: 40,
@@ -152,10 +131,10 @@ const Detail = ({ navigation }) => {
                                 marginHorizontal: '8%',
                             }}
                         >
-                            {qty}
+                            {totalItems.length}
                         </Text>
                         <Button
-                            onPress={handleIncreQty}
+                            onPress={handleIncrease}
                             title="+"
                             buttonStyle={{
                                 width: 40,
@@ -168,7 +147,7 @@ const Detail = ({ navigation }) => {
                     </View>
                 </View>
 
-                {itemVarieties.map((v, idx) => {
+                {item.itemVarieties.map((v, idx) => {
                     return (
                         <View key={idx}>
                             <View style={styles.wrapperTitle}>
