@@ -21,6 +21,7 @@ import Pin from '../screens/Pin';
 import MerchantBranch from '../screens/MerchantBranch';
 import Menu from '../screens/Menu';
 import Detail from '../screens/Menu/Detail';
+import Voucher from '../screens/Voucher';
 
 const Stack = createStackNavigator();
 
@@ -39,6 +40,7 @@ const Navigation = () => {
                 {/*    component={VerificationCodeScreen}*/}
                 {/*/>*/}
                 {/*<Stack.Screen name="Register" component={Register} />*/}
+                {/*<Stack.Screen name="Voucher" component={Voucher} />*/}
                 <Stack.Screen name="Tabs" component={Tabs} />
                 <Stack.Screen name="Merchant" component={MerchantBranch} />
                 <Stack.Screen name={'Menu'} component={Menu} />

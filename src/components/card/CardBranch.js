@@ -7,7 +7,7 @@ const CardBranch = ({ onPress, image, branchName, branchAddress }) => {
         <View style={styles.card}>
             <TouchableOpacity onPress={onPress}>
                 <Image
-                    source={require('../../assets/images/ph-kalibata.png')}
+                    source={{ uri: base64StringImage }}
                     style={styles.image}
                 />
                 <View
