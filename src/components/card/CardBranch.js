@@ -7,7 +7,7 @@ const CardBranch = ({ onPress, image, branchName, branchAddress }) => {
         <View style={styles.card}>
             <TouchableOpacity onPress={onPress}>
                 <Image
-                    source={require('../../assets/images/ph-kalibata.png')}
+                    source={{ uri: base64StringImage }}
                     style={styles.image}
                 />
                 <View
@@ -41,8 +41,8 @@ const CardBranch = ({ onPress, image, branchName, branchAddress }) => {
 
 const styles = StyleSheet.create({
     card: {
-        width: '80%',
-        marginHorizontal: '10%',
+        width: '90%',
+        marginHorizontal: '5%',
         marginTop: '5%',
         marginBottom: '2%',
         backgroundColor: '#fff',
@@ -55,10 +55,9 @@ const styles = StyleSheet.create({
     },
     image: {
         width: '100%',
-        height: 145,
+        height: 160,
         resizeMode: 'cover',
-        borderTopRightRadius: 10,
-        borderTopLeftRadius: 10,
+        borderRadius: 10,
     },
 });
 

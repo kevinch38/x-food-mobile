@@ -9,15 +9,35 @@ import {
     View,
 } from 'react-native';
 import BackButton from '../../components/backButton';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as Icon from 'react-native-feather';
 import { theme } from '../../theme';
 import InputText from '../../components/inputText';
 import { SelectCountry } from 'react-native-element-dropdown';
 import Button from '../../components/button';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+    addToCart,
+    removeFromCart,
+    selectCartItems,
+    selectCartItemsById,
+    selectCartTotal,
+} from '../../slices/cartSlice';
 
 function Cart({ navigation }) {
+    const dispatch = useDispatch();
     const [order, setOrder] = useState(0);
+    const cartItems = useSelector(selectCartItems);
+    const cartTotal = useSelector(selectCartTotal);
+    const [groupedItems, setGroupedItems] = useState({});
+    const handleIncrease = (itemID) => {
+        dispatch(addToCart({ id: itemID }));
+    };
+
+    const handleDecrease = (itemID) => {
+        dispatch(removeFromCart({ id: itemID }));
+    };
 
     const data = [
         {
@@ -42,20 +62,24 @@ function Cart({ navigation }) {
         },
     ];
 
-    const handleMinus = () => {
-        setOrder(order - 1);
-    };
-
-    const handlePlus = () => {
-        setOrder(order + 1);
-    };
+    useEffect(() => {
+        const items = cartItems.reduce((group, item) => {
+            if (group[item.itemID]) {
+                group[item.itemID].push(item);
+            } else {
+                group[item.itemID] = [item];
+            }
+            return group;
+        }, {});
+        setGroupedItems(items);
+    }, [cartItems]);
 
     const handleBack = () => {
-        navigation.goBack();
+        navigation.navigate('Menu');
     };
 
-    const handleClose = () => {
-        console.log('close');
+    const handleClose = (itemId) => {
+        dispatch(removeFromCart({ id: itemId }));
     };
 
     const handleCheckout = () => {
@@ -74,64 +98,79 @@ function Cart({ navigation }) {
     };
 
     const renderCart = () => {
-        return (
-            <View style={styles.sectionContainer}>
-                <Image
-                    source={require('../../assets/images/menu-cart.png')}
-                    style={styles.imageCart}
-                />
-                <View style={styles.menuContainer}>
-                    <View style={styles.menuSection}>
-                        <Text style={styles.titleMenu}>Chicken Hawaiian </Text>
-                        <TouchableOpacity onPress={handleClose}>
-                            <Icon.X
-                                width={17}
-                                height={17}
-                                stroke={'red'}
-                                strokeWidth={3}
-                            />
-                        </TouchableOpacity>
-                    </View>
-                    <Text style={styles.toppings}>
-                        Chicken, Cheese and pineapple
-                    </Text>
-                    <View style={styles.priceSection}>
-                        <Text style={styles.priceMenu}>Rp. 50.000</Text>
-                        <View style={styles.counter}>
-                            {order === 0 ? (
-                                <TouchableOpacity disabled>
-                                    <Icon.MinusCircle
-                                        width={28}
-                                        height={28}
-                                        stroke={theme.grey}
-                                        strokeWidth={1}
-                                    />
-                                </TouchableOpacity>
-                            ) : (
-                                <TouchableOpacity onPress={handleMinus}>
-                                    <Icon.MinusCircle
-                                        width={28}
-                                        height={28}
-                                        stroke={theme.primary}
-                                        strokeWidth={2}
-                                    />
-                                </TouchableOpacity>
-                            )}
-                            <Text style={styles.numCounter}>{order}</Text>
-                            <TouchableOpacity onPress={handlePlus}>
-                                <Icon.PlusCircle
-                                    width={30}
-                                    height={30}
-                                    fill={theme.primary}
-                                    stroke="#fff"
-                                    strokeWidth={2}
+        return Object.entries(groupedItems).map(([key, items]) => {
+            const item = items[0];
+            return (
+                <View style={styles.sectionContainer} key={key}>
+                    <Image
+                        source={require('../../assets/images/menu-cart.png')}
+                        style={styles.imageCart}
+                    />
+                    <View style={styles.menuContainer}>
+                        <View style={styles.menuSection}>
+                            <Text style={styles.titleMenu}>
+                                {item.itemName}
+                            </Text>
+                            <TouchableOpacity
+                                onPress={() => handleClose(item.itemID)}
+                            >
+                                <Icon.X
+                                    width={17}
+                                    height={17}
+                                    stroke={'red'}
+                                    strokeWidth={3}
                                 />
                             </TouchableOpacity>
                         </View>
+                        <Text style={styles.toppings}>
+                            {item.itemDescription}
+                        </Text>
+                        <View style={styles.priceSection}>
+                            <Text style={styles.priceMenu}>
+                                Rp. {item.initialPrice}
+                            </Text>
+                            <View style={styles.counter}>
+                                {order === cartTotal.length ? (
+                                    <TouchableOpacity disabled>
+                                        <Icon.MinusCircle
+                                            width={28}
+                                            height={28}
+                                            stroke={theme.grey}
+                                            strokeWidth={1}
+                                        />
+                                    </TouchableOpacity>
+                                ) : (
+                                    <TouchableOpacity
+                                        onPress={() =>
+                                            handleDecrease(item.itemID)
+                                        }
+                                    >
+                                        <Icon.MinusCircle
+                                            width={28}
+                                            height={28}
+                                            stroke={theme.primary}
+                                            strokeWidth={2}
+                                        />
+                                    </TouchableOpacity>
+                                )}
+                                <Text style={styles.numCounter}>{order}</Text>
+                                <TouchableOpacity
+                                    onPress={() => handleIncrease(item.itemID)}
+                                >
+                                    <Icon.PlusCircle
+                                        width={30}
+                                        height={30}
+                                        fill={theme.primary}
+                                        stroke="#fff"
+                                        strokeWidth={2}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
                     </View>
                 </View>
-            </View>
-        );
+            );
+        });
     };
 
     const renderInformation = () => {
@@ -196,6 +235,7 @@ function Cart({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
+            {/*<Button title={'tt'} onPress={console.log(cartItems)} />*/}
             <ScrollView>
                 {renderHeader()}
                 <View style={styles.sectionWrapper}>

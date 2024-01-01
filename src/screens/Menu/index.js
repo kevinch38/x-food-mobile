@@ -32,25 +32,16 @@ const Menu = ({ navigation }) => {
 
     const [isLoading, setIsLoading] = useState(true);
 
-    handleToMenuDetail = (
-        itemID,
-        itemDescription,
-        itemVarieties,
-        itemName,
-        priceItem,
-        image,
-    ) => {
+    const handleToMenuDetail = (item) => {
         navigation.navigate('MenuDetail', {
-            itemID,
-            itemDescription,
-            itemVarieties,
-            itemName,
-            priceItem,
-            image,
+            item,
         });
     };
 
-    handleBack = () => {
+    const handleToCart = () => {
+        navigation.navigate('Cart');
+    };
+    const handleBack = () => {
         navigation.navigate('Merchant');
     };
 
@@ -83,10 +74,6 @@ const Menu = ({ navigation }) => {
                 <View style={styles.container}>
                     <ScrollView style={{ marginBottom: '25%' }}>
                         <BackButton onPress={handleBack} />
-                        {/* <Button
-                            title="hh"
-                            onPress={console.log(branch.isDiscounted)}
-                        /> */}
                         <View style={styles.wrapperProfile}>
                             <View style={styles.outerCircle}>
                                 <View style={styles.outerInnerCircle}>
@@ -116,24 +103,28 @@ const Menu = ({ navigation }) => {
                                 {branch.address}
                             </Text>
                         </View>
+                        <View
+                            style={{
+                                width: '100%',
+                                marginHorizontal: '5%',
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    fontWeight: '900',
+                                    fontSize: 30,
+                                }}
+                            >
+                                Menu
+                            </Text>
+                        </View>
                         {Array.isArray(branch.items) &&
                             branch.items.length > 0 &&
                             branch.items.map((item, idx) => {
                                 return (
                                     <CardMenu
                                         key={idx}
-                                        onPress={() =>
-                                            handleToMenuDetail(
-                                                item.itemID,
-                                                item.itemDescription,
-                                                item.itemVarieties,
-                                                item.itemName,
-                                                item.isDiscounted
-                                                    ? item.discountedPrice
-                                                    : item.initialPrice,
-                                                item.image,
-                                            )
-                                        }
+                                        onPress={() => handleToMenuDetail(item)}
                                         isDiscount={item.isDiscounted}
                                         discountedPrice={item.discountedPrice}
                                         initialPrice={item.initialPrice}
@@ -161,7 +152,7 @@ const Menu = ({ navigation }) => {
                                 width: '500',
                             }}
                         >
-                            <TouchableOpacity onPress={handleToMenuDetail}>
+                            <TouchableOpacity onPress={handleToCart}>
                                 <Image
                                     source={iconBag}
                                     style={{
@@ -229,7 +220,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     wrapperProfile: {
-        height: 339,
+        height: 270,
         width: 314,
         marginTop: '5%',
         marginLeft: '40%',

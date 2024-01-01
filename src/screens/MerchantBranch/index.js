@@ -32,12 +32,12 @@ const Merchant = ({ navigation }) => {
     const route = useRoute();
     const receivedId = route.params?.id;
     const cityId = route.params?.cityId;
+    const [branches, setBranches] = useState([]);
 
     const [isLoading, setIsLoading] = useState(true);
 
-    // const filteredBranch = branchs.filter(
-    //     (branch) =>
-    //         branch.merchantID === receivedId && branch.cityID === cityId,
+    // const filteredBranch = branches.filter(
+    //     (branch) => branch.city.cityID === cityId,
     // );
 
     handleBack = () => {
@@ -47,13 +47,18 @@ const Merchant = ({ navigation }) => {
     handleToMenu = (branchId) => {
         navigation.navigate('Menu', { branchId });
     };
+
+    // useEffect(() => {
+    //     setBranches(merchant.merchantBranches);
+    // }, [merchant.merchantBranches]);
+
     useEffect(() => {
         const onGetMerchant = async () => {
             try {
                 setIsLoading(true);
 
                 await dispatch(
-                    selectedMerchantAction(() =>
+                    selectUserByPhoneNumberAction(() =>
                         merchantService.fetchMerchantById(receivedId),
                     ),
                 );
@@ -205,7 +210,7 @@ const styles = StyleSheet.create({
         height: 19,
     },
     bgProfile: {
-        marginTop: -23,
+        marginTop: -35,
         resizeMode: 'contain',
         width: 378,
         height: 285,
