@@ -14,6 +14,7 @@ const VerificationCodeScreen = () => {
     const [focusedInput, setFocusedInput] = useState(null);
     const [isValidCode, setIsValidCode] = useState(true);
     const [otpID, setOtpID] = useState(null);
+    const [firstName, setFirstName] = useState("")
     const navigation = useNavigation();
     const route = useRoute();
     const userService = UserService();
@@ -28,6 +29,7 @@ const VerificationCodeScreen = () => {
             console.log('userData:', userData);
 
             if (userData && userData.data.otpID) {
+                setFirstName(userData.data.firstName);
                 setOtpID(userData.data.otpID);
             } else {
                 console.error('Error fetching user data or otpID is null:', userData);
@@ -57,15 +59,19 @@ const VerificationCodeScreen = () => {
                 const data = response.data;
 
                 console.log('Check OTP response:', data);
-
-                if (data.data) {
+                console.log(firstName);
+                if (data.data && firstName === "") {
                     setIsValidCode(true);
                     console.log('Code is valid. Navigating to Register.');
-                    navigation.navigate('Register');
+                    navigation.navigate('Register');  // Pindah ke Register jika firstName kosong
+                } else if (data.data && firstName !== "") {
+                    setIsValidCode(true);
+                    navigation.navigate('Home');  // Pindah ke VerificationCode jika firstName sudah terisi
                 } else {
                     setIsValidCode(false);
                     console.log('Code is invalid.');
                 }
+
             } else {
                 console.error('otpID is null');
             }

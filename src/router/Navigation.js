@@ -40,6 +40,7 @@ const Navigation = () => {
                     component={VerificationCodeScreen}
                 />
                 <Stack.Screen name="Register" component={Register} />
+                <Stack.Screen name="Home" component={PinCreationScreen} />
                 <Stack.Screen name="Tabs" component={Tabs} />
                 <Stack.Screen name="Merchant" component={MerchantBranch} />
                 <Stack.Screen name={'Menu'} component={Menu} />

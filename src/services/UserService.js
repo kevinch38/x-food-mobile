@@ -2,16 +2,25 @@ import axios from 'axios';
 
 
 const UserService = () => {
-    const register = async (user) => {
+    const register = async (phoneNumber) => {
         try {
-            console.log(user);
+
+            const newUserRequest = {
+                phoneNumber: phoneNumber,
+            };
+
             const data = await axios.post(
-                `http://10.0.2.2:8087/api/users/register`,
-                user,
+                'http://10.0.2.2:8087/api/users/register',
+                newUserRequest,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
             );
             return data;
         } catch (error) {
-            throw error.data || error;
+            throw error.response.data || error;
         }
     };
 
@@ -21,11 +30,21 @@ const UserService = () => {
     };
 
     const fetchUserByPhoneNumber = async (phoneNumber) => {
-        const { data } = await axios.get(
-            `http://10.0.2.2:8087/api/users/${phoneNumber}`,
-        );
-        return data;
-    }; 
+        try {
+            const { data } = await axios.get(
+                `http://10.0.2.2:8087/api/users/${phoneNumber}`,
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                }
+            );
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    };
+
 
     const updateUser = async (user) => {
         const { data } = await axios.put(
