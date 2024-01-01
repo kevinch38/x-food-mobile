@@ -5,13 +5,14 @@ import {
     StatusBar,
     StyleSheet,
     Text,
+    TouchableOpacity,
     View,
 } from 'react-native';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Color from '../../assets/Color';
 import Button from '../../components/button';
 import { theme } from '../../theme';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import { userAction } from '../../slices/userSlice';
 import { useFormik } from 'formik';
@@ -23,6 +24,9 @@ import BackButton from '../../components/backButton';
 function CompleteProfile({ navigation }) {
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
+    const { users } = useSelector((state) => state.user);
+    const [isKtpVerified, setIsKtpVerified] = useState(false);
+    const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState(true);
 
     const schema = yup.object().shape({
         ktpID: yup
@@ -70,15 +74,9 @@ function CompleteProfile({ navigation }) {
             ktpID: '',
             accountEmail: '',
             phoneNumber: '',
-            pinID: '',
-            createdAt: new Date(),
             firstName: '',
             lastName: '',
             dateOfBirth: '',
-            updatedAt: new Date(),
-            balanceID: '',
-            loyaltyPointID: '',
-            otpID: '',
         },
         onSubmit: async (values) => {
             if (!isValid) return;
@@ -109,12 +107,12 @@ function CompleteProfile({ navigation }) {
     });
 
     useEffect(() => {
-        const phoneNumber = '+6285201205272';
-        if (phoneNumber) {
+        if (users.phoneNumber) {
             dispatch(
                 userAction(async () => {
-                    const result =
-                        await userService.fetchUserByPhoneNumber(phoneNumber);
+                    const result = await userService.fetchUserByPhoneNumber(
+                        users.phoneNumber,
+                    );
                     const updateData = {
                         ...result.data,
                     };
@@ -123,6 +121,7 @@ function CompleteProfile({ navigation }) {
                         accountID: updateData.accountID,
                         ktpID: updateData.ktpID,
                         accountEmail: updateData.accountEmail,
+                        phoneNumber: updateData.phoneNumber,
                         firstName: updateData.firstName,
                         lastName: updateData.lastName,
                         dateOfBirth: updateData.dateOfBirth,
@@ -133,6 +132,26 @@ function CompleteProfile({ navigation }) {
             );
         }
     }, [dispatch, userService, setValues]);
+
+    const handleVerifyKtp = async () => {
+        const registeredKtpIDs = [
+            '1234567890123456',
+            '9876543210987654',
+            '1111222233334444',
+        ];
+
+        const exists = registeredKtpIDs.includes(ktpID);
+
+        if (exists) {
+            Alert.alert('Peringatan', 'NIK sudah terdaftar di database');
+            setIsKtpVerified(true);
+            setIsSaveButtonDisabled(true);
+        } else {
+            Alert.alert('Sukses', 'NIK tersedia');
+            setIsKtpVerified(false);
+            setIsSaveButtonDisabled(false);
+        }
+    };
 
     const renderHeader = () => {
         return (
@@ -155,12 +174,23 @@ function CompleteProfile({ navigation }) {
                         placeholder={'3347891801970001'}
                         keyboardType={'numeric'}
                         onChangeText={handleChange('ktpID')}
+                        maxLength={16}
                         value={ktpID}
                     />
                     {touched.ktpID && errors.ktpID && (
                         <ErrorText message={errors.ktpID} />
                     )}
                 </View>
+
+                <View style={styles.verifyContainer}>
+                    <TouchableOpacity
+                        onPress={handleVerifyKtp}
+                        style={styles.buttonVerify}
+                    >
+                        <Text style={styles.titleVerify}>Verify</Text>
+                    </TouchableOpacity>
+                </View>
+
                 <View>
                     <InputText
                         label={'Date of Birth'}
@@ -186,12 +216,13 @@ function CompleteProfile({ navigation }) {
                     buttonStyle={[
                         styles.customButton,
                         {
-                            opacity: isValid && dirty ? 1 : 0.5,
+                            opacity:
+                                isValid && dirty && !isKtpVerified ? 1 : 0.5,
                         },
                     ]}
                     titleStyle={styles.customTitle}
                     onPress={() => handleSubmit()}
-                    disabled={!isValid || !dirty}
+                    disabled={!isValid || !dirty || isSaveButtonDisabled}
                 />
             </View>
         );
@@ -260,6 +291,20 @@ const styles = StyleSheet.create({
     customTitle: {
         fontWeight: 900,
         fontSize: 15,
+    },
+    verifyContainer: {
+        alignItems: 'flex-end',
+        marginTop: 8,
+    },
+    titleVerify: {
+        backgroundColor: Color.primary,
+        color: '#fff',
+        borderRadius: 24,
+        paddingVertical: 8,
+        paddingHorizontal: 24,
+        fontSize: 16,
+        fontWeight: '500',
+        textAlign: 'center',
     },
 });
 export default CompleteProfile;

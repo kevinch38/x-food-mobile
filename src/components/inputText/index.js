@@ -15,6 +15,7 @@ function InputText({
     editable,
     onBlur,
     inputContainerCustom,
+    maxLength,
     ...otherProps
 }) {
     const [isFocused, setFocused] = useState(false);
@@ -64,6 +65,7 @@ function InputText({
                     showSoftInputOnFocus={showSoftInputOnFocus}
                     onChangeText={onChangeText}
                     editable={editable}
+                    maxLength={maxLength}
                 />
             </View>
         </>

@@ -61,14 +61,12 @@ const Detail = ({ navigation }) => {
     };
 
     const handleAddToCart = () => {
-        // addItemToCart(itemToAddCart);
         navigation.navigate('Cart');
     };
 
     return (
         <SafeAreaView style={styles.wrapper}>
             <ScrollView>
-                {/*<Button title={'hh'} onPress={console.log(item.itemID)} />*/}
                 <BackButton onPress={handleBack} />
                 <Image
                     source={{ uri: base64StringImage }}

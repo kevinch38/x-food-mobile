@@ -38,13 +38,17 @@ function Profile({ navigation }) {
         'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
 
     useEffect(() => {
-        const onGetUserByPhoneNumber = async () => {
+        const onGetUserByPhoneNumber = () => {
             const phoneNumber = '+6285201205272';
             try {
-                await dispatch(
-                    userAction(() =>
-                        userService.fetchUserByPhoneNumber(phoneNumber),
-                    ),
+                dispatch(
+                    userAction(async () => {
+                        const result =
+                            await userService.fetchUserByPhoneNumber(
+                                phoneNumber,
+                            );
+                        return result;
+                    }),
                 );
 
                 if (users.profilePhoto) {
@@ -57,15 +61,16 @@ function Profile({ navigation }) {
             }
         };
 
-        const onGetLoyaltyPointAmount = async () => {
-            const loyaltyPointID = 'ff8080818cc0054c018cc005c5600229';
+        const onGetLoyaltyPointAmount = () => {
             try {
-                await dispatch(
-                    loyaltyPointAction(() =>
-                        loyaltyPointService.fetchLoyaltyPointById(
-                            loyaltyPointID,
-                        ),
-                    ),
+                dispatch(
+                    loyaltyPointAction(async () => {
+                        const result =
+                            loyaltyPointService.fetchLoyaltyPointById(
+                                users.loyaltyPointID,
+                            );
+                        return result;
+                    }),
                 );
             } catch (e) {
                 console.error('Error fetching loyalty point data: ', e);
@@ -73,13 +78,7 @@ function Profile({ navigation }) {
         };
         onGetUserByPhoneNumber();
         onGetLoyaltyPointAmount();
-    }, [
-        dispatch,
-        userService,
-        users.profilePhoto,
-        loyaltyPointService,
-        users.phoneNumber,
-    ]);
+    }, [dispatch, users.length, userService]);
 
     const openModal = () => {
         setModalVisible(true);
@@ -218,19 +217,8 @@ function Profile({ navigation }) {
                                 Loading ...
                             </Text>
                         )}
-
-                        <View style={styles.cameraWrapper}>
-                            <TouchableOpacity onPress={openModal}>
-                                <Image
-                                    source={camera}
-                                    style={styles.iconCamera}
-                                />
-                            </TouchableOpacity>
-                        </View>
                     </View>
                 </View>
-
-                {renderModal()}
 
                 <View
                     style={{

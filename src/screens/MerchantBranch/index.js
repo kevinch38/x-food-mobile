@@ -148,6 +148,7 @@ const Merchant = ({ navigation }) => {
                             return (
                                 <CardBranch
                                     key={idx}
+                                    image={b.image}
                                     onPress={() => handleToMenu(b.branchID)}
                                     branchName={b.branchName}
                                     branchAddress={b.branchAddress}

@@ -30,7 +30,7 @@ const Home = ({ navigation }) => {
     const { merchantService, cityService, loyaltyPointService } =
         useContext(ServiceContext);
     const [value, setValue] = useState('4028c7f08c813f12018c813f1eb20108');
-    const [cityId, setCityId] = useState('8a8ae40b8cabc928018cabc9359000c0');
+    const [cityId, setCityId] = useState('ff8080818cc0054c018cc00563680119');
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
 
@@ -46,10 +46,10 @@ const Home = ({ navigation }) => {
         search.trim() === ''
             ? filteredMerchants
             : filteredMerchants.filter((merchant) =>
-                merchant.merchantName
-                    .toLowerCase()
-                    .includes(search.toLowerCase()),
-            );
+                  merchant.merchantName
+                      .toLowerCase()
+                      .includes(search.toLowerCase()),
+              );
 
     const handleCard = (id, cityId) => {
         navigation.navigate('Merchant', { id, cityId });
@@ -173,7 +173,7 @@ const Home = ({ navigation }) => {
                             style={{ width: 20, height: 20 }}
                             source={require('../assets/icons/dollar.png')}
                         />
-                        <Text>0</Text>
+                        <Text>{loyaltyPoints.loyaltyPointAmount}</Text>
                     </View>
                     <View style={styles.viewTitle}>
                         <Text style={styles.titleList}>

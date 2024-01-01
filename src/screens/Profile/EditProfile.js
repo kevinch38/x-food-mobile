@@ -1,6 +1,7 @@
 import {
     Alert,
     Image,
+    Modal,
     SafeAreaView,
     ScrollView,
     StatusBar,
@@ -10,13 +11,12 @@ import {
     View,
 } from 'react-native';
 import bgProfile from '../../assets/images/bg-profile.png';
-import photo from '../../assets/images/profile.png';
 import camera from '../../assets/icons/camera.png';
 import Color from '../../assets/Color';
 import Button from '../../components/button';
 import { theme } from '../../theme';
-import { useDispatch } from 'react-redux';
-import React, { useContext, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import React, { useContext, useEffect, useState } from 'react';
 import { ServiceContext } from '../../context/ServiceContext';
 import { useFormik } from 'formik';
 import { userAction } from '../../slices/userSlice';
@@ -24,10 +24,18 @@ import * as yup from 'yup';
 import InputText from '../../components/inputText';
 import ErrorText from '../../components/errorText';
 import BackButton from '../../components/backButton';
+import * as ImagePicker from 'expo-image-picker';
+import * as Icon from 'react-native-feather';
 
 function EditProfile({ navigation }) {
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
+    const { users } = useSelector((state) => state.user);
+    const [image, setImage] = useState();
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const imageUrl =
+        'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
 
     const schema = yup.object().shape({
         firstName: yup
@@ -62,11 +70,30 @@ function EditProfile({ navigation }) {
         },
         onSubmit: (values) => {
             if (!isValid) return;
+            //
+            // const formData = new FormData();
+            // formData.append('accountID', values.accountID.toString());
+            // formData.append('ktpID', values.ktpID);
+            // formData.append('accountEmail', values.accountEmail);
+            // formData.append('firstName', values.firstName);
+            // formData.append('lastName', values.lastName);
+            // formData.append('dateOfBirth', values.dateOfBirth);
+            // formData.append('phoneNumber', values.phoneNumber);
+            //
+            // if (values.profilePhoto) {
+            //     const uri = values.profilePhoto;
+            //     const type = 'image/jpeg';
+            //     const name = 'profile.jpg';
+            //     formData.append('profilePhoto', { uri, type, name });
+            // }
+            //
+            // console.log('FormData sebelum dikirim:', formData);
 
             try {
                 dispatch(
                     userAction(async () => {
                         const result = await userService.updateUser(values);
+
                         if (result.statusCode === 200) {
                             Alert.alert(
                                 'Success',
@@ -99,6 +126,15 @@ function EditProfile({ navigation }) {
                 userAction(async () => {
                     const result =
                         await userService.fetchUserByPhoneNumber(phoneNumber);
+
+                    if (users.profilePhoto) {
+                        setImage(
+                            `data:image/jpeg;base64,${users.profilePhoto}`,
+                        );
+                    } else {
+                        setImage(imageUrl);
+                    }
+
                     const updateData = {
                         ...result.data,
                     };
@@ -119,6 +155,56 @@ function EditProfile({ navigation }) {
         }
     }, [dispatch, userService, setValues]);
 
+    const openModal = () => {
+        setModalVisible(true);
+    };
+    const closeModal = () => {
+        setModalVisible(false);
+    };
+    const uploadImage = async (mode) => {
+        try {
+            let result = {};
+
+            if (mode === 'gallery') {
+                await ImagePicker.requestMediaLibraryPermissionsAsync();
+                result = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    allowsEditing: true,
+                    aspect: [1, 1],
+                    quality: 1,
+                });
+            } else {
+                await ImagePicker.requestCameraPermissionsAsync();
+                result = await ImagePicker.launchCameraAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    allowsEditing: true,
+                    aspect: [1, 1],
+                    quality: 1,
+                });
+            }
+
+            if (!result.canceled) {
+                // save image
+                await saveImage(result.assets[0].uri);
+            }
+        } catch (e) {
+            alert('Error uploading image: ' + e.message);
+            closeModal();
+        }
+    };
+    const saveImage = async (image) => {
+        try {
+            setImage(image);
+            // setValues((prevState) => ({
+            //     ...prevState,
+            //     profilePhoto: image,
+            // }));
+            closeModal();
+        } catch (e) {
+            throw e;
+        }
+    };
+
     const renderHeader = () => {
         return (
             <View>
@@ -129,18 +215,95 @@ function EditProfile({ navigation }) {
             </View>
         );
     };
+    const renderModal = () => {
+        return (
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={closeModal}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.titleModal}>Profile Photo</Text>
+                        <View style={styles.choiceBtnProfile}>
+                            <TouchableOpacity onPress={uploadImage}>
+                                <View style={styles.btnOption}>
+                                    <Icon.Camera
+                                        width={24}
+                                        height={24}
+                                        strokeWidth={2}
+                                        color={Color.primary}
+                                    />
+                                    <Text style={styles.textBtn}>Camera</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => uploadImage('gallery')}
+                            >
+                                <View style={styles.btnOption}>
+                                    <Icon.Image
+                                        width={24}
+                                        height={24}
+                                        strokeWidth={2}
+                                        color={Color.primary}
+                                    />
+                                    <Text style={styles.textBtn}>Gallery</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={closeModal}>
+                                <View style={styles.btnOption}>
+                                    <Icon.X
+                                        width={24}
+                                        height={24}
+                                        strokeWidth={3}
+                                        color={Color.primary}
+                                    />
+                                    <Text style={styles.textBtn}>Cancel</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        );
+    };
 
     const renderEditProfile = () => {
         return (
             <View>
                 <View style={styles.wrapperProfile}>
                     <View style={styles.outerCircle}>
-                        <Image source={photo} style={styles.photo} />
+                        {image ? (
+                            <Image
+                                source={{
+                                    uri: image,
+                                }}
+                                style={styles.photo}
+                            />
+                        ) : (
+                            <Text
+                                style={{
+                                    textAlign: 'center',
+                                    color: '#9ca3af',
+                                }}
+                            >
+                                Loading ...
+                            </Text>
+                        )}
+
                         <View style={styles.wrapperCamera}>
-                            <Image source={camera} style={styles.iconCamera} />
+                            <TouchableOpacity onPress={openModal}>
+                                <Image
+                                    source={camera}
+                                    style={styles.iconCamera}
+                                />
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>
+
+                {renderModal()}
 
                 <View style={styles.wrapperInput}>
                     <View>
@@ -321,6 +484,43 @@ const styles = StyleSheet.create({
         fontWeight: '900',
         fontSize: 15,
         color: theme.secondary,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 12,
+        elevation: 5,
+    },
+    titleModal: {
+        textAlign: 'center',
+        fontSize: 20,
+        fontWeight: '800',
+        marginBottom: 15,
+    },
+    choiceBtnProfile: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    btnOption: {
+        alignItems: 'center',
+        padding: 12,
+        borderRadius: 12,
+        marginHorizontal: 8,
+        backgroundColor: '#f3f4f6',
+    },
+    textBtn: {
+        marginTop: 4,
+        fontSize: 12,
+    },
+    modalOption: {
+        fontSize: 18,
+        marginBottom: 15,
     },
 });
 export default EditProfile;

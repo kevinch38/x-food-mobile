@@ -12,12 +12,6 @@ const UserService = () => {
             throw error.data || error;
         }
     };
-    const fetchUserById = async (id) => {
-        const { data } = await axios.get(
-            `http://10.0.2.2:8087/api/users/${id}`,
-        );
-        return data;
-    };
 
     const fetchUserByPhoneNumber = async (phoneNumber) => {
         const { data } = await axios.get(
@@ -38,7 +32,6 @@ const UserService = () => {
         fetchUserByPhoneNumber,
         updateUser,
         register,
-        fetchUserById,
     };
 };
 
