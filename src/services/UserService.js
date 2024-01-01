@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-
 const UserService = () => {
     const register = async (user) => {
         try {
@@ -14,10 +13,11 @@ const UserService = () => {
         }
     };
     const fetchUserById = async (id) => {
-        const { data } = await axios.get(`http://10.0.2.2:8087/api/users/${id}`);
+        const { data } = await axios.get(
+            `http://10.0.2.2:8087/api/users/${id}`,
+        );
         return data;
     };
-
 
     const fetchUserByPhoneNumber = async (phoneNumber) => {
         const { data } = await axios.get(
@@ -25,20 +25,24 @@ const UserService = () => {
         );
         return data;
     };
-  
 
     const updateUser = async (user) => {
-        const { data } = await axios.put(
-            `http://10.0.2.2:8087/api/users`,
-            user,
-        );
-        return data;
+        try {
+            const { data } = await axios.put(
+                `http://10.0.2.2:8087/api/users`,
+                user,
+            );
+            return data;
+        } catch (error) {
+            throw error.data || error;
+        }
     };
 
     return {
         fetchUserByPhoneNumber,
         updateUser,
-        register, fetchUserById
+        register,
+        fetchUserById,
     };
 };
 

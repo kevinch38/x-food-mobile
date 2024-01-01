@@ -10,8 +10,8 @@ export const selectUserAction = createAsyncThunk(
 
 export const userRegisterAction = createAsyncThunk(
     'user/registerAction',
-    RequestHelper,);
-
+    RequestHelper,
+);
 
 export const selectedUserPhoneNumberAction = createAsyncThunk(
     'user/selectedUserPhoneNumberAction',
@@ -28,6 +28,7 @@ const userSlice = createSlice({
         users: [],
         selectedUser: null,
         registerUser: null,
+        phoneNumber: '+6208123',
     },
     extraReducers: (builder) => {
         builder.addCase(userAction.fulfilled, (state, { payload }) => {
@@ -40,22 +41,25 @@ const userSlice = createSlice({
                 state.selectedUser = payload;
             }
         });
-        builder.addCase(userRegisterAction.fulfilled, (state, { payload }) => {
-            if (payload) {
-                state.registerUser = payload.data;
-            }
-        }).addCase(userAction.rejected, ({payload}) => {
-            const errorPayload = payload
-            if (
-                errorPayload &&
-                errorPayload.response &&
-                errorPayload.response.status === 409
-            ) {
-                alert('Email sudah terpakai');
-            } else {
-                alert(errorPayload);
-            }
-        });
+        builder
+            .addCase(userRegisterAction.fulfilled, (state, { payload }) => {
+                if (payload) {
+                    state.registerUser = payload.data;
+                }
+            })
+            .addCase(userRegisterAction.rejected, ({ payload }) => {
+                const errorPayload = payload;
+                if (
+                    errorPayload &&
+                    errorPayload.response &&
+                    errorPayload.response.status === 409
+                ) {
+                    console.log('emailsudasada');
+                } else {
+                    // alert(errorPayload);
+                    // console.log(errorPayload, 'error slice payload');
+                }
+            });
         builder.addCase(
             selectedUserPhoneNumberAction.fulfilled,
             (state, { payload }) => {
