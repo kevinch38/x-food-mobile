@@ -66,7 +66,7 @@ const VerificationCodeScreen = () => {
                     navigation.navigate('Register');  // Pindah ke Register jika firstName kosong
                 } else if (data.data && firstName !== "") {
                     setIsValidCode(true);
-                    navigation.navigate('Home');  // Pindah ke VerificationCode jika firstName sudah terisi
+                    navigation.navigate('Tabs');  // Pindah ke VerificationCode jika firstName sudah terisi
                 } else {
                     setIsValidCode(false);
                     console.log('Code is invalid.');
