@@ -8,9 +8,9 @@ import {
     Text,
     TouchableOpacity,
     View,
+    Modal,
 } from 'react-native';
 import bgProfile from '../../assets/images/bg-profile.png';
-import photo from '../../assets/images/profile.png';
 import card from '../../assets/images/card.png';
 import xfood from '../../assets/images/xfood.png';
 import camera from '../../assets/icons/camera.png';
@@ -22,31 +22,110 @@ import { useContext, useEffect, useState } from 'react';
 import { ServiceContext } from '../../context/ServiceContext';
 import { userAction } from '../../slices/userSlice';
 import Button from '../../components/button';
+import * as ImagePicker from 'expo-image-picker';
+import * as Icon from 'react-native-feather';
+import { loyaltyPointAction } from '../../slices/loyaltyPointSlice';
 
 function Profile({ navigation }) {
     const dispatch = useDispatch();
     const { users } = useSelector((state) => state.user);
-    const { userService } = useContext(ServiceContext);
+    const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
+    const { userService, loyaltyPointService } = useContext(ServiceContext);
+    const [image, setImage] = useState();
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const imageUrl =
+        'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
 
     useEffect(() => {
         const onGetUserByPhoneNumber = async () => {
-            await dispatch(
-                userAction(() => userService.fetchUserByPhoneNumber('1')),
-            );
+            const phoneNumber = '+6285201205272';
+            try {
+                await dispatch(
+                    userAction(() =>
+                        userService.fetchUserByPhoneNumber(phoneNumber),
+                    ),
+                );
+
+                if (users.profilePhoto) {
+                    setImage(`data:image/jpeg;base64,${users.profilePhoto}`);
+                } else {
+                    setImage(imageUrl);
+                }
+            } catch (e) {
+                console.error('Error fetching user data: ', e);
+            }
+        };
+
+        const onGetLoyaltyPointAmount = async () => {
+            const loyaltyPointID = 'ff8080818cc0054c018cc005c5600229';
+            try {
+                await dispatch(
+                    loyaltyPointAction(() =>
+                        loyaltyPointService.fetchLoyaltyPointById(
+                            loyaltyPointID,
+                        ),
+                    ),
+                );
+            } catch (e) {
+                console.error('Error fetching loyalty point data: ', e);
+            }
         };
         onGetUserByPhoneNumber();
-    }, [dispatch, userService]);
+        onGetLoyaltyPointAmount();
+    }, [
+        dispatch,
+        userService,
+        users.profilePhoto,
+        loyaltyPointService,
+        users.phoneNumber,
+    ]);
 
-    const handleEditProfile = () => {
-        navigation.navigate('EditProfile');
+    const openModal = () => {
+        setModalVisible(true);
     };
-
-    const handleTopUp = () => {
-        navigation.navigate('TopUp');
+    const closeModal = () => {
+        setModalVisible(false);
     };
+    const uploadImage = async (mode) => {
+        try {
+            let result = {};
 
-    const handleCompleteProfile = () => {
-        navigation.navigate('CompleteProfile');
+            if (mode === 'gallery') {
+                await ImagePicker.requestMediaLibraryPermissionsAsync();
+                result = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    allowsEditing: true,
+                    aspect: [1, 1],
+                    quality: 1,
+                });
+            } else {
+                await ImagePicker.requestCameraPermissionsAsync();
+                result = await ImagePicker.launchCameraAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    allowsEditing: true,
+                    aspect: [1, 1],
+                    quality: 1,
+                });
+            }
+
+            if (!result.canceled) {
+                // save image
+                await saveImage(result.assets[0].uri);
+            }
+        } catch (e) {
+            alert('Error uploading image: ' + e.message);
+            closeModal();
+        }
+    };
+    const saveImage = async (image) => {
+        try {
+            // update displayed image
+            setImage(image);
+            closeModal();
+        } catch (e) {
+            throw e;
+        }
     };
 
     const handleLogout = () => {
@@ -63,14 +142,85 @@ function Profile({ navigation }) {
         );
     };
 
+    const renderModal = () => {
+        return (
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={closeModal}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.titleModal}>Profile Photo</Text>
+                        <View style={styles.choiceBtnProfile}>
+                            <TouchableOpacity onPress={uploadImage}>
+                                <View style={styles.btnOption}>
+                                    <Icon.Camera
+                                        width={24}
+                                        height={24}
+                                        strokeWidth={2}
+                                        color={Color.primary}
+                                    />
+                                    <Text style={styles.textBtn}>Camera</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => uploadImage('gallery')}
+                            >
+                                <View style={styles.btnOption}>
+                                    <Icon.Image
+                                        width={24}
+                                        height={24}
+                                        strokeWidth={2}
+                                        color={Color.primary}
+                                    />
+                                    <Text style={styles.textBtn}>Gallery</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={closeModal}>
+                                <View style={styles.btnOption}>
+                                    <Icon.X
+                                        width={24}
+                                        height={24}
+                                        strokeWidth={3}
+                                        color={Color.primary}
+                                    />
+                                    <Text style={styles.textBtn}>Cancel</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        );
+    };
+
     const renderProfile = () => {
         return (
             <View>
                 <View style={styles.profile}>
                     <View style={styles.outerCircle}>
-                        <Image source={photo} style={styles.photo} />
+                        {image ? (
+                            <Image
+                                source={{
+                                    uri: image,
+                                }}
+                                style={styles.photo}
+                            />
+                        ) : (
+                            <Text
+                                style={{
+                                    textAlign: 'center',
+                                    color: '#9ca3af',
+                                }}
+                            >
+                                Loading ...
+                            </Text>
+                        )}
+
                         <View style={styles.cameraWrapper}>
-                            <TouchableOpacity onPress={handleEditProfile}>
+                            <TouchableOpacity onPress={openModal}>
                                 <Image
                                     source={camera}
                                     style={styles.iconCamera}
@@ -79,6 +229,9 @@ function Profile({ navigation }) {
                         </View>
                     </View>
                 </View>
+
+                {renderModal()}
+
                 <View
                     style={{
                         alignItems: 'center',
@@ -97,7 +250,9 @@ function Profile({ navigation }) {
                         }}
                     >
                         <Image source={dollar} style={styles.iconDollar} />
-                        <Text style={styles.price}>980</Text>
+                        <Text style={styles.price}>
+                            {loyaltyPoints.loyaltyPointAmount}
+                        </Text>
                     </View>
                 </View>
             </View>
@@ -106,22 +261,17 @@ function Profile({ navigation }) {
 
     const renderEditProfile = () => {
         return (
-            <View
-                style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: 20,
-                }}
-            >
-                <View>
+            <View style={styles.editProfileContainer}>
+                <View style={styles.bioEditProfile}>
                     <Text style={styles.name}>
                         {users.firstName} {users.lastName}
                     </Text>
                     <Text style={styles.textSecond}>{users.accountEmail}</Text>
                     <Text style={styles.textSecond}>{users.phoneNumber}</Text>
                 </View>
-                <TouchableOpacity onPress={handleEditProfile}>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('EditProfile')}
+                >
                     <Text style={styles.edit}>Edit Profile</Text>
                 </TouchableOpacity>
             </View>
@@ -143,7 +293,9 @@ function Profile({ navigation }) {
                         <Text style={styles.name}>Balance</Text>
                         <Text style={styles.textSecond}>Rp 37,000</Text>
                     </View>
-                    <TouchableOpacity onPress={handleTopUp}>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('TopUp')}
+                    >
                         <Text style={styles.textTopUp}>TOP UP</Text>
                     </TouchableOpacity>
                 </View>
@@ -198,7 +350,7 @@ function Profile({ navigation }) {
                 title={'Complete Profile'}
                 buttonStyle={styles.customButton}
                 titleStyle={styles.customTitle}
-                onPress={handleCompleteProfile}
+                onPress={() => navigation.navigate('CompleteProfile')}
             />
         );
     };
@@ -244,12 +396,24 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 154,
     },
+    editProfileContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 20,
+    },
+    bioEditProfile: {
+        flex: 0.95,
+    },
+    btnEditProfile: {},
     outerCircle: {
         position: 'absolute',
         height: 108,
         width: 108,
         borderRadius: 108 / 2,
         backgroundColor: 'white',
+        justifyContent: 'center',
     },
     cameraWrapper: {
         position: 'absolute',
@@ -331,18 +495,55 @@ const styles = StyleSheet.create({
         color: '#9796A1',
     },
     logout: {
-        color: Color.secondary,
+        color: Color.primary,
         fontWeight: '700',
         fontSize: 15,
         marginTop: 13,
         marginBottom: 28,
     },
     customButton: {
-        backgroundColor: Color.secondary,
+        backgroundColor: Color.primary,
     },
     customTitle: {
         fontWeight: 900,
         fontSize: 15,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 12,
+        elevation: 5,
+    },
+    titleModal: {
+        textAlign: 'center',
+        fontSize: 20,
+        fontWeight: '800',
+        marginBottom: 15,
+    },
+    choiceBtnProfile: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    btnOption: {
+        alignItems: 'center',
+        padding: 12,
+        borderRadius: 12,
+        marginHorizontal: 8,
+        backgroundColor: '#f3f4f6',
+    },
+    textBtn: {
+        marginTop: 4,
+        fontSize: 12,
+    },
+    modalOption: {
+        fontSize: 18,
+        marginBottom: 15,
     },
 });
 

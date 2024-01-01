@@ -5,6 +5,8 @@ import {
     ScrollView,
     StatusBar,
     StyleSheet,
+    Text,
+    TouchableOpacity,
     View,
 } from 'react-native';
 import bgProfile from '../../assets/images/bg-profile.png';
@@ -14,7 +16,7 @@ import Color from '../../assets/Color';
 import Button from '../../components/button';
 import { theme } from '../../theme';
 import { useDispatch } from 'react-redux';
-import { useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { ServiceContext } from '../../context/ServiceContext';
 import { useFormik } from 'formik';
 import { userAction } from '../../slices/userSlice';
@@ -27,7 +29,7 @@ function EditProfile({ navigation }) {
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
 
-    const Schema = yup.object().shape({
+    const schema = yup.object().shape({
         firstName: yup
             .string()
             .matches('^[a-zA-Z\\s]*$', 'Invalid Firstname')
@@ -53,55 +55,50 @@ function EditProfile({ navigation }) {
             accountID: null,
             ktpID: '',
             accountEmail: '',
-            phoneNumber: '',
-            pinID: '',
-            createdAt: new Date(),
             firstName: '',
             lastName: '',
             dateOfBirth: '',
-            updatedAt: new Date(),
-            balanceID: '',
-            loyaltyPointID: '',
-            otpID: '',
+            phoneNumber: '',
         },
-        onSubmit: async (values) => {
+        onSubmit: (values) => {
             if (!isValid) return;
 
-            dispatch(
-                userAction(async () => {
-                    const result = await userService.updateUser(values);
-                    if (result.statusCode === 200) {
-                        Alert.alert(
-                            'Success',
-                            'Data updated successfully',
-                            [
-                                {
-                                    text: 'Ok',
-                                    onPress: () => {
-                                        navigation.goBack();
+            try {
+                dispatch(
+                    userAction(async () => {
+                        const result = await userService.updateUser(values);
+                        if (result.statusCode === 200) {
+                            Alert.alert(
+                                'Success',
+                                'Data updated successfully',
+                                [
+                                    {
+                                        text: 'Ok',
+                                        onPress: () => {
+                                            navigation.goBack();
+                                        },
                                     },
-                                },
-                            ],
-                            { cancelable: false },
-                        );
-                    }
-                    return null;
-                }),
-            );
+                                ],
+                                { cancelable: false },
+                            );
+                        }
+                        return null;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error update user data: ', e);
+            }
         },
-        validationSchema: Schema,
+        validationSchema: schema,
     });
 
-    const handleBack = () => {
-        navigation.goBack();
-    };
-
     useEffect(() => {
-        if ('1') {
+        const phoneNumber = '+6285201205272';
+        if (phoneNumber) {
             dispatch(
                 userAction(async () => {
                     const result =
-                        await userService.fetchUserByPhoneNumber('1');
+                        await userService.fetchUserByPhoneNumber(phoneNumber);
                     const updateData = {
                         ...result.data,
                     };
@@ -110,16 +107,10 @@ function EditProfile({ navigation }) {
                         accountID: updateData.accountID,
                         ktpID: updateData.ktpID,
                         accountEmail: updateData.accountEmail,
-                        phoneNumber: updateData.phoneNumber,
-                        pinID: updateData.pinID,
-                        createdAt: updateData.createdAt,
                         firstName: updateData.firstName,
                         lastName: updateData.lastName,
                         dateOfBirth: updateData.dateOfBirth,
-                        updatedAt: new Date(),
-                        balanceID: updateData.balanceID,
-                        loyaltyPointID: updateData.loyaltyPointID,
-                        otpID: updateData.otpID,
+                        phoneNumber: updateData.phoneNumber,
                     };
                     setValues(values);
                     return null;
@@ -131,7 +122,7 @@ function EditProfile({ navigation }) {
     const renderHeader = () => {
         return (
             <View>
-                <BackButton onPress={handleBack} />
+                <BackButton onPress={() => navigation.goBack()} />
                 <View style={{ alignItems: 'center' }}>
                     <Image source={bgProfile} style={styles.bgProfile} />
                 </View>
@@ -194,13 +185,19 @@ function EditProfile({ navigation }) {
                             labelRequired={'*'}
                             placeholder={'81201234321'}
                             keyboardType={'phone-pad'}
-                            onChangeText={handleChange('phoneNumber')}
                             value={phoneNumber}
                             editable={false}
                         />
-                        {touched.phoneNumber && errors.phoneNumber && (
-                            <ErrorText message={errors.phoneNumber} />
-                        )}
+                    </View>
+
+                    <View>
+                        <Text style={styles.textSecondary}>Pin</Text>
+                        <Text
+                            onPress={() => console.log('Create/Change PIN')}
+                            style={styles.changePin}
+                        >
+                            Create/Change PIN
+                        </Text>
                     </View>
                 </View>
             </View>
@@ -215,7 +212,7 @@ function EditProfile({ navigation }) {
                     buttonStyle={[
                         styles.customButton,
                         {
-                            opacity: isValid && dirty ? 1 : 0.5,
+                            opacity: isValid && dirty ? 1 : 0.3,
                         },
                     ]}
                     titleStyle={styles.customTitle}
@@ -307,17 +304,23 @@ const styles = StyleSheet.create({
         marginTop: 13,
     },
     textSecondary: {
-        marginTop: 29,
+        marginTop: 17,
         color: theme.grey,
         fontWeight: '400',
         fontSize: 16,
     },
     customButton: {
-        backgroundColor: Color.secondary,
+        backgroundColor: Color.primary,
     },
     customTitle: {
         fontWeight: 900,
         fontSize: 15,
+    },
+    changePin: {
+        marginTop: 10,
+        fontWeight: '900',
+        fontSize: 15,
+        color: theme.secondary,
     },
 });
 export default EditProfile;

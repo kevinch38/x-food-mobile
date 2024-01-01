@@ -19,21 +19,21 @@ import { merchantAction } from '../slices/merchantSlice';
 import { cityAction } from '../slices/citySlice';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Icon } from '@rneui/themed';
+import { loyaltyPointAction } from '../slices/loyaltyPointSlice';
+import { userAction } from '../slices/userSlice';
 
 const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
     const { cities } = useSelector((state) => state.city);
-    const { merchantService, cityService } = useContext(ServiceContext);
+    const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
+    const { merchantService, cityService, loyaltyPointService } =
+        useContext(ServiceContext);
     const [value, setValue] = useState('4028c7f08c813f12018c813f1eb20108');
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
 
-    // const filteredActiveMerchants = merchants.filter(
-    //     (m) => m.status === 'ACTIVE',
-    // );
-
-    handleCard = (id, cityId) => {
+    const handleCard = (id, cityId) => {
         navigation.navigate('Merchant', { id, cityId });
     };
 
@@ -54,8 +54,25 @@ const Home = ({ navigation }) => {
                 merchantAction(() => merchantService.fetchMerchants()),
             );
         };
+
+        const onGetLoyaltyPointAmount = async () => {
+            const loyaltyPointID = 'ff8080818cc0054c018cc005c5600229';
+            try {
+                await dispatch(
+                    loyaltyPointAction(() =>
+                        loyaltyPointService.fetchLoyaltyPointById(
+                            loyaltyPointID,
+                        ),
+                    ),
+                );
+            } catch (e) {
+                console.error('Error fetching loyalty point data: ', e);
+            }
+        };
+
         onGetMerchants();
-    }, [dispatch, merchantService]);
+        onGetLoyaltyPointAmount();
+    }, [dispatch, merchantService, loyaltyPointService]);
 
     const handleTopUp = () => {
         navigation.navigate('TopUp');
@@ -138,7 +155,7 @@ const Home = ({ navigation }) => {
                             style={{ width: 20, height: 20 }}
                             source={require('../assets/icons/dollar.png')}
                         />
-                        <Text>0</Text>
+                        <Text>{loyaltyPoints.loyaltyPointAmount}</Text>
                     </View>
                     <View style={styles.viewTitle}>
                         <Text style={styles.titleList}>

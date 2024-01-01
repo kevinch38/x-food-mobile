@@ -40,11 +40,11 @@ const Merchant = ({ navigation }) => {
     //         branch.merchantID === receivedId && branch.cityID === cityId,
     // );
 
-    handleBack = () => {
+    const handleBack = () => {
         navigation.navigate('Tabs');
     };
 
-    handleToMenu = (branchId) => {
+    const handleToMenu = (branchId) => {
         navigation.navigate('Menu', { branchId });
     };
     useEffect(() => {

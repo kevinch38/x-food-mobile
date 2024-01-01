@@ -24,7 +24,7 @@ function CompleteProfile({ navigation }) {
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
 
-    const Schema = yup.object().shape({
+    const schema = yup.object().shape({
         ktpID: yup
             .string()
             .matches(/^\d{16}$/, 'NIK must be exactly 16 digits')
@@ -105,23 +105,16 @@ function CompleteProfile({ navigation }) {
                 }),
             );
         },
-        validationSchema: Schema,
+        validationSchema: schema,
     });
 
-    const handleBack = () => {
-        navigation.goBack();
-    };
-
-    const handleChangePin = () => {
-        console.log('Create/Change PIN');
-    };
-
     useEffect(() => {
-        if ('1') {
+        const phoneNumber = '+6285201205272';
+        if (phoneNumber) {
             dispatch(
                 userAction(async () => {
                     const result =
-                        await userService.fetchUserByPhoneNumber('1');
+                        await userService.fetchUserByPhoneNumber(phoneNumber);
                     const updateData = {
                         ...result.data,
                     };
@@ -130,16 +123,9 @@ function CompleteProfile({ navigation }) {
                         accountID: updateData.accountID,
                         ktpID: updateData.ktpID,
                         accountEmail: updateData.accountEmail,
-                        phoneNumber: updateData.phoneNumber,
-                        pinID: updateData.pinID,
-                        createdAt: updateData.createdAt,
                         firstName: updateData.firstName,
                         lastName: updateData.lastName,
                         dateOfBirth: updateData.dateOfBirth,
-                        updatedAt: new Date(),
-                        balanceID: updateData.balanceID,
-                        loyaltyPointID: updateData.loyaltyPointID,
-                        otpID: updateData.otpID,
                     };
                     setValues(values);
                     return null;
@@ -151,7 +137,7 @@ function CompleteProfile({ navigation }) {
     const renderHeader = () => {
         return (
             <View>
-                <BackButton onPress={handleBack} />
+                <BackButton onPress={() => navigation.goBack()} />
                 <View style={{ alignItems: 'center' }}>
                     <Text style={styles.title}>Profile Info</Text>
                 </View>
@@ -187,12 +173,6 @@ function CompleteProfile({ navigation }) {
                     {touched.dateOfBirth && errors.dateOfBirth && (
                         <ErrorText message={errors.dateOfBirth} />
                     )}
-                </View>
-                <View>
-                    <Text style={styles.textSecondary}>Pin</Text>
-                    <Text onPress={handleChangePin} style={styles.changePin}>
-                        Create/Change PIN
-                    </Text>
                 </View>
             </View>
         );
@@ -273,15 +253,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     customButton: {
-        backgroundColor: Color.secondary,
+        backgroundColor: Color.primary,
         fontWeight: '900',
         fontSize: 15,
-    },
-    changePin: {
-        marginTop: 9,
-        fontWeight: '900',
-        fontSize: 15,
-        color: theme.secondary,
     },
     customTitle: {
         fontWeight: 900,
