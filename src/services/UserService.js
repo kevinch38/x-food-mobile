@@ -53,8 +53,16 @@ const UserService = () => {
         );
         return data;
     };
+    const fetchPinByPinID = async (pinID) => {
+        const {data} = await axios.get(
+            `http://10.0.2.2:8087/api/pins/${pinID}`
+        );
+
+        return data;
+    }
 
     return {
+        fetchPinByPinID,
         fetchUserByPhoneNumber,
         updateUser,
         register, 
