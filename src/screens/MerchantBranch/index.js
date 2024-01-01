@@ -150,6 +150,7 @@ const Merchant = ({ navigation }) => {
                                     key={idx}
                                     onPress={() => handleToMenu(b.branchID)}
                                     branchName={b.branchName}
+                                    image={b.image}
                                     branchAddress={b.branchAddress}
                                 />
                             );

@@ -15,15 +15,20 @@ import { theme } from '../../theme';
 import InputText from '../../components/inputText';
 import { SelectCountry } from 'react-native-element-dropdown';
 import Button from '../../components/button';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     addToCart,
+    removeAllById,
     removeFromCart,
     selectCartItems,
     selectCartItemsById,
     selectCartTotal,
 } from '../../slices/cartSlice';
+import * as yup from 'yup';
+import { useFormik } from 'formik';
+import { userRegisterAction } from '../../slices/userSlice';
+import orderService from '../../services/OrderService';
+import axios from 'axios';
 
 function Cart({ navigation }) {
     const dispatch = useDispatch();
@@ -31,36 +36,105 @@ function Cart({ navigation }) {
     const cartItems = useSelector(selectCartItems);
     const cartTotal = useSelector(selectCartTotal);
     const [groupedItems, setGroupedItems] = useState({});
-    const handleIncrease = (itemID) => {
-        dispatch(addToCart({ id: itemID }));
-    };
+    const { users } = useSelector((state) => state.user);
+    const { selectedBranch } = useSelector((state) => state.merchantBranch);
+    const [sale, setSale] = useState('');
 
-    const handleDecrease = (itemID) => {
-        dispatch(removeFromCart({ id: itemID }));
-    };
+    const totalItems = useSelector((state) =>
+        selectCartItemsById(state, cartItems.itemID),
+    );
 
     const data = [
         {
             image: require('../../assets/images/voucher-img.png'),
             label: 'Voucher 20,000 Off',
-            value: '1',
+            value: 20000,
         },
         {
             image: require('../../assets/images/voucher-img.png'),
             label: 'Voucher 10,000 Off',
-            value: '2',
+            value: 10000,
         },
         {
             image: require('../../assets/images/voucher-img.png'),
             label: 'Voucher 5,000 Off',
-            value: '3',
-        },
-        {
-            image: require('../../assets/images/voucher-img.png'),
-            label: 'Voucher 20,000 Off',
-            value: '4',
+            value: 5000,
         },
     ];
+
+    const Schema = yup.object().shape({
+        tableNumber: yup.number().required('No Table Required'),
+    });
+
+    const {
+        values,
+        errors,
+        touched,
+        dirty,
+        isValid,
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        setFieldValue,
+        setValues,
+    } = useFormik({
+        initialValues: {
+            accountID: null,
+            orderValue: 0,
+            notess: '',
+            tableNumber: 0,
+            branchID: '',
+            orderItems: [],
+        },
+        onSubmit: async (values) => {
+            if (users.accountID) {
+                try {
+                    const orderItems = [];
+                    cartItems.forEach((cartItem) => {
+                        const existingItem = orderItems.find(
+                            (item) => item.itemId === cartItem.itemID,
+                        );
+                        if (existingItem) {
+                            existingItem.qty += 1;
+                        } else {
+                            orderItems.push({
+                                itemId: cartItem.itemID,
+                                qty: 1,
+                            });
+                        }
+                    });
+
+                    const update = {
+                        accountID: users.accountID,
+                        orderValue: cartTotal - sale,
+                        notes: values.notess,
+                        tableNumber: values.tableNumber,
+                        branchID: selectedBranch.branchID,
+                        orderItems: orderItems,
+                    };
+                    // console.log(update);
+
+                    console.log(update);
+                    const response = await axios.post(
+                        'http://10.0.2.2:8087/api/orders',
+                        update,
+                    );
+                    console.log(response);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        },
+        validationSchema: Schema,
+    });
+
+    const handleIncrease = (item) => {
+        dispatch(addToCart(item));
+    };
+
+    const handleDecrease = (item) => {
+        dispatch(removeFromCart({ id: item.itemID }));
+    };
 
     useEffect(() => {
         const items = cartItems.reduce((group, item) => {
@@ -79,7 +153,7 @@ function Cart({ navigation }) {
     };
 
     const handleClose = (itemId) => {
-        dispatch(removeFromCart({ id: itemId }));
+        dispatch(removeAllById({ id: itemId }));
     };
 
     const handleCheckout = () => {
@@ -103,7 +177,7 @@ function Cart({ navigation }) {
             return (
                 <View style={styles.sectionContainer} key={key}>
                     <Image
-                        source={require('../../assets/images/menu-cart.png')}
+                        source={{ uri: `data:image/jpeg;base64,${item.image}` }}
                         style={styles.imageCart}
                     />
                     <View style={styles.menuContainer}>
@@ -127,10 +201,13 @@ function Cart({ navigation }) {
                         </Text>
                         <View style={styles.priceSection}>
                             <Text style={styles.priceMenu}>
-                                Rp. {item.initialPrice}
+                                Rp.{' '}
+                                {item.isDiscounted
+                                    ? item.discountedPrice
+                                    : item.initialPrice}
                             </Text>
                             <View style={styles.counter}>
-                                {order === cartTotal.length ? (
+                                {order === items.length ? (
                                     <TouchableOpacity disabled>
                                         <Icon.MinusCircle
                                             width={28}
@@ -141,9 +218,7 @@ function Cart({ navigation }) {
                                     </TouchableOpacity>
                                 ) : (
                                     <TouchableOpacity
-                                        onPress={() =>
-                                            handleDecrease(item.itemID)
-                                        }
+                                        onPress={() => handleDecrease(item)}
                                     >
                                         <Icon.MinusCircle
                                             width={28}
@@ -153,9 +228,11 @@ function Cart({ navigation }) {
                                         />
                                     </TouchableOpacity>
                                 )}
-                                <Text style={styles.numCounter}>{order}</Text>
+                                <Text style={styles.numCounter}>
+                                    {items.length}
+                                </Text>
                                 <TouchableOpacity
-                                    onPress={() => handleIncrease(item.itemID)}
+                                    onPress={() => handleIncrease(item)}
                                 >
                                     <Icon.PlusCircle
                                         width={30}
@@ -181,19 +258,21 @@ function Cart({ navigation }) {
                     label={'Table No'}
                     icon={require('../../assets/icons/chair.png')}
                     keyboardType={'numeric'}
-                    placeholder={'1'}
+                    placeholder={'1                                     '}
+                    value={values.tableNumber}
                 />
                 <InputText
                     label={'Note'}
                     placeholder={'example: extra spicy'}
+                    value={values.notess}
                 />
             </View>
         );
     };
-
-    const handleDropdown = () => {
-        console.log(data);
-    };
+    //
+    // const handleDropdown = () => {
+    //     console.log(data);
+    // };
     const renderVoucher = () => {
         return (
             <View style={styles.dropdownContainer}>
@@ -205,11 +284,15 @@ function Cart({ navigation }) {
                     data={data}
                     imageField={'image'}
                     labelField={'label'}
-                    valueField={'value'}
-                    onChange={handleDropdown}
+                    valueField={data.value}
+                    // onChange={handleDropdown}
                     maxHeight={300}
                     searchPlaceholder="Search..."
                     placeholder={'Select Voucher'}
+                    value={data.value}
+                    onChange={(item) => {
+                        setSale(item.value);
+                    }}
                 />
             </View>
         );
@@ -220,14 +303,27 @@ function Cart({ navigation }) {
             <View style={styles.subtotalContainer}>
                 <View style={styles.subtotalStyle}>
                     <Text style={styles.textSubtotal}>Subtotal</Text>
-                    <Text style={styles.textSubtotal}>Rp. 155.000</Text>
+                    <Text style={styles.textSubtotal}>Rp. {cartTotal}</Text>
                 </View>
+                {sale ? (
+                    <View style={styles.subtotalStyle}>
+                        <Text style={styles.textSubtotal}>Voucher</Text>
+                        <Text style={styles.textSale}>Rp.- {sale}</Text>
+                    </View>
+                ) : (
+                    <View style={{ display: 'none' }} />
+                )}
                 <View style={styles.totalStyle}>
                     <View style={styles.subtotalStyle}>
                         <Text style={styles.textSubtotal}>Total</Text>
-                        <Text style={styles.textItem}>(2 items)</Text>
+                        <Text style={styles.textItem}>{}</Text>
                     </View>
-                    <Text style={styles.textSubtotal}>Rp. 155.000</Text>
+                    <Text style={styles.textSubtotal}>
+                        Rp. {sale ? cartTotal - sale : cartTotal}
+                        {/*{users.vouchers*/}
+                        {/*    ? cartTotal - users.vouchers.voucher_value*/}
+                        {/*    : cartTotal}*/}
+                    </Text>
                 </View>
             </View>
         );
@@ -235,11 +331,10 @@ function Cart({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/*<Button title={'tt'} onPress={console.log(cartItems)} />*/}
+            {/*<Button title={'tt'} onPress={console.log(selectedBranch)} />*/}
             <ScrollView>
                 {renderHeader()}
                 <View style={styles.sectionWrapper}>
-                    {renderCart()}
                     {renderCart()}
                     {renderInformation()}
                     {renderVoucher()}
@@ -249,7 +344,7 @@ function Cart({ navigation }) {
                     <Button
                         title={'CHECKOUT'}
                         titleStyle={styles.titleStyle}
-                        onPress={handleCheckout}
+                        onPress={handleSubmit}
                     />
                 </View>
             </ScrollView>
@@ -380,6 +475,11 @@ const styles = StyleSheet.create({
     textSubtotal: {
         fontWeight: '500',
         fontSize: 16,
+    },
+    textSale: {
+        fontWeight: '500',
+        fontSize: 16,
+        color: 'red',
     },
     textItem: {
         fontWeight: '300',

@@ -1,27 +1,24 @@
 import {
-    View,
-    Text,
-    SafeAreaView,
-    StyleSheet,
-    StatusBar,
     Image,
-    ActivityIndicator,
-    Button,
+    SafeAreaView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import BackButton from '../../components/backButton';
-import MenuOne from '../../assets/images/menu-1.png';
 import iconBag from '../../assets/icons/bag.png';
-import { TouchableOpacity } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import Logo from '../../assets/images/mechant-logo.png';
 import { selectedMerchantBranchAction } from '../../slices/merchantBranch';
-import Color from '../../assets/Color';
 import Loading from '../../components/loading';
 import CardMenu from '../../components/card/CardMenu';
+import { selectCartTotal } from '../../slices/cartSlice';
 
 const Menu = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -29,6 +26,7 @@ const Menu = ({ navigation }) => {
     const { merchantBranchService } = useContext(ServiceContext);
     const route = useRoute();
     const branchId = route.params?.branchId;
+    const cartTotal = useSelector(selectCartTotal);
 
     const [isLoading, setIsLoading] = useState(true);
 
@@ -180,7 +178,7 @@ const Menu = ({ navigation }) => {
                                         fontSize: 16,
                                     }}
                                 >
-                                    Rp 155.000
+                                    Rp {cartTotal}
                                 </Text>
                             </View>
                             <View

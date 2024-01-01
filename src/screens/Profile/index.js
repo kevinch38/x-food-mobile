@@ -27,11 +27,14 @@ function Profile({ navigation }) {
     const dispatch = useDispatch();
     const { users } = useSelector((state) => state.user);
     const { userService } = useContext(ServiceContext);
+    const phoneNumber = useSelector((state) => state.user.phoneNumber);
 
     useEffect(() => {
         const onGetUserByPhoneNumber = async () => {
             await dispatch(
-                userAction(() => userService.fetchUserByPhoneNumber('1')),
+                userAction(() =>
+                    userService.fetchUserByPhoneNumber(phoneNumber),
+                ),
             );
         };
         onGetUserByPhoneNumber();

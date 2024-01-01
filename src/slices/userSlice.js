@@ -28,7 +28,7 @@ const userSlice = createSlice({
         users: [],
         selectedUser: null,
         registerUser: null,
-        phoneNumber: '+6208123',
+        phoneNumber: '+6281239124111',
     },
     extraReducers: (builder) => {
         builder.addCase(userAction.fulfilled, (state, { payload }) => {

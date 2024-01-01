@@ -26,7 +26,7 @@ import {
 const Detail = ({ navigation }) => {
     const dispatch = useDispatch();
     const route = useRoute();
-    const cartItems = useSelector(selectCartItems);
+    // const cartItems = useSelector(selectCartItems);
     const item = route.params?.item;
 
     let [qty, setQty] = useState(1);
