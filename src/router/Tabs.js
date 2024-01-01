@@ -3,8 +3,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Home from '../screens/Home';
 import Profile from '../screens/Profile';
 import { Image } from 'react-native';
-import PinCreationScreen from "../screens/PinCreationScreen";
-import History from "../screens/History";
+import PinCreationScreen from '../screens/PinCreationScreen';
+import History from '../screens/History';
+import Voucher from '../screens/Voucher';
 
 const Tab = createBottomTabNavigator();
 
@@ -32,8 +33,8 @@ export default () => {
                 }}
             />
             <Tab.Screen
-                name="Coupon"
-                component={PinCreationScreen}
+                name="Voucher"
+                component={Voucher}
                 options={{
                     headerShown: false,
                     tabBarLabel: '',

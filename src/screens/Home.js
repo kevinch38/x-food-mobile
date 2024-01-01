@@ -30,8 +30,26 @@ const Home = ({ navigation }) => {
     const { merchantService, cityService, loyaltyPointService } =
         useContext(ServiceContext);
     const [value, setValue] = useState('4028c7f08c813f12018c813f1eb20108');
+    const [cityId, setCityId] = useState('8a8ae40b8cabc928018cabc9359000c0');
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
+
+    const filteredMerchants = merchants.filter((merchant) => {
+        const branches = merchant.merchantBranches || [];
+        const hasMatchingBranch = branches.some(
+            (branch) => branch.city.cityID === cityId,
+        );
+        return hasMatchingBranch;
+    });
+
+    const filteredSearchMerchants =
+        search.trim() === ''
+            ? filteredMerchants
+            : filteredMerchants.filter((merchant) =>
+                merchant.merchantName
+                    .toLowerCase()
+                    .includes(search.toLowerCase()),
+            );
 
     const handleCard = (id, cityId) => {
         navigation.navigate('Merchant', { id, cityId });
@@ -117,9 +135,9 @@ const Home = ({ navigation }) => {
                                 valueField="cityID"
                                 placeholder="Select city"
                                 searchPlaceholder="Search..."
-                                value={value}
+                                value={cityId}
                                 onChange={(item) => {
-                                    setValue(item.cityID);
+                                    setCityId(item.cityID);
                                 }}
                             />
                         </View>
@@ -155,7 +173,7 @@ const Home = ({ navigation }) => {
                             style={{ width: 20, height: 20 }}
                             source={require('../assets/icons/dollar.png')}
                         />
-                        <Text>{loyaltyPoints.loyaltyPointAmount}</Text>
+                        <Text>0</Text>
                     </View>
                     <View style={styles.viewTitle}>
                         <Text style={styles.titleList}>
@@ -163,18 +181,16 @@ const Home = ({ navigation }) => {
                         </Text>
                     </View>
 
-                    {Array.isArray(merchants) &&
-                        merchants.length > 0 &&
-                        merchants.map((m, idx) => {
+                    {Array.isArray(filteredSearchMerchants) &&
+                        filteredSearchMerchants.length > 0 &&
+                        filteredSearchMerchants.map((m, idx) => {
                             return (
                                 <Card
                                     key={idx}
                                     onPress={() =>
-                                        handleCard(m.merchantID, value)
+                                        handleCard(m.merchantID, cityId)
                                     }
-                                    image={
-                                        'https://source.unsplash.com/random/1500x500?food'
-                                    }
+                                    image={m.image}
                                     title={m.merchantName}
                                 />
                             );

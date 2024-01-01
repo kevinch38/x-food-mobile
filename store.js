@@ -6,8 +6,9 @@ import asyncMiddlewareAction from './src/middlewares/asyncMiddlewareAction';
 import merchantSlice from './src/slices/merchantSlice';
 import citySlice from './src/slices/citySlice';
 import merchantBranchSlice from './src/slices/merchantBranch';
-import authSlice from './src/slices/authSlice';
 import loyaltyPointSlice from './src/slices/loyaltyPointSlice';
+import authSlice from './src/slices/authSlice';
+import { cartSlice } from './src/slices/cartSlice';
 
 const setupStore = () =>
     configureStore({
@@ -20,6 +21,7 @@ const setupStore = () =>
             pin: pinReducer,
             auth: authSlice.reducer,
             loyaltyPoint: loyaltyPointSlice.reducer,
+            cart: cartSlice.reducer,
         },
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware().concat(asyncMiddlewareAction),
