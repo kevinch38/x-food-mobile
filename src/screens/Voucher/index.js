@@ -1,3 +1,4 @@
+import React, { useContext, useEffect, useState } from 'react';
 import {
     Image,
     SafeAreaView,
@@ -8,8 +9,8 @@ import {
     View,
     StyleSheet,
     Button,
+    BackHandler,
 } from 'react-native';
-import React, { useContext, useEffect } from 'react';
 import VoucherCard from '../../components/card/VoucherCard';
 import Starbuck from '../../../assets/images/starbuck.png';
 import BackButton from '../../components/backButton';
@@ -17,31 +18,34 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import { userAction } from '../../slices/userSlice';
 import { useNavigation } from '@react-navigation/native';
+import UserService from "../../services/UserService";
 
 const Voucher = ({ navigation }) => {
     const navigate = useNavigation();
+    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
+    const userService = UserService;
+    const [userData, setUserData] = useState({ vouchers: [] });
 
-    const dispatch = useDispatch();
-    const { users } = useSelector((state) => state.user);
-    const { userService } = useContext(ServiceContext);
     const handleRedeemPress = () => {
         navigate.navigate('Redeem');
     };
 
     useEffect(() => {
-        const onGetUserByPhoneNumber = async () => {
-            await dispatch(
-                userAction(() =>
-                    userService.fetchUserByPhoneNumber('+62821948080'),
-                ),
-            );
-        };
-        onGetUserByPhoneNumber();
-    }, [dispatch, userService]);
+        fetchUserData(phoneNumber);
+    }, [phoneNumber]);
+
+    const fetchUserData = async (phoneNumber) => {
+        try {
+            const fetchedUserData = await userService().fetchUserByPhoneNumber(phoneNumber);
+            setUserData(fetchedUserData);
+            console.log('userData:', fetchedUserData);
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    };
 
     return (
         <SafeAreaView style={styles.wrapper}>
-            {/*<Button title={'test'} onPress={console.log(users)} />*/}
             <View>
                 <Image
                     source={require('../../../assets/images/elipse3.png')}
@@ -79,7 +83,11 @@ const Voucher = ({ navigation }) => {
                             980
                         </Text>
                     </View>
-                    <TouchableOpacity style={{ marginTop: 25 }} onPress={handleRedeemPress}>
+                    <TouchableOpacity
+                        style={{ marginTop: 25 }}
+                        onPress={handleRedeemPress}
+                        activeOpacity={0.7}
+                    >
                         <Image
                             source={require('../../../assets/images/redeembutton.png')}
                         />
@@ -90,9 +98,9 @@ const Voucher = ({ navigation }) => {
                         My Vouchers
                     </Text>
                     <ScrollView>
-                        {Array.isArray(users.vouchers) &&
-                            users.vouchers.length > 0 &&
-                            users.vouchers.map((item, idx) => {
+                        {Array.isArray(userData.vouchers) &&
+                            userData.vouchers.length > 0 &&
+                            userData.vouchers.map((item, idx) => {
                                 return (
                                     <VoucherCard
                                         key={idx}

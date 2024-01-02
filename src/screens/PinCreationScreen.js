@@ -1,5 +1,4 @@
-
-import { Modal, StyleSheet, Text, Pressable, View, TextInput } from 'react-native';
+import { BackHandler, Modal, StyleSheet, Text, Pressable, View, TextInput } from 'react-native';
 import PinCreationService from "../services/PinCreationService";
 import {setPin} from "../slices/pinSlice";
 import {useDispatch, useSelector} from "react-redux";
@@ -31,19 +30,42 @@ const PinCreationScreen = ({ navigation }) => {
     useEffect(() => {
         fetchPinID();
         fetchUserData(phoneNumber);
-    }, [phoneNumber, pinID]);
 
-        const fetchUserData = async (phoneNumber) => {
-            try {
-                const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
-                console.log('userData:', userData);
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
 
-                    setPinID(userData.data.pinID);
-
-            } catch (error) {
-                console.error('Error fetching user data1:', error);
-            }
+        return () => {
+            backHandler.remove();
         };
+    }, [phoneNumber, pinID, modalVisible]);
+
+
+    const handleBackPress = () => {
+        if (modalVisible) {
+            setModalVisible(false);
+            return true;
+        }
+        return false;
+    };
+
+    const hideModal = () => {
+        setModalVisible(true);
+    };
+
+    const showModal = () => {
+        setModalVisible(false);
+    };
+
+    const fetchUserData = async (phoneNumber) => {
+        try {
+            const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
+            console.log('userData:', userData);
+
+            setPinID(userData.data.pinID);
+
+        } catch (error) {
+            console.error('Error fetching user data1:', error);
+        }
+    };
 
     const fetchPinID = async () => {
         try {
@@ -62,17 +84,22 @@ const PinCreationScreen = ({ navigation }) => {
         }
     };
 
-    const hideModal = () => {
-        setModalVisible(true);
-    };
+    // const hideModal = () => {
+    //     setModalVisible(true);
+    // };
 
     const handleFormSubmit = async (values, { resetForm }) => {
         console.log(values.pinValue);
         try {
             dispatch(setPin(values));
+            // hideModal();
             hideModal();
             resetForm();
             const response = await PinCreationService(pinID,values.pinValue);
+            // if (values.pinValue){
+            //     showModal();
+            // }
+
             console.log('API Response:', response.data);
         } catch (error) {
             console.error('API Error:', error);
@@ -98,7 +125,7 @@ const PinCreationScreen = ({ navigation }) => {
                 animationType="slide"
                 transparent={true}
                 visible={!modalVisible && !pinIDExists}
-                onRequestClose={hideModal}
+                // onRequestClose={hideModal}
             >
                 <View
                     style={{
@@ -121,13 +148,13 @@ const PinCreationScreen = ({ navigation }) => {
                             onSubmit={handleFormSubmit}
                         >
                             {({
-                                handleChange,
-                                handleBlur,
-                                handleSubmit,
-                                values,
-                                errors,
-                                touched,
-                            }) => (
+                                  handleChange,
+                                  handleBlur,
+                                  handleSubmit,
+                                  values,
+                                  errors,
+                                  touched,
+                              }) => (
                                 <>
                                     <TextInput
                                         style={styles.input}
@@ -250,7 +277,3 @@ const styles = StyleSheet.create({
 });
 
 export default PinCreationScreen;
-
-
-
-
