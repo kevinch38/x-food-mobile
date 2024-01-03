@@ -3,11 +3,19 @@ import React, { useState, useEffect } from "react";
 import RedeemCard from "../../components/RedeemCard";
 import Starbuck from "../../../assets/images/starbuck.png";
 import PromotionService from "../../services/PromotionService";
+import UserService from "../../services/UserService";
+import {useSelector} from "react-redux";
+import VoucherService from "../../services/VoucherService";
 
 
 const Redeem = () => {
+    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const promotionService = PromotionService();
     const [promotions, setPromotions] = useState([]);
+    const userService = UserService();
+    const voucherService = VoucherService();
+    const [id, setId] = useState("");
+
     const getAllPromotions = async () => {
         try {
             const userData = await promotionService.getPromotions();
@@ -19,9 +27,23 @@ const Redeem = () => {
         }
     };
 
+    const fetchUserData = async (phoneNumber) => {
+        try {
+            const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
+            console.log('userData:', userData.data.accountID);
+            const accountID = userData.data.accountID;
+            setId(accountID);
+
+        } catch (error) {
+            console.error('Error fetching user data1:', error);
+        }
+    };
+
+
     useEffect(() => {
         getAllPromotions();
-    }, []);
+        fetchUserData(phoneNumber);
+    }, [phoneNumber, id]);
     return (
         <>
             <View
@@ -60,7 +82,10 @@ const Redeem = () => {
                             items={promotion.maxRedeem.toString()}
                             expired={promotion.expiredDate}
                             title={promotion.promotionName}
+                            // isMaxRedeem={}
                             percenOff={promotion.promotionValue.toString()}
+                            accountID={id}
+                            promotionID={promotion.promotionID}
                         />
                     ))}
                 </ScrollView>

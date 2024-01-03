@@ -1,4 +1,4 @@
-import {View, ScrollView, BackHandler} from "react-native";
+import {View, ScrollView, BackHandler, TouchableOpacity} from "react-native";
 import OrderHistoryCard from "../../components/card/OrderHistoryCard";
 import {useSelector} from "react-redux";
 import UserService from "../../services/UserService";
@@ -55,15 +55,18 @@ const OrderScreen = () => {
       <View style={{margin:5}}>
             <ScrollView>
                 {order.map((orderItem, index) => (
-                    <OrderHistoryCard
-                        key={index}
-                        image={orderItem.image}
-                        items={3}
-                        title={`Order ${index + 1}`}
-                        date={format(new Date(orderItem.createdAt), "dd MMM, HH:mm")}
-                        status={orderItem.orderStatus}
-                        orderValue={orderItem.orderValue}
-                    />
+                    // key={index}
+                    <TouchableOpacity  key={index}>
+                        <OrderHistoryCard
+                            image={orderItem.image}
+                            items={orderItem.items}
+                            title={orderItem.merchantName}
+                            date={format(new Date(orderItem.createdAt), "dd MMM, HH:mm")}
+                            status={orderItem.orderStatus}
+                            orderValue={orderItem.orderValue}
+                        />
+                    </TouchableOpacity>
+
                 ))}
             </ScrollView>
       </View>

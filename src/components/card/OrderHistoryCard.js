@@ -1,7 +1,7 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React from "react";
 
-const OrderHistoryCard = ({image,items, title, date, status, orderValue}) => {
+const OrderHistoryCard = ({image,items, title, date, status, orderValue, isSplit}) => {
     let statusColor = '#000';
 
     if (status === 'WAITING_FOR_PAYMENT') {
@@ -15,7 +15,7 @@ const OrderHistoryCard = ({image,items, title, date, status, orderValue}) => {
         <>
             <View style={styles.card}>
                 <View style={{flexDirection:"row"}}>
-                    <View style={{marginTop:-10}}>
+                    <View style={{marginTop:20}}>
                         <View style={styles.image}>
                             <Image
                                 source={{ uri: `data:image/jpeg;base64,${image}` }}
@@ -25,30 +25,23 @@ const OrderHistoryCard = ({image,items, title, date, status, orderValue}) => {
                                 onLoadEnd={() => console.log('Selesai memuat gambar')}
                                 onError={(error) => console.error('Error memuat gambar:', error)}
                             />
-
-
                         </View>
 
                     </View>
-                    <View style={{flexDirection:"row"   ,marginLeft:-20, marginTop:-10}}>
+                    <View style={{flexDirection:"row"   ,marginLeft:-20, marginTop:25}}>
                         <View>
                             <Text style={{fontSize:12, color:'#9796A1'}}>{date}</Text>
-                            <Text style={{fontWeight:900, fontSize:16}}>{title}</Text>
+                            <View style={{flexDirection:"row"}}>
+                                <Text style={{fontWeight:900, fontSize:16}}>{title}</Text>
+                                <Text style={{marginLeft:14, fontSize:10, marginTop:3}}>{isSplit}</Text>
+                            </View>
                             <Text style={{fontWeight:900, fontSize:12, color: statusColor}}>{status}</Text>
 
                         </View>
                         <Text style={{marginLeft:80, fontSize:12, color:'#9796A1', position:'absolute'}}>{items} Items</Text>
                         <Text style={{marginLeft:125, color:'#FE724C',  position:'absolute'}}>Rp.{orderValue}</Text>
                     </View>
-
-
-                    <TouchableOpacity style={{marginTop:60, marginLeft:120, position: 'absolute',}}>
-                        <Image source={require('../../assets/icons/Re-OrderButton.png')}/>
-                    </TouchableOpacity>
-
                 </View>
-
-
             </View>
         </>
     )
@@ -57,11 +50,12 @@ const OrderHistoryCard = ({image,items, title, date, status, orderValue}) => {
 const styles = StyleSheet.create({
     card : {
         width: 323,
-        height: 168 ,
+        height: 120 ,
         flexDirection:"row",
         marginBottom :20,
         padding :20,
         alignItems:"center",
+        // justifyContent:"center",
         borderRadius: 18.214,
         backgroundColor: '#FFF',
         elevation: 5,
