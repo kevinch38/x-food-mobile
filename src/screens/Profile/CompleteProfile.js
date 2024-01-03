@@ -1,11 +1,12 @@
 import {
     Alert,
+    Platform,
+    Pressable,
     SafeAreaView,
     ScrollView,
     StatusBar,
     StyleSheet,
     Text,
-    TouchableOpacity,
     View,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
@@ -20,43 +21,26 @@ import * as yup from 'yup';
 import InputText from '../../components/inputText';
 import ErrorText from '../../components/errorText';
 import BackButton from '../../components/backButton';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 function CompleteProfile({ navigation }) {
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
     const { users } = useSelector((state) => state.user);
-    const [isKtpVerified, setIsKtpVerified] = useState(false);
+    const [nikInput, setNikInput] = useState('');
+    const [isNikVerified, setIsNikVerified] = useState(false);
     const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState(true);
+    const [isVisibleButton, setIsVisibleButton] = useState(false);
+
+    const [dob, setDOB] = useState('');
+    const [date, setDate] = useState(new Date());
+    const [showPicker, setShowPicker] = useState(false);
 
     const schema = yup.object().shape({
         ktpID: yup
             .string()
             .matches(/^\d{16}$/, 'NIK must be exactly 16 digits')
             .required('NIK is Required!'),
-        dateOfBirth: yup
-            .string()
-            .matches(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)')
-            .required('Date of Birth is Required!')
-            .test('valid-dob', 'Invalid Date of Birth', function (value) {
-                if (value) {
-                    const currentDate = new Date();
-                    const selectedDate = new Date(value);
-
-                    const isValidMonth =
-                        selectedDate.getMonth() + 1 >= 1 &&
-                        selectedDate.getMonth() + 1 <= 12;
-                    const isValidDay =
-                        selectedDate.getDate() >= 1 &&
-                        selectedDate.getDate() <= 31;
-
-                    return (
-                        isValidMonth &&
-                        isValidDay &&
-                        selectedDate <= currentDate
-                    );
-                }
-                return true;
-            }),
     });
 
     const {
@@ -80,28 +64,29 @@ function CompleteProfile({ navigation }) {
         },
         onSubmit: async (values) => {
             if (!isValid) return;
+            console.log('values => ', values);
 
-            dispatch(
-                userAction(async () => {
-                    const result = await userService.updateUser(values);
-                    if (result.statusCode === 200) {
-                        Alert.alert(
-                            'Success',
-                            'Data updated successfully',
-                            [
-                                {
-                                    text: 'Ok',
-                                    onPress: () => {
-                                        navigation.goBack();
-                                    },
-                                },
-                            ],
-                            { cancelable: false },
-                        );
-                    }
-                    return null;
-                }),
-            );
+            // dispatch(
+            //     userAction(async () => {
+            //         const result = await userService.updateUser(values);
+            //         if (result.statusCode === 200) {
+            //             Alert.alert(
+            //                 'Success',
+            //                 'Data updated successfully',
+            //                 [
+            //                     {
+            //                         text: 'Ok',
+            //                         onPress: () => {
+            //                             navigation.goBack();
+            //                         },
+            //                     },
+            //                 ],
+            //                 { cancelable: false },
+            //             );
+            //         }
+            //         return null;
+            //     }),
+            // );
         },
         validationSchema: schema,
     });
@@ -126,7 +111,7 @@ function CompleteProfile({ navigation }) {
                         lastName: updateData.lastName,
                         dateOfBirth: updateData.dateOfBirth,
                     };
-                    setValues(values);
+                    await setValues(values);
                     return null;
                 }),
             );
@@ -143,14 +128,26 @@ function CompleteProfile({ navigation }) {
         const exists = registeredKtpIDs.includes(ktpID);
 
         if (exists) {
-            Alert.alert('Peringatan', 'NIK sudah terdaftar di database');
-            setIsKtpVerified(true);
-            setIsSaveButtonDisabled(true);
+            Alert.alert('Warning', 'NIK is already registered');
+            setIsNikVerified(true);
         } else {
-            Alert.alert('Sukses', 'NIK tersedia');
-            setIsKtpVerified(false);
-            setIsSaveButtonDisabled(false);
+            Alert.alert('Success', 'NIK Verified', [
+                {
+                    text: 'OK',
+                    onPress: () => {
+                        setIsNikVerified(false);
+                        setIsVisibleButton(true);
+                        setIsSaveButtonDisabled(false);
+                    },
+                },
+            ]);
         }
+    };
+
+    const isVerify = ktpID.length !== 16;
+
+    const toggleDatepicker = () => {
+        setShowPicker(!showPicker);
     };
 
     const renderHeader = () => {
@@ -168,40 +165,85 @@ function CompleteProfile({ navigation }) {
         return (
             <View style={styles.wrapperInput}>
                 <View>
-                    <InputText
-                        label={'NIK'}
-                        labelRequired={'*'}
-                        placeholder={'3347891801970001'}
-                        keyboardType={'numeric'}
-                        onChangeText={handleChange('ktpID')}
-                        maxLength={16}
-                        value={ktpID}
-                    />
+                    {!isVisibleButton ? (
+                        <InputText
+                            label={'NIK'}
+                            labelRequired={'*'}
+                            placeholder={'3347891801970001'}
+                            keyboardType={'numeric'}
+                            onChangeText={(value) => {
+                                setNikInput(value);
+                                handleChange('ktpID')(value);
+                                setIsNikVerified(false);
+                            }}
+                            maxLength={16}
+                            value={ktpID}
+                        />
+                    ) : (
+                        <InputText
+                            label={'NIK'}
+                            labelRequired={'*'}
+                            placeholder={'3347891801970001'}
+                            keyboardType={'numeric'}
+                            onChangeText={(value) => {
+                                setNikInput(value);
+                                handleChange('ktpID')(value);
+                                setIsNikVerified(false);
+                            }}
+                            maxLength={16}
+                            value={ktpID}
+                            editable={false}
+                            textInputStyleCustom={{ color: 'black' }}
+                        />
+                    )}
                     {touched.ktpID && errors.ktpID && (
                         <ErrorText message={errors.ktpID} />
                     )}
                 </View>
 
                 <View style={styles.verifyContainer}>
-                    <TouchableOpacity
-                        onPress={handleVerifyKtp}
-                        style={styles.buttonVerify}
-                    >
-                        <Text style={styles.titleVerify}>Verify</Text>
-                    </TouchableOpacity>
+                    {!isVisibleButton ? (
+                        <Button
+                            title={'Verify'}
+                            buttonStyle={[
+                                styles.customButtonVerify,
+                                nikInput.length !== 16 && { opacity: 0.5 },
+                            ]}
+                            titleStyle={styles.customTitle}
+                            onPress={handleVerifyKtp}
+                            disabled={isVerify}
+                        />
+                    ) : null}
                 </View>
 
                 <View>
-                    <InputText
-                        label={'Date of Birth'}
-                        labelRequired={'*'}
-                        placeholder={'1990-02-24'}
-                        keyboardType={'numeric'}
-                        onChangeText={handleChange('dateOfBirth')}
-                        value={dateOfBirth}
-                    />
-                    {touched.dateOfBirth && errors.dateOfBirth && (
-                        <ErrorText message={errors.dateOfBirth} />
+                    {showPicker && (
+                        <DateTimePicker
+                            value={date}
+                            mode={'date'}
+                            display={'calendar'}
+                            onChange={onChange}
+                            maximumDate={maximumDate}
+                            minimumDate={new Date(1950, 0, 1)}
+                        />
+                    )}
+
+                    {!showPicker && (
+                        <Pressable onPress={toggleDatepicker}>
+                            <InputText
+                                label={'Date of Birth'}
+                                labelRequired={'*'}
+                                placeholder={'1990-02-24'}
+                                keyboardType={'numeric'}
+                                onChangeText={(value) => {
+                                    setDOB(value);
+                                    handleChange('dateOfBirth')(value);
+                                }}
+                                value={dob}
+                                editable={false}
+                                textInputStyleCustom={{ color: 'black' }}
+                            />
+                        </Pressable>
                     )}
                 </View>
             </View>
@@ -216,8 +258,7 @@ function CompleteProfile({ navigation }) {
                     buttonStyle={[
                         styles.customButton,
                         {
-                            opacity:
-                                isValid && dirty && !isKtpVerified ? 1 : 0.5,
+                            opacity: !isSaveButtonDisabled ? 1 : 0,
                         },
                     ]}
                     titleStyle={styles.customTitle}
@@ -285,6 +326,13 @@ const styles = StyleSheet.create({
     },
     customButton: {
         backgroundColor: Color.primary,
+        fontWeight: '900',
+        fontSize: 15,
+    },
+    customButtonVerify: {
+        backgroundColor: Color.primary,
+        width: 99,
+        height: 34,
         fontWeight: '900',
         fontSize: 15,
     },

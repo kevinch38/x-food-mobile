@@ -20,7 +20,6 @@ import { cityAction } from '../slices/citySlice';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Icon } from '@rneui/themed';
 import { loyaltyPointAction } from '../slices/loyaltyPointSlice';
-import { userAction } from '../slices/userSlice';
 
 const Home = ({ navigation }) => {
     const dispatch = useDispatch();
