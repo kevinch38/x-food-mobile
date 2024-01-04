@@ -40,11 +40,11 @@ const Merchant = ({ navigation }) => {
     //     (branch) => branch.city.cityID === cityId,
     // );
 
-    handleBack = () => {
+    const handleBack = () => {
         navigation.navigate('Tabs');
     };
 
-    handleToMenu = (branchId) => {
+    const handleToMenu = (branchId) => {
         navigation.navigate('Menu', { branchId });
     };
 
@@ -148,6 +148,7 @@ const Merchant = ({ navigation }) => {
                             return (
                                 <CardBranch
                                     key={idx}
+                                    image={b.image}
                                     onPress={() => handleToMenu(b.branchID)}
                                     branchName={b.branchName}
                                     branchAddress={b.branchAddress}

@@ -30,21 +30,19 @@ const UserService = () => {
     };
 
     const fetchUserByPhoneNumber = async (phoneNumber) => {
-        try {
-            const { data } = await axios.get(
-                `http://10.0.2.2:8087/api/users/${phoneNumber}`,
-                {
-                    headers: {
-                        'Accept': 'application/json',
-                    },
-                }
-            );
-            return data;
-        } catch (error) {
-            throw error;
-        }
+        const { data } = await axios.get(
+            `http://10.0.2.2:8087/api/users/${phoneNumber}`,
+        );
+        return data;
     };
 
+    const refetch = async (phoneNumber) => {
+        try {
+            await fetchUserByPhoneNumber(phoneNumber);
+        } catch (e) {
+            console.error('Error during refetch: ', e);
+        }
+    };
 
     const updateUser = async (user) => {
         const { data } = await axios.put(
@@ -62,11 +60,11 @@ const UserService = () => {
     }
 
     return {
-        fetchPinByPinID,
         fetchUserByPhoneNumber,
         updateUser,
-        register, 
+        register,
         fetchUserById,
+        refetch,
     };
 };
 

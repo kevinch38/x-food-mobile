@@ -58,7 +58,6 @@ const Navigation = () => {
                     name={'SelectPayment'}
                     component={SelectPayment}
                 />
-
                 <Stack.Screen
                     name={'Cart'}
                     component={Cart}

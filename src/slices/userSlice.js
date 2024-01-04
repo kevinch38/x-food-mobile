@@ -13,9 +13,13 @@ export const userRegisterAction = createAsyncThunk(
     RequestHelper,
 );
 
-export const selectUserByPhoneNumberAction = createAsyncThunk(
-    'user/selectUserByPhoneNumber',
-    RequestHelper,
+export const selectedUserPhoneNumberAction = createAsyncThunk(
+    'user/selectedUserPhoneNumberAction',
+    async (phoneNumber) => {
+        const authService = AuthService();
+        const response = await authService.fetchUserByPhoneNumber(phoneNumber);
+        return response;
+    },
 );
 
 const userSlice = createSlice({
@@ -55,15 +59,15 @@ const userSlice = createSlice({
                 }
             });
         builder.addCase(
-            selectUserByPhoneNumberAction.fulfilled,
+            selectedUserPhoneNumberAction.fulfilled,
             (state, { payload }) => {
                 if (payload) {
-                    state.selectUserByPhoneNumberAction = payload;
+                    state.selectedUserPhoneNumberAction = payload;
                 }
             },
         );
         builder.addCase(
-            selectUserByPhoneNumberAction.rejected,
+            selectedUserPhoneNumberAction.rejected,
             (state, action) => {
                 // Handle jika nomor telepon tidak terdaftar
                 console.error(
@@ -75,5 +79,4 @@ const userSlice = createSlice({
     },
 });
 
-// export const {}
 export default userSlice.reducer;

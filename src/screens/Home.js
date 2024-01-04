@@ -19,22 +19,21 @@ import { merchantAction } from '../slices/merchantSlice';
 import { cityAction } from '../slices/citySlice';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Icon } from '@rneui/themed';
+import { loyaltyPointAction } from '../slices/loyaltyPointSlice';
 
 const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
     const { cities } = useSelector((state) => state.city);
-    const { merchantService, cityService } = useContext(ServiceContext);
-    const [cityId, setCityId] = useState('8a8ae40b8cabc928018cabc9359000c0');
+    const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
+    const { merchantService, cityService, loyaltyPointService } =
+        useContext(ServiceContext);
+    const [value, setValue] = useState('4028c7f08c813f12018c813f1eb20108');
+    const [cityId, setCityId] = useState('ff8080818cc0054c018cc00563680119');
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
 
     const filteredMerchants = merchants.filter((merchant) => {
-        // const branches = merchant.merchantBranches.map((branch) => {
-        //     return branch.city.cityID === cityId;
-        // });
-        // return branches.includes(true);
-
         const branches = merchant.merchantBranches || [];
         const hasMatchingBranch = branches.some(
             (branch) => branch.city.cityID === cityId,
@@ -72,8 +71,25 @@ const Home = ({ navigation }) => {
                 merchantAction(() => merchantService.fetchMerchants()),
             );
         };
+
+        const onGetLoyaltyPointAmount = async () => {
+            const loyaltyPointID = 'ff8080818cc0054c018cc005c5600229';
+            try {
+                await dispatch(
+                    loyaltyPointAction(() =>
+                        loyaltyPointService.fetchLoyaltyPointById(
+                            loyaltyPointID,
+                        ),
+                    ),
+                );
+            } catch (e) {
+                console.error('Error fetching loyalty point data: ', e);
+            }
+        };
+
         onGetMerchants();
-    }, [dispatch, merchantService]);
+        onGetLoyaltyPointAmount();
+    }, [dispatch, merchantService, loyaltyPointService]);
 
     const handleTopUp = () => {
         navigation.navigate('TopUp');
@@ -156,7 +172,7 @@ const Home = ({ navigation }) => {
                             style={{ width: 20, height: 20 }}
                             source={require('../assets/icons/dollar.png')}
                         />
-                        <Text>0</Text>
+                        <Text>{loyaltyPoints.loyaltyPointAmount}</Text>
                     </View>
                     <View style={styles.viewTitle}>
                         <Text style={styles.titleList}>

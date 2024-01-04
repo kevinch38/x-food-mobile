@@ -1,4 +1,5 @@
 import {
+    Animated,
     Image,
     SafeAreaView,
     StatusBar,
@@ -16,16 +17,32 @@ import * as Clipboard from 'expo-clipboard';
 function SelectPayment({ navigation }) {
     const { users } = useSelector((state) => state.user);
     const [vaNumber, setVANumber] = useState('');
+    const [bottomAnim] = useState(new Animated.Value(-100));
+    const [visible, setVisible] = useState(false);
 
     useEffect(() => {
         if (users.phoneNumber) {
             const newNumber = users.phoneNumber.replace(/^\+62/, '12340');
             setVANumber(newNumber);
         }
-    }, []);
+
+        if (visible) {
+            Animated.timing(bottomAnim, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: false,
+            }).start();
+
+            setTimeout(() => {
+                setVisible(false);
+                bottomAnim.setValue(-100);
+            }, 2000);
+        }
+    }, [visible, bottomAnim]);
 
     const copyToClipboard = async () => {
         await Clipboard.setStringAsync(vaNumber);
+        setVisible(true);
     };
 
     const handleBack = () => {
@@ -148,6 +165,27 @@ function SelectPayment({ navigation }) {
         );
     };
 
+    const renderPopup = () => {
+        return (
+            <View>
+                {visible && (
+                    <Animated.View
+                        style={[
+                            styles.popupContainer,
+                            {
+                                bottom: bottomAnim,
+                            },
+                        ]}
+                    >
+                        <Text style={styles.popupText}>
+                            Copied to Clipboard
+                        </Text>
+                    </Animated.View>
+                )}
+            </View>
+        );
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <View>
@@ -155,6 +193,7 @@ function SelectPayment({ navigation }) {
                 {renderPayment()}
                 <View style={styles.line}></View>
                 {renderInstructionTransfer()}
+                {renderPopup()}
             </View>
         </SafeAreaView>
     );
@@ -252,6 +291,21 @@ const styles = StyleSheet.create({
     },
     stepColor: {
         color: theme.secondary,
+    },
+    popupContainer: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: -100,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        padding: 4,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginHorizontal: 70,
+        borderRadius: 12,
+    },
+    popupText: {
+        color: 'white',
     },
 });
 
