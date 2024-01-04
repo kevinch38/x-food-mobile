@@ -47,15 +47,17 @@ function Profile({ navigation }) {
                             await userService.fetchUserByPhoneNumber(
                                 phoneNumber,
                             );
+
+                        if (users.profilePhoto) {
+                            setImage(
+                                `data:image/jpeg;base64,${result.data.profilePhoto}`,
+                            );
+                        } else {
+                            setImage(imageUrl);
+                        }
                         return result;
                     }),
                 );
-
-                if (users.profilePhoto) {
-                    setImage(`data:image/jpeg;base64,${users.profilePhoto}`);
-                } else {
-                    setImage(imageUrl);
-                }
             } catch (e) {
                 console.error('Error fetching user data: ', e);
             }
@@ -78,7 +80,9 @@ function Profile({ navigation }) {
         };
         onGetUserByPhoneNumber();
         onGetLoyaltyPointAmount();
-    }, [dispatch, users.length, userService]);
+    }, [dispatch, userService, loyaltyPointService]);
+
+    console.log('first name => ', users.firstName);
 
     const openModal = () => {
         setModalVisible(true);
@@ -228,7 +232,7 @@ function Profile({ navigation }) {
                     }}
                 >
                     <Text style={styles.name}>
-                        {users.firstName} {users.lastName}
+                        {users?.firstName} {users?.lastName}
                     </Text>
                     <View
                         style={{
@@ -239,7 +243,7 @@ function Profile({ navigation }) {
                     >
                         <Image source={dollar} style={styles.iconDollar} />
                         <Text style={styles.price}>
-                            {loyaltyPoints.loyaltyPointAmount}
+                            {loyaltyPoints?.loyaltyPointAmount}
                         </Text>
                     </View>
                 </View>
@@ -252,13 +256,15 @@ function Profile({ navigation }) {
             <View style={styles.editProfileContainer}>
                 <View style={styles.bioEditProfile}>
                     <Text style={styles.name}>
-                        {users.firstName} {users.lastName}
+                        {users?.firstName} {users?.lastName}
                     </Text>
-                    <Text style={styles.textSecond}>{users.accountEmail}</Text>
-                    <Text style={styles.textSecond}>{users.phoneNumber}</Text>
+                    <Text style={styles.textSecond}>{users?.accountEmail}</Text>
+                    <Text style={styles.textSecond}>{users?.phoneNumber}</Text>
                 </View>
                 <TouchableOpacity
-                    onPress={() => navigation.navigate('EditProfile')}
+                    onPress={() =>
+                        navigation.navigate('EditProfile', { users })
+                    }
                 >
                     <Text style={styles.edit}>Edit Profile</Text>
                 </TouchableOpacity>
@@ -356,7 +362,7 @@ function Profile({ navigation }) {
                     {renderEditProfile()}
                     {renderTopUp()}
                     {renderLogout()}
-                    {users.ktpID ? (
+                    {users?.ktpID ? (
                         <></>
                     ) : (
                         <View

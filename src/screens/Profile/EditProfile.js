@@ -26,11 +26,13 @@ import ErrorText from '../../components/errorText';
 import BackButton from '../../components/backButton';
 import * as ImagePicker from 'expo-image-picker';
 import * as Icon from 'react-native-feather';
+import { useRoute } from '@react-navigation/native';
 
 function EditProfile({ navigation }) {
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
-    const { users } = useSelector((state) => state.user);
+    const route = useRoute();
+    const phoneNumbers = route.params?.users.phoneNumber;
     const [image, setImage] = useState();
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -70,6 +72,7 @@ function EditProfile({ navigation }) {
         },
         onSubmit: (values) => {
             if (!isValid) return;
+
             //
             // const formData = new FormData();
             // formData.append('accountID', values.accountID.toString());
@@ -89,9 +92,9 @@ function EditProfile({ navigation }) {
             //
             // console.log('FormData sebelum dikirim:', formData);
 
-            try {
-                dispatch(
-                    userAction(async () => {
+            dispatch(
+                userAction(async () => {
+                    try {
                         const result = await userService.updateUser(values);
 
                         if (result.statusCode === 200) {
@@ -101,35 +104,40 @@ function EditProfile({ navigation }) {
                                 [
                                     {
                                         text: 'Ok',
-                                        onPress: () => {
+                                        onPress: async () => {
+                                            await userService.refetch(
+                                                phoneNumber,
+                                            );
                                             navigation.goBack();
                                         },
                                     },
                                 ],
                                 { cancelable: false },
                             );
+                        } else {
+                            Alert.alert('Error', 'Failed to update data');
                         }
                         return null;
-                    }),
-                );
-            } catch (e) {
-                console.error('Error update user data: ', e);
-            }
+                    } catch (e) {
+                        console.error('Error update user data: ', e);
+                        Alert.alert('Error', 'Failed to update data');
+                    }
+                }),
+            );
         },
         validationSchema: schema,
     });
 
     useEffect(() => {
-        const phoneNumber = '+6285201205272';
-        if (phoneNumber) {
+        if (phoneNumbers) {
             dispatch(
                 userAction(async () => {
                     const result =
-                        await userService.fetchUserByPhoneNumber(phoneNumber);
+                        await userService.fetchUserByPhoneNumber(phoneNumbers);
 
-                    if (users.profilePhoto) {
+                    if (result.data.profilePhoto) {
                         setImage(
-                            `data:image/jpeg;base64,${users.profilePhoto}`,
+                            `data:image/jpeg;base64,${result.data.profilePhoto}`,
                         );
                     } else {
                         setImage(imageUrl);

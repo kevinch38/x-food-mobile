@@ -64,29 +64,28 @@ function CompleteProfile({ navigation }) {
         },
         onSubmit: async (values) => {
             if (!isValid) return;
-            console.log('values => ', values);
 
-            // dispatch(
-            //     userAction(async () => {
-            //         const result = await userService.updateUser(values);
-            //         if (result.statusCode === 200) {
-            //             Alert.alert(
-            //                 'Success',
-            //                 'Data updated successfully',
-            //                 [
-            //                     {
-            //                         text: 'Ok',
-            //                         onPress: () => {
-            //                             navigation.goBack();
-            //                         },
-            //                     },
-            //                 ],
-            //                 { cancelable: false },
-            //             );
-            //         }
-            //         return null;
-            //     }),
-            // );
+            dispatch(
+                userAction(async () => {
+                    const result = await userService.updateUser(values);
+                    if (result.statusCode === 200) {
+                        Alert.alert(
+                            'Success',
+                            'Data updated successfully',
+                            [
+                                {
+                                    text: 'Ok',
+                                    onPress: () => {
+                                        navigation.goBack();
+                                    },
+                                },
+                            ],
+                            { cancelable: false },
+                        );
+                    }
+                    return null;
+                }),
+            );
         },
         validationSchema: schema,
     });
@@ -148,6 +147,43 @@ function CompleteProfile({ navigation }) {
 
     const toggleDatepicker = () => {
         setShowPicker(!showPicker);
+    };
+
+    const currentDate = new Date();
+    const maximumDate = new Date(
+        currentDate.getFullYear() - 13,
+        currentDate.getMonth(),
+        currentDate.getDate(),
+    );
+
+    const formatDate = (rawDate) => {
+        let date = new Date(rawDate);
+
+        date.setUTCHours(date.getUTCHours() + 7);
+
+        let year = date.getFullYear();
+        let month = date.getMonth() + 1;
+        let day = date.getDate();
+
+        month = month < 10 ? `0${month}` : month;
+        day = day < 10 ? `0${day}` : day;
+
+        return `${year}-${month}-${day}`;
+    };
+
+    const onChange = ({ type }, selectDate) => {
+        if (type === 'set') {
+            const currentDate = selectDate;
+            setDate(currentDate);
+
+            if (Platform.OS === 'android') {
+                toggleDatepicker();
+                setDOB(formatDate(currentDate));
+                handleChange('dateOfBirth')(formatDate(currentDate));
+            }
+        } else {
+            toggleDatepicker();
+        }
     };
 
     const renderHeader = () => {

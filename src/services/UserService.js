@@ -20,6 +20,14 @@ const UserService = () => {
         return data;
     };
 
+    const refetch = async (phoneNumber) => {
+        try {
+            await fetchUserByPhoneNumber(phoneNumber);
+        } catch (e) {
+            console.error('Error during refetch: ', e);
+        }
+    };
+
     const updateUser = async (user) => {
         const { data } = await axios.put(
             `http://10.0.2.2:8087/api/users`,
@@ -32,6 +40,7 @@ const UserService = () => {
         fetchUserByPhoneNumber,
         updateUser,
         register,
+        refetch,
     };
 };
 
