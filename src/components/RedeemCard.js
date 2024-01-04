@@ -5,13 +5,8 @@ import VoucherService from "../services/VoucherService";
 import PromotionService from "../services/PromotionService";
 
 
-const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, points, isMaxRedeemed, promotionID, accountID}) => {
+const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, points, isMaxRedeemed, promotionID, accountID, voucherEmpty}) => {
     const formattedExpiredDate = format(new Date(expired), 'yyyy/MM/dd');
-    const voucherService = VoucherService();
-    const promotionService = PromotionService();
-    const [countRedeem, setCountRedeem] = useState(0);
-    const [isMaxRedeem, setIsMaxRedeem] = useState(false);
-
     const handleRedeem = async () => {
         try {
 
@@ -19,46 +14,15 @@ const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, point
             await voucherService.createVoucher(promotionID, accountID);
             console.log('Voucher redeemed successfully!');
         } catch (error) {
+            alert("Vouchers empty or your point not enough !!");
             console.error('Error redeeming voucher:', error);
+
         }
     };
-
-    const getVoucherByAccountIDAndPromoID = async () => {
-        try {
-            const vouchers = await voucherService.getVoucherByAccountIDAndPromoID(accountID,promotionID);
-            console.log("data voucher ========>",vouchers.data.length);
-            setCountRedeem(vouchers.data.length);
-
-            // setCountRedeem(vouchers.data.)
-        }catch (error) {
-            console.error('Error fetching user data1:', error);
-        }
-    }
-
-    const getPromotionById = async ()=> {
-        try {
-            const promotion = await promotionService.getPromotionById(promotionID);
-            console.log(promotion.data.maxRedeem);
-            if(promotion.data.maxRedeem<=countRedeem){
-                setIsMaxRedeem(true);
-            }
-        }catch (error) {
-            console.error('Error fetching user data1:', error);
-        }
-    }
 
     const handleRedeemAndFetchVoucher = async () => {
         await handleRedeem();
-        await getVoucherByAccountIDAndPromoID();
     };
-
-    useEffect(() => {
-        getVoucherByAccountIDAndPromoID();
-    }, []);
-
-    useEffect(() => {
-        getPromotionById();
-    }, [countRedeem]);
 
     return (
         <>
@@ -80,7 +44,7 @@ const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, point
                         <Text style={{marginLeft:60, color:'#4EE476'}}>{points}</Text>
                     </View>
                         <TouchableOpacity style={{marginTop:80, marginLeft:120, position: 'absolute'}} onPress={handleRedeemAndFetchVoucher}>
-                            {isMaxRedeem ?
+                            {isMaxRedeemed || voucherEmpty ?
                                 <Image source={require('../assets/icons/RedeemedButton.png')}/> :
                                 <Image source={require('../assets/icons/RedeemButton.png')}/>
                             }

@@ -1,4 +1,4 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View, ScrollView} from "react-native";
+import {Image, StyleSheet, Text, TouchableOpacity, View, ScrollView, ActivityIndicator} from "react-native";
 import React, { useState, useEffect } from "react";
 import RedeemCard from "../../components/RedeemCard";
 import Starbuck from "../../../assets/images/starbuck.png";
@@ -11,47 +11,91 @@ import VoucherService from "../../services/VoucherService";
 const Redeem = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const promotionService = PromotionService();
+    const voucherService = VoucherService();
     const [promotions, setPromotions] = useState([]);
     const userService = UserService();
-    const voucherService = VoucherService();
     const [id, setId] = useState("");
+    const [isMaxRedeemed, setIsMaxRedeemed] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
+    const [vouchersLeftData, setVouchersLeftData] = useState({});
+    const [isVoucherEmpty, setIsVoucherEmpty] = useState({});
 
     const getAllPromotions = async () => {
+        console.log("Manggil getAllPromotions");
         try {
+            setIsLoading(true)
+            console.log("=====>",isLoading)
             const userData = await promotionService.getPromotions();
-            setPromotions(userData.data);
-            console.log('userData:', userData);
+            const fetchedPromotions = userData.data;
 
+            setPromotions(fetchedPromotions);
+
+            const promises = fetchedPromotions.map(async (promotion) => {
+                const voucher = await voucherService.getVoucherByAccountIDAndPromoID(id, promotion.promotionID);
+
+                setIsMaxRedeemed((prev) => ({
+                    ...prev,
+                    [promotion.promotionID]: promotion.maxRedeem <= voucher.data.length,
+                }));
+
+                setIsVoucherEmpty((prev) => ({
+                    ...prev,
+                    [promotion.promotionID]: promotion.quantity <= 0,
+                }));
+            });
+
+            await Promise.all(promises);
+            setIsLoading(false);
+            console.log("====+>", isLoading)
         } catch (error) {
-            console.error('Error fetching user data1:', error);
+            console.error('Error fetching user data:', error);
+            alert("Vouchers empty or your point not enough !!");
+
         }
     };
 
     const fetchUserData = async (phoneNumber) => {
         try {
             const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
-            console.log('userData:', userData.data.accountID);
             const accountID = userData.data.accountID;
             setId(accountID);
-
         } catch (error) {
-            console.error('Error fetching user data1:', error);
+            console.error('Error fetching user data:', error);
         }
     };
 
+    useEffect(() => {
+        fetchUserData(phoneNumber);
+    }, [phoneNumber]);
 
     useEffect(() => {
-        getAllPromotions();
-        fetchUserData(phoneNumber);
-    }, [phoneNumber, id]);
+        if (id !== "") {
+            getAllPromotions();
+        }
+    }, [id]);
+
     return (
         <>
+            {isLoading && (
+                <ActivityIndicator
+                    style={{
+                        position: 'absolute',
+                        zIndex: 2,
+                        width: '100%',
+                        height: '100%',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    }}
+                    size="large"
+                    color= '#FFC529'
+                />
+            )}
             <View
                 style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                     marginBottom: -60,
-                    // marginBottom:-100
                 }}
             >
                 <TouchableOpacity style={styles.button}>
@@ -82,7 +126,8 @@ const Redeem = () => {
                             items={promotion.maxRedeem.toString()}
                             expired={promotion.expiredDate}
                             title={promotion.promotionName}
-                            // isMaxRedeem={}
+                            isMaxRedeemed={isMaxRedeemed[promotion.promotionID] || false}
+                            voucherEmpty={isVoucherEmpty[promotion.promotionID] || false}
                             percenOff={promotion.promotionValue.toString()}
                             accountID={id}
                             promotionID={promotion.promotionID}
@@ -90,16 +135,7 @@ const Redeem = () => {
                     ))}
                 </ScrollView>
             </View>
-
-
         </>
-
-
-
-
-        // <View>
-        // </View>
-
     )
 }
 

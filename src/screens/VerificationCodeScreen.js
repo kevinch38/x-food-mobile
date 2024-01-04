@@ -61,7 +61,7 @@ const VerificationCodeScreen = () => {
 
                     const data = response.data;
 
-                    console.log('Check OTP response:', data);
+                    // console.log('Check OTP response:', data);
                     console.log(firstName);
                     if (data.data && firstName === "") {
                         setIsValidCode(true);

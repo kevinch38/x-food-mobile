@@ -38,7 +38,7 @@ const Voucher = ({ navigation }) => {
         try {
             const fetchedUserData = await userService().fetchUserByPhoneNumber(phoneNumber);
             setUserData(fetchedUserData);
-            console.log('userData:', fetchedUserData);
+            // console.log('userData:', fetchedUserData);
         } catch (error) {
             console.error('Error fetching user data:', error);
         }
