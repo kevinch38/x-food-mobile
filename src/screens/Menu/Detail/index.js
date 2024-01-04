@@ -28,9 +28,13 @@ const Detail = ({ navigation }) => {
     const route = useRoute();
     // const cartItems = useSelector(selectCartItems);
     const item = route.params?.item;
+    const defaultPrice = item.isDiscounted
+        ? item.discountedPrice
+        : item.initialPrice;
 
     let [qty, setQty] = useState(1);
     const [itemVariety, setItemVariety] = useState([]);
+    let [price, setPrice] = useState(defaultPrice);
 
     const base64StringImage = `data:image/jpeg;base64,${item.image}`;
 
@@ -38,7 +42,11 @@ const Detail = ({ navigation }) => {
         selectCartItemsById(state, item.itemID),
     );
     const handleIncrease = () => {
-        const cartItem = { ...item, itemVarieties: itemVariety };
+        const cartItem = {
+            ...item,
+            itemVarieties: itemVariety,
+            itemPrice: price,
+        };
         dispatch(addToCart(cartItem));
     };
     const handleDecrease = () => {
@@ -50,6 +58,11 @@ const Detail = ({ navigation }) => {
     };
 
     const handleVariety = (checked, varietyPrice, varietyName) => {
+        const newPrice = checked
+            ? defaultPrice + varietyPrice
+            : defaultPrice - varietyPrice;
+        setPrice(newPrice);
+
         if (checked) {
             setItemVariety([...itemVariety, varietyName]);
         } else {
@@ -108,7 +121,10 @@ const Detail = ({ navigation }) => {
                         }}
                     >
                         {/*Rp. {price * qty}*/}
-                        Rp. {item.price}
+                        Rp.{' '}
+                        {item.isDiscounted
+                            ? item.discountedPrice
+                            : item.initialPrice}
                     </Text>
 
                     <View style={{ display: 'flex', flexDirection: 'row' }}>

@@ -25,7 +25,7 @@ const Home = ({ navigation }) => {
     const merchants = useSelector((state) => state.merchant.merchants);
     const { cities } = useSelector((state) => state.city);
     const { merchantService, cityService } = useContext(ServiceContext);
-    const [cityId, setCityId] = useState('8a8ae40b8cabc928018cabc9359000c0');
+    const [cityId, setCityId] = useState('8a8ae40b8cca923d018cca924c7c0119');
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
 

@@ -16,11 +16,22 @@ import BackButton from '../../components/backButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import { userAction } from '../../slices/userSlice';
+import { useNavigation } from '@react-navigation/native';
 
 const Voucher = ({ navigation }) => {
+    const navigate = useNavigation();
+
     const dispatch = useDispatch();
     const { users } = useSelector((state) => state.user);
     const { userService } = useContext(ServiceContext);
+    const { phoneNumber } = useSelector((state) => state.ui);
+    const handleRedeemPress = () => {
+        navigate.navigate('Redeem');
+    };
+
+    const handleBack = () => {
+        navigation.navigate('Home');
+    };
 
     useEffect(() => {
         const onGetUserByPhoneNumber = async () => {
@@ -45,7 +56,7 @@ const Voucher = ({ navigation }) => {
                     source={require('../../../assets/images/elipse.png')}
                     style={{ position: 'absolute', top: 0 }}
                 />
-                <BackButton style />
+                <BackButton onPress={handleBack} />
                 <Image
                     source={require('../../../assets/images/elipse2.png')}
                     style={{ position: 'absolute', top: 0, right: 0 }}
@@ -73,7 +84,10 @@ const Voucher = ({ navigation }) => {
                             980
                         </Text>
                     </View>
-                    <TouchableOpacity style={{ marginTop: 25 }}>
+                    <TouchableOpacity
+                        style={{ marginTop: 25 }}
+                        onPress={handleRedeemPress}
+                    >
                         <Image
                             source={require('../../../assets/images/redeembutton.png')}
                         />
@@ -90,8 +104,8 @@ const Voucher = ({ navigation }) => {
                                 return (
                                     <VoucherCard
                                         key={idx}
-                                        title={`Starbucks Rp. 30.000 Off`}
-                                        content={`Some explanation of the code`}
+                                        title={`Discount 20%`}
+                                        content={`20% 0ff`}
                                         image={Starbuck}
                                         expired={`Will Expire on 25/10/2024`}
                                     />

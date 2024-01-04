@@ -9,7 +9,7 @@ import {
     View,
 } from 'react-native';
 import BackButton from '../../components/backButton';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import * as Icon from 'react-native-feather';
 import { theme } from '../../theme';
 import InputText from '../../components/inputText';
@@ -26,9 +26,13 @@ import {
 } from '../../slices/cartSlice';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
-import { userRegisterAction } from '../../slices/userSlice';
+import { userAction, userRegisterAction } from '../../slices/userSlice';
 import orderService from '../../services/OrderService';
 import axios from 'axios';
+import menu from '../../assets/images/menu-1.png';
+import { ServiceContext } from '../../context/ServiceContext';
+import { isLoading } from 'expo-font';
+import Loading from '../../components/loading';
 
 function Cart({ navigation }) {
     const dispatch = useDispatch();
@@ -39,28 +43,50 @@ function Cart({ navigation }) {
     const { users } = useSelector((state) => state.user);
     const { selectedBranch } = useSelector((state) => state.merchantBranch);
     const [sale, setSale] = useState('');
+    const [nameVoucher, setNameVoucher] = useState('');
+    const { userService } = useContext(ServiceContext);
+    const { loading, setLoading } = useState(false);
+    const [vouchers, setVouchers] = useState([]);
 
     const totalItems = useSelector((state) =>
         selectCartItemsById(state, cartItems.itemID),
     );
 
-    const data = [
-        {
-            image: require('../../assets/images/voucher-img.png'),
-            label: 'Voucher 20,000 Off',
-            value: 20000,
-        },
-        {
-            image: require('../../assets/images/voucher-img.png'),
-            label: 'Voucher 10,000 Off',
-            value: 10000,
-        },
-        {
-            image: require('../../assets/images/voucher-img.png'),
-            label: 'Voucher 5,000 Off',
-            value: 5000,
-        },
-    ];
+    useEffect(() => {
+        setVouchers(users.vouchers);
+    }, [users]);
+
+    useEffect(() => {
+        const onGetUserByPhoneNumber = async () => {
+            await dispatch(
+                userAction(() =>
+                    userService.fetchUserByPhoneNumber('+62811112222'),
+                ),
+            );
+        };
+        onGetUserByPhoneNumber();
+    }, [dispatch, userService]);
+
+    // const data = [
+    //     {
+    //         id: 1,
+    //         image: require('../../assets/images/voucher-img.png'),
+    //         label: 'Voucher 20,000 Off',
+    //         value: 20000,
+    //     },
+    //     {
+    //         id: 2,
+    //         image: require('../../assets/images/voucher-img.png'),
+    //         label: 'Voucher 10,000 Off',
+    //         value: 10000,
+    //     },
+    //     {
+    //         id: 3,
+    //         image: require('../../assets/images/voucher-img.png'),
+    //         label: 'Voucher 5,000 Off',
+    //         value: 5000,
+    //     },
+    // ];
 
     const Schema = yup.object().shape({
         tableNumber: yup.number().required('No Table Required'),
@@ -115,11 +141,11 @@ function Cart({ navigation }) {
                     // console.log(update);
 
                     console.log(update);
-                    const response = await axios.post(
-                        'http://10.0.2.2:8087/api/orders',
-                        update,
-                    );
-                    console.log(response);
+                    // const response = await axios.post(
+                    //     'http://10.0.2.2:8087/api/orders',
+                    //     update,
+                    // );
+                    // console.log(response);
                 } catch (e) {
                     console.error(e);
                 }
@@ -137,16 +163,59 @@ function Cart({ navigation }) {
     };
 
     useEffect(() => {
-        const items = cartItems.reduce((group, item) => {
-            if (group[item.itemID]) {
-                group[item.itemID].push(item);
+        const groupedItems = cartItems.reduce((group, item) => {
+            const variety = Array.isArray(item.itemVarieties)
+                ? item.itemVarieties.join('-')
+                : 'No Variety';
+            const key = item.itemID + '-' + variety;
+            if (group[key]) {
+                group[key].push(item);
             } else {
-                group[item.itemID] = [item];
+                group[key] = [item];
             }
             return group;
         }, {});
-        setGroupedItems(items);
+
+        // Mengelompokkan item yang memiliki ID dan variety yang sama menjadi satu kelompok
+        const mergedGroupedItems = Object.values(groupedItems).reduce(
+            (finalGroup, itemsArray) => {
+                const firstItem = itemsArray[0];
+                const matchingItems = finalGroup.find(
+                    (groupedItem) =>
+                        groupedItem.itemID === firstItem.itemID &&
+                        groupedItem.itemVarieties.join('-') ===
+                            firstItem.itemVarieties.join('-'),
+                );
+
+                if (matchingItems) {
+                    matchingItems.items.push(...itemsArray);
+                } else {
+                    finalGroup.push({
+                        itemID: firstItem.itemID,
+                        itemVarieties: firstItem.itemVarieties,
+                        items: itemsArray,
+                    });
+                }
+
+                return finalGroup;
+            },
+            [],
+        );
+
+        setGroupedItems(mergedGroupedItems);
     }, [cartItems]);
+
+    // useEffect(() => {
+    //     const items = cartItems.reduce((group, item) => {
+    //         if (group[item.itemID]) {
+    //             group[item.itemID].push(item);
+    //         } else {
+    //             group[item.itemID] = [item];
+    //         }
+    //         return group;
+    //     }, {});
+    //     setGroupedItems(items);
+    // }, [cartItems]);
 
     const handleBack = () => {
         navigation.navigate('Menu');
@@ -173,11 +242,12 @@ function Cart({ navigation }) {
 
     const renderCart = () => {
         return Object.entries(groupedItems).map(([key, items]) => {
-            const item = items[0];
+            const item = items.items[0];
             return (
                 <View style={styles.sectionContainer} key={key}>
                     <Image
                         source={{ uri: `data:image/jpeg;base64,${item.image}` }}
+                        // source={require('../../assets/images/menu-1.png')}
                         style={styles.imageCart}
                     />
                     <View style={styles.menuContainer}>
@@ -197,7 +267,9 @@ function Cart({ navigation }) {
                             </TouchableOpacity>
                         </View>
                         <Text style={styles.toppings}>
-                            {item.itemDescription}
+                            {item.itemVarieties
+                                ? item.itemVarieties
+                                : 'No Varieties'}
                         </Text>
                         <View style={styles.priceSection}>
                             <Text style={styles.priceMenu}>
@@ -207,7 +279,7 @@ function Cart({ navigation }) {
                                     : item.initialPrice}
                             </Text>
                             <View style={styles.counter}>
-                                {order === items.length ? (
+                                {order === items.items.length ? (
                                     <TouchableOpacity disabled>
                                         <Icon.MinusCircle
                                             width={28}
@@ -229,7 +301,7 @@ function Cart({ navigation }) {
                                     </TouchableOpacity>
                                 )}
                                 <Text style={styles.numCounter}>
-                                    {items.length}
+                                    {items.items.length}
                                 </Text>
                                 <TouchableOpacity
                                     onPress={() => handleIncrease(item)}
@@ -281,17 +353,18 @@ function Cart({ navigation }) {
                     placeholderStyle={styles.placeholderStyle}
                     selectedTextStyle={styles.selectedTextStyle}
                     imageStyle={styles.imageStyle}
-                    data={data}
-                    imageField={'image'}
-                    labelField={'label'}
-                    valueField={data.value}
+                    data={vouchers}
+                    imageField="logoImage"
+                    labelField="promotionName"
+                    valueField="voucherValue"
                     // onChange={handleDropdown}
                     maxHeight={300}
                     searchPlaceholder="Search..."
                     placeholder={'Select Voucher'}
-                    value={data.value}
+                    value={sale}
                     onChange={(item) => {
-                        setSale(item.value);
+                        setSale(item.voucherValue);
+                        setNameVoucher(item.label);
                     }}
                 />
             </View>
@@ -319,7 +392,12 @@ function Cart({ navigation }) {
                         <Text style={styles.textItem}>{}</Text>
                     </View>
                     <Text style={styles.textSubtotal}>
-                        Rp. {sale ? cartTotal - sale : cartTotal}
+                        Rp.{' '}
+                        {(sale ? cartTotal - sale : cartTotal) < 0
+                            ? 0
+                            : sale
+                              ? cartTotal - sale
+                              : cartTotal}
                         {/*{users.vouchers*/}
                         {/*    ? cartTotal - users.vouchers.voucher_value*/}
                         {/*    : cartTotal}*/}
@@ -331,7 +409,7 @@ function Cart({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/*<Button title={'tt'} onPress={console.log(selectedBranch)} />*/}
+            <Button title={'tt'} onPress={console.log(users)} />
             <ScrollView>
                 {renderHeader()}
                 <View style={styles.sectionWrapper}>
@@ -437,10 +515,11 @@ const styles = StyleSheet.create({
         marginTop: 30,
     },
     dropdown: {
-        height: 65,
+        height: 66,
+        width: '70%',
         borderColor: theme.grey,
         borderWidth: 1,
-        borderRadius: 10,
+        borderRadius: 66 / 2,
         padding: 12,
     },
     placeholderStyle: {

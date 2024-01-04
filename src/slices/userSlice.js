@@ -54,7 +54,7 @@ const userSlice = createSlice({
                     errorPayload.response &&
                     errorPayload.response.status === 409
                 ) {
-                    console.log('emailsudasada');
+                    console.log(`we're sorry, that email taken`);
                 } else {
                     // alert(errorPayload);
                     // console.log(errorPayload, 'error slice payload');

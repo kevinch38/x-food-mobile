@@ -33,7 +33,7 @@ function Profile({ navigation }) {
         const onGetUserByPhoneNumber = async () => {
             await dispatch(
                 userAction(() =>
-                    userService.fetchUserByPhoneNumber(phoneNumber),
+                    userService.fetchUserByPhoneNumber('+62811112222'),
                 ),
             );
         };
