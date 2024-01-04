@@ -9,30 +9,82 @@ export const cartSlice = createSlice({
         addToCart: (state, { payload }) => {
             state.items = [...state.items, payload];
         },
-        removeFromCart: (state, { payload }) => {
-            const newCart = [...state.items];
-            const itemIndex = state.items.findIndex(
-                (item) => item.itemID === payload.id,
-            );
-            if (itemIndex >= 0) {
-                newCart.splice(itemIndex, 1);
-            } else {
-                console.log("can't remove the item that is not added to cart!");
+        removeFromCart: (state, action) => {
+            const { index, item } = action.payload;
+
+            const updatedCart = [...state.items];
+            const targetItem = updatedCart[index];
+
+            if (targetItem) {
+                const itemIndexToDelete = updatedCart.findIndex(
+                    (cartItem) =>
+                        cartItem.itemID === targetItem.itemID &&
+                        cartItem.itemVarieties.every((variety) =>
+                            targetItem.itemVarieties.some(
+                                (targetVariety) =>
+                                    targetVariety.subVarietyID ===
+                                    variety.subVarietyID,
+                            ),
+                        ),
+                );
+
+                if (itemIndexToDelete !== -1) {
+                    if (
+                        updatedCart[itemIndexToDelete].itemVarieties.length > 1
+                    ) {
+                        const varietyIndexToDelete = updatedCart[
+                            itemIndexToDelete
+                        ].itemVarieties.findIndex((variety) =>
+                            item.itemVarieties.some(
+                                (itemVariety) =>
+                                    itemVariety.subVarietyID ===
+                                    variety.subVarietyID,
+                            ),
+                        );
+
+                        updatedCart[itemIndexToDelete].itemVarieties.splice(
+                            varietyIndexToDelete,
+                            1,
+                        );
+                    } else {
+                        updatedCart.splice(itemIndexToDelete, 1);
+                    }
+                }
             }
-            state.items = newCart;
+
+            state.items = updatedCart;
         },
         emptyCart: (state) => {
             state.items = [];
         },
-        removeAllById(state, { payload }) {
-            state.items = state.items.filter(
-                (item) => item.itemID !== payload.id,
-            );
+        removeAll(state, { payload }) {
+            const { id, subVarietyID } = payload;
+
+            state.items = state.items
+                .map((item) => {
+                    if (item.itemID === id) {
+                        if (subVarietyID) {
+                            const updatedVarieties = item.itemVarieties.filter(
+                                (variety) => variety.varietyID !== subVarietyID,
+                            );
+
+                            if (updatedVarieties.length > 0) {
+                                item.itemVarieties = updatedVarieties;
+                            } else {
+                                return null;
+                            }
+                        } else {
+                            return null;
+                        }
+                    }
+                    return item;
+                })
+                .filter(Boolean);
         },
     },
 });
 
-export const { addToCart, removeFromCart, emptyCart, removeAllById } =
+export const { addToCart, removeFromCart, emptyCart, removeAll } =
     cartSlice.actions;
 export const selectCartItems = (state) => state.cart.items;
 export const selectCartItemsById = (state, id) =>

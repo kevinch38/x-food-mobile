@@ -18,7 +18,7 @@ import Button from '../../components/button';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     addToCart,
-    removeAllById,
+    removeAll,
     removeFromCart,
     selectCartItems,
     selectCartItemsById,
@@ -33,6 +33,7 @@ import menu from '../../assets/images/menu-1.png';
 import { ServiceContext } from '../../context/ServiceContext';
 import { isLoading } from 'expo-font';
 import Loading from '../../components/loading';
+import { selectedMerchantAction } from '../../slices/merchantSlice';
 
 function Cart({ navigation }) {
     const dispatch = useDispatch();
@@ -47,6 +48,7 @@ function Cart({ navigation }) {
     const { userService } = useContext(ServiceContext);
     const { loading, setLoading } = useState(false);
     const [vouchers, setVouchers] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const totalItems = useSelector((state) =>
         selectCartItemsById(state, cartItems.itemID),
@@ -58,35 +60,23 @@ function Cart({ navigation }) {
 
     useEffect(() => {
         const onGetUserByPhoneNumber = async () => {
-            await dispatch(
-                userAction(() =>
-                    userService.fetchUserByPhoneNumber('+62811112222'),
-                ),
-            );
+            try {
+                setIsLoading(true);
+
+                await dispatch(
+                    userAction(() =>
+                        userService.fetchUserByPhoneNumber('+62811112222'),
+                    ),
+                );
+
+                setIsLoading(false);
+            } catch (error) {
+                console.error('Error fetching user:', error);
+                setIsLoading(false);
+            }
         };
         onGetUserByPhoneNumber();
     }, [dispatch, userService]);
-
-    // const data = [
-    //     {
-    //         id: 1,
-    //         image: require('../../assets/images/voucher-img.png'),
-    //         label: 'Voucher 20,000 Off',
-    //         value: 20000,
-    //     },
-    //     {
-    //         id: 2,
-    //         image: require('../../assets/images/voucher-img.png'),
-    //         label: 'Voucher 10,000 Off',
-    //         value: 10000,
-    //     },
-    //     {
-    //         id: 3,
-    //         image: require('../../assets/images/voucher-img.png'),
-    //         label: 'Voucher 5,000 Off',
-    //         value: 5000,
-    //     },
-    // ];
 
     const Schema = yup.object().shape({
         tableNumber: yup.number().required('No Table Required'),
@@ -140,7 +130,7 @@ function Cart({ navigation }) {
                     };
                     // console.log(update);
 
-                    console.log(update);
+                    console.log(update, 'update ======');
                     // const response = await axios.post(
                     //     'http://10.0.2.2:8087/api/orders',
                     //     update,
@@ -159,13 +149,27 @@ function Cart({ navigation }) {
     };
 
     const handleDecrease = (item) => {
-        dispatch(removeFromCart({ id: item.itemID }));
+        const itemIndex = cartItems.findIndex(
+            (cartItem) =>
+                cartItem.itemID === item.itemID &&
+                cartItem.itemVarieties.every(
+                    (cartVariety, index) =>
+                        cartVariety.subVarietyID ===
+                        item.itemVarieties[index].subVarietyID,
+                ),
+        );
+
+        if (itemIndex !== -1) {
+            dispatch(removeFromCart({ index: itemIndex, item: item }));
+        }
     };
 
     useEffect(() => {
         const groupedItems = cartItems.reduce((group, item) => {
             const variety = Array.isArray(item.itemVarieties)
-                ? item.itemVarieties.join('-')
+                ? item.itemVarieties
+                      .map((variety) => variety.subVarietyID)
+                      .join('-')
                 : 'No Variety';
             const key = item.itemID + '-' + variety;
             if (group[key]) {
@@ -176,7 +180,6 @@ function Cart({ navigation }) {
             return group;
         }, {});
 
-        // Mengelompokkan item yang memiliki ID dan variety yang sama menjadi satu kelompok
         const mergedGroupedItems = Object.values(groupedItems).reduce(
             (finalGroup, itemsArray) => {
                 const firstItem = itemsArray[0];
@@ -184,7 +187,9 @@ function Cart({ navigation }) {
                     (groupedItem) =>
                         groupedItem.itemID === firstItem.itemID &&
                         groupedItem.itemVarieties.join('-') ===
-                            firstItem.itemVarieties.join('-'),
+                            firstItem.itemVarieties
+                                .map((variety) => variety.subVarietyID)
+                                .join('-'),
                 );
 
                 if (matchingItems) {
@@ -192,7 +197,9 @@ function Cart({ navigation }) {
                 } else {
                     finalGroup.push({
                         itemID: firstItem.itemID,
-                        itemVarieties: firstItem.itemVarieties,
+                        itemVarieties: firstItem.itemVarieties.map(
+                            (variety) => variety.subVarietyID,
+                        ),
                         items: itemsArray,
                     });
                 }
@@ -205,26 +212,21 @@ function Cart({ navigation }) {
         setGroupedItems(mergedGroupedItems);
     }, [cartItems]);
 
-    // useEffect(() => {
-    //     const items = cartItems.reduce((group, item) => {
-    //         if (group[item.itemID]) {
-    //             group[item.itemID].push(item);
-    //         } else {
-    //             group[item.itemID] = [item];
-    //         }
-    //         return group;
-    //     }, {});
-    //     setGroupedItems(items);
-    // }, [cartItems]);
-
     const handleBack = () => {
         navigation.navigate('Menu');
     };
 
-    const handleClose = (itemId) => {
-        dispatch(removeAllById({ id: itemId }));
+    const handleClose = (item) => {
+        const { itemID, itemVarieties } = item;
+        dispatch(removeAll({ id: itemID, subVarietyID: itemVarieties }));
     };
 
+    const findVarietyName = (varieties, subVarietyID) => {
+        const variety = varieties.find(
+            (variety) => variety.subVarietyID === subVarietyID,
+        );
+        return variety ? variety.subVarName : 'Unknown Variety';
+    };
     const handleCheckout = () => {
         navigation.navigate('Pin');
     };
@@ -247,7 +249,6 @@ function Cart({ navigation }) {
                 <View style={styles.sectionContainer} key={key}>
                     <Image
                         source={{ uri: `data:image/jpeg;base64,${item.image}` }}
-                        // source={require('../../assets/images/menu-1.png')}
                         style={styles.imageCart}
                     />
                     <View style={styles.menuContainer}>
@@ -269,6 +270,13 @@ function Cart({ navigation }) {
                         <Text style={styles.toppings}>
                             {item.itemVarieties
                                 ? item.itemVarieties
+                                      .map((variety) =>
+                                          findVarietyName(
+                                              item.itemVarieties,
+                                              variety.subVarietyID,
+                                          ),
+                                      )
+                                      .join(' , ')
                                 : 'No Varieties'}
                         </Text>
                         <View style={styles.priceSection}>
@@ -389,7 +397,9 @@ function Cart({ navigation }) {
                 <View style={styles.totalStyle}>
                     <View style={styles.subtotalStyle}>
                         <Text style={styles.textSubtotal}>Total</Text>
-                        <Text style={styles.textItem}>{}</Text>
+                        <Text
+                            style={styles.textItem}
+                        >{`(${cartItems.length} items)`}</Text>
                     </View>
                     <Text style={styles.textSubtotal}>
                         Rp.{' '}
@@ -398,9 +408,6 @@ function Cart({ navigation }) {
                             : sale
                               ? cartTotal - sale
                               : cartTotal}
-                        {/*{users.vouchers*/}
-                        {/*    ? cartTotal - users.vouchers.voucher_value*/}
-                        {/*    : cartTotal}*/}
                     </Text>
                 </View>
             </View>
@@ -409,23 +416,29 @@ function Cart({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Button title={'tt'} onPress={console.log(users)} />
-            <ScrollView>
-                {renderHeader()}
-                <View style={styles.sectionWrapper}>
-                    {renderCart()}
-                    {renderInformation()}
-                    {renderVoucher()}
-                    {renderSubTotal()}
-                </View>
-                <View style={styles.buttonCheckout}>
-                    <Button
-                        title={'CHECKOUT'}
-                        titleStyle={styles.titleStyle}
-                        onPress={handleSubmit}
-                    />
-                </View>
-            </ScrollView>
+            {isLoading ? (
+                <Loading />
+            ) : (
+                <>
+                    <Button title={'tt'} onPress={console.log(cartItems)} />
+                    <ScrollView>
+                        {renderHeader()}
+                        <View style={styles.sectionWrapper}>
+                            {renderCart()}
+                            {renderInformation()}
+                            {renderVoucher()}
+                            {renderSubTotal()}
+                        </View>
+                        <View style={styles.buttonCheckout}>
+                            <Button
+                                title={'CHECKOUT'}
+                                titleStyle={styles.titleStyle}
+                                onPress={handleSubmit}
+                            />
+                        </View>
+                    </ScrollView>
+                </>
+            )}
         </SafeAreaView>
     );
 }

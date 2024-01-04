@@ -30,11 +30,6 @@ const Home = ({ navigation }) => {
     const [items, setItems] = useState([]);
 
     const filteredMerchants = merchants.filter((merchant) => {
-        // const branches = merchant.merchantBranches.map((branch) => {
-        //     return branch.city.cityID === cityId;
-        // });
-        // return branches.includes(true);
-
         const branches = merchant.merchantBranches || [];
         const hasMatchingBranch = branches.some(
             (branch) => branch.city.cityID === cityId,

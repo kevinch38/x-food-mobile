@@ -57,17 +57,17 @@ const Detail = ({ navigation }) => {
         navigation.navigate('Menu');
     };
 
-    const handleVariety = (checked, varietyPrice, varietyName) => {
+    const handleVariety = (checked, varietyPrice, subVariety) => {
         const newPrice = checked
             ? defaultPrice + varietyPrice
             : defaultPrice - varietyPrice;
         setPrice(newPrice);
 
         if (checked) {
-            setItemVariety([...itemVariety, varietyName]);
+            setItemVariety([...itemVariety, subVariety]);
         } else {
             const updatedItemsVariety = itemVariety.filter(
-                (itemVariety) => itemVariety !== varietyName,
+                (itemVariety) => itemVariety !== subVariety,
             );
             setItemVariety(updatedItemsVariety);
         }
@@ -220,8 +220,7 @@ const Detail = ({ navigation }) => {
                                                             checked,
                                                             s.subVariety
                                                                 .subVarPrice,
-                                                            s.subVariety
-                                                                .subVarName,
+                                                            s.subVariety,
                                                         )
                                                     }
                                                 />
