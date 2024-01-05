@@ -44,12 +44,12 @@ export default function Login({ navigation }) {
         },
         onSubmit: async (values) => {
             const user = await userService.fetchUserByPhoneNumber(
-                values.phoneNumber,
+                '+' + values.phoneNumber,
             );
-            console.log(user.data.phoneNumber);
+    
+            console.log(user);
             if (user) {
                 setIsRegistered(true);
-                console.log("values.phoneNumber");
             } else {
                 setIsRegistered(false);
                 dispatch(
