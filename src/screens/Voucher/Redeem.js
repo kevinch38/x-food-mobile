@@ -30,6 +30,14 @@ const Redeem = () => {
 
             setPromotions(fetchedPromotions);
 
+            setVouchersLeftData((prevData) => {
+                const newData = {};
+                fetchedPromotions.forEach((promotion) => {
+                    newData[promotion.promotionID] = promotion.quantity;
+                });
+                return newData;
+            });
+
             const promises = fetchedPromotions.map(async (promotion) => {
                 const voucher = await voucherService.getVoucherByAccountIDAndPromoID(id, promotion.promotionID);
 
@@ -40,7 +48,7 @@ const Redeem = () => {
 
                 setIsVoucherEmpty((prev) => ({
                     ...prev,
-                    [promotion.promotionID]: promotion.quantity <= 0,
+                    [promotion.promotionID]: promotion.vouchersLeft <= 0,
                 }));
             });
 
@@ -63,6 +71,23 @@ const Redeem = () => {
             console.error('Error fetching user data:', error);
         }
     };
+
+    const handleRedeemPress = async (promotionID) => {
+
+        setVouchersLeftData((prevData) => {
+            const newData = { ...prevData };
+            newData[promotionID] = newData[promotionID] - 1;
+
+            if (newData[promotionID] < 0) {
+                newData[promotionID] = 0;
+            }
+
+            return newData;
+        });
+
+    };
+
+
 
     useEffect(() => {
         fetchUserData(phoneNumber);
@@ -115,15 +140,15 @@ const Redeem = () => {
                 </View>
 
             </View>
-            <View style={{margin:20, display:'flex', justifyContent:'center', alignItems:'center'}}>
-                <ScrollView>
+            <View style={{margin:20, display:'flex', justifyContent:'center', alignItems:'center', marginBottom:50}}>
+                <ScrollView style={{marginBottom:50}}>
                     {promotions.map((promotion) => (
                         <RedeemCard
                             key={promotion.promotionID}
                             image={Starbuck}
-                            vouchersLeft={promotion.quantity.toString()}
+                            vouchersLeft={vouchersLeftData[promotion.promotionID] ? vouchersLeftData[promotion.promotionID].toString() : '0'}
                             points={promotion.cost.toString()}
-                            items={promotion.maxRedeem.toString()}
+                            items={promotion.quantity.toString()}
                             expired={promotion.expiredDate}
                             title={promotion.promotionName}
                             isMaxRedeemed={isMaxRedeemed[promotion.promotionID] || false}
@@ -131,8 +156,10 @@ const Redeem = () => {
                             percenOff={promotion.promotionValue.toString()}
                             accountID={id}
                             promotionID={promotion.promotionID}
+                            onRedeemPress={() => handleRedeemPress(promotion.promotionID)}
                         />
                     ))}
+
                 </ScrollView>
             </View>
         </>

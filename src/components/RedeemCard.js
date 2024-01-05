@@ -5,7 +5,8 @@ import VoucherService from "../services/VoucherService";
 import PromotionService from "../services/PromotionService";
 
 
-const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, points, isMaxRedeemed, promotionID, accountID, voucherEmpty}) => {
+const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, points, isMaxRedeemed, promotionID, accountID, voucherEmpty,onRedeemPress}) => {
+    console.log("Vouchers Left for Promotion ID", promotionID, ":", vouchersLeft);
     const formattedExpiredDate = format(new Date(expired), 'yyyy/MM/dd');
     const handleRedeem = async () => {
         try {
@@ -22,6 +23,7 @@ const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, point
 
     const handleRedeemAndFetchVoucher = async () => {
         await handleRedeem();
+        onRedeemPress();
     };
 
     return (
@@ -97,7 +99,6 @@ const styles = StyleSheet.create({
         alignItems:"center",
         marginTop:-2,
         marginLeft:-8
-        // flexDirection    :"row"
     }
 })
 
