@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
     SafeAreaView,
 } from 'react-native';
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import Template from '../../components/background';
@@ -14,14 +14,11 @@ import Color from '../../assets/Color';
 import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
 import { setPhoneNumber } from '../../slices/uiSlice';
-import { selectUserByPhoneNumberAction } from '../../slices/userSlice';
 import { ServiceContext } from '../../context/ServiceContext';
-import { useRoute } from '@react-navigation/native';
 
 export default function Login({ navigation }) {
     const schema = Yup.object({
         phoneNumber: Yup.string()
-            .matches(/^\d+$/, 'Invalid Phone Number')
             .min(10, 'Phone Number must be at least 10 digits')
             .max(16, 'Phone Number must be at most 16 digits')
             .required('Phone Number is required'),
@@ -34,36 +31,43 @@ export default function Login({ navigation }) {
 
     const {
         values: { phoneNumber },
-        handleChange,
         handleBlur,
         handleSubmit,
+        setFieldValue,
         errors,
     } = useFormik({
         initialValues: {
             phoneNumber: phoneNumberRedux,
         },
         onSubmit: async (values) => {
-            const user = await userService.fetchUserByPhoneNumber(
-                '+' + values.phoneNumber,
-            );
-    
-            console.log(user);
-            if (user) {
-                setIsRegistered(true);
-            } else {
-                setIsRegistered(false);
-                dispatch(
-                    userAction(async (values) => {
-                        await userService.register(values.phoneNumber);
-                    }),
-                );
-            }
+            try {
+                console.log(values.phoneNumber);
+                const formatPhoneNumber = `${values.phoneNumber.substr(3)}`;
+                console.log(formatPhoneNumber);
 
-            dispatch(setPhoneNumber(values.phoneNumber));
-            navigation.navigate('VerificationCode', { isRegistered });
-            // console.log(phoneNumber);
-            // console.log(isRegistered);
+                const userResponse = await userService.fetchUserByPhoneNumber(
+                    values.phoneNumber
+                );
+
+                const user = userResponse.data;
+
+                if (user && user.otpID !== null) {
+                    setIsRegistered(true);
+                    console.log("User ditemukan:", user);
+                } else {
+                    setIsRegistered(false);
+                    console.log("ini masuk")
+                    await userService.register(formatPhoneNumber);
+                    console.log("User tidak ditemukan, berhasil didaftarkan");
+                }
+
+                dispatch(setPhoneNumber(values.phoneNumber));
+                navigation.navigate('VerificationCode', { isRegistered });
+            } catch (error) {
+                console.warn('Error during form submission:', error);
+            }
         },
+
         validationSchema: schema,
     });
 
@@ -84,12 +88,19 @@ export default function Login({ navigation }) {
                         style={styles.phoneNumberInput}
                         placeholder="(+62)"
                         keyboardType="phone-pad"
-                        onChangeText={handleChange('phoneNumber')}
+                        onChangeText={(text) => {
+                            let formattedText = text;
+                            if (text.startsWith('08')) {
+                                formattedText = `+62${text.substr(1)}`;
+
+                            }
+
+                            setFieldValue('phoneNumber', formattedText);
+
+                        }}
                         onBlur={handleBlur('phoneNumber')}
                         value={phoneNumber}
-                        defaultValue="+62"
                     >
-                        {/* {console.log(phoneNumber)} */}
                     </TextInput>
                     {errors.phoneNumber && (
                         <Text style={styles.errorText}>

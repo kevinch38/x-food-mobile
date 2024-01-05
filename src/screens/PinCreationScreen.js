@@ -2,14 +2,15 @@
 import { Modal, StyleSheet, Text, Pressable, View, TextInput } from 'react-native';
 import PinCreationService from "../services/PinCreationService";
 import {setPin} from "../slices/pinSlice";
-import { useDispatch } from "react-redux";
-import React, {useEffect} from 'react';
+import {useDispatch, useSelector} from "react-redux";
+import React, {useEffect, useState} from 'react';
 import Color from '../assets/Color';
 import { BlurView } from 'expo-blur';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import Home from "./Home";
-import userService from "../services/UserService";
+import UserService from '../services/UserService';
+
 
 const PinSchema = Yup.object().shape({
     pinValue: Yup.string().required('PIN is required').length(6, 'PIN must be 6 digits'),
@@ -19,39 +20,59 @@ const PinSchema = Yup.object().shape({
 });
 
 const PinCreationScreen = ({ navigation }) => {
+    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const dispatch = useDispatch();
     const [modalVisible, setModalVisible] = React.useState(false);
     const [pinIDExists, setPinIDExists] = React.useState(false);
+    const userService = UserService();
+    const [pinID, setPinID]= useState("")
+
 
     useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const userId = '2c9290818c661605018c66169bae0002';
-                const userData = await userService().fetchUserById(userId);
+        fetchPinID();
+        fetchUserData(phoneNumber);
+    }, [phoneNumber, pinID]);
 
-                if (userData.data && userData.data.pin) {
-                    setPinIDExists(true);
-                } else {
-                    setPinIDExists(false);
-                }
+        const fetchUserData = async (phoneNumber) => {
+            try {
+                const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
+                console.log('userData:', userData);
+
+                    setPinID(userData.data.pinID);
+
             } catch (error) {
-                console.error('Error fetching user data:', error);
+                console.error('Error fetching user data1:', error);
             }
         };
 
-        fetchUserData();
-    }, []);
+    const fetchPinID = async () => {
+        try {
+            const currentPinID = pinID || '';
+
+            const pinData = await userService.fetchPinByPinID(currentPinID);
+            console.log("ini adalah pin data =============", pinData.data.pin);
+
+            if (pinData.data.pin !== "") {
+                setPinIDExists(true);
+            } else {
+                setPinIDExists(false);
+            }
+        } catch (error) {
+            console.error('Error fetching user data2:', error);
+        }
+    };
 
     const hideModal = () => {
         setModalVisible(true);
     };
 
     const handleFormSubmit = async (values, { resetForm }) => {
+        console.log(values.pinValue);
         try {
             dispatch(setPin(values));
             hideModal();
             resetForm();
-            const response = await PinCreationService(values.pinValue);
+            const response = await PinCreationService(pinID,values.pinValue);
             console.log('API Response:', response.data);
         } catch (error) {
             console.error('API Error:', error);
