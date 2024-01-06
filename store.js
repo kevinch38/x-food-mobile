@@ -13,12 +13,12 @@ import { cartSlice } from './src/slices/cartSlice';
 const setupStore = () =>
     configureStore({
         reducer: {
-            user: userSlice,
+            user: userSlice.reducer,
             merchant: merchantSlice.reducer,
             merchantBranch: merchantBranchSlice.reducer,
             city: citySlice.reducer,
             ui: uiSlice.reducer,
-            pin: pinReducer,
+            pin: pinReducer.reducer,
             auth: authSlice.reducer,
             loyaltyPoint: loyaltyPointSlice.reducer,
             cart: cartSlice.reducer,

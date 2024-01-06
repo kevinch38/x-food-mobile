@@ -1,10 +1,8 @@
 import axios from 'axios';
 
-
 const UserService = () => {
     const register = async (phoneNumber) => {
         try {
-
             const newUserRequest = {
                 phoneNumber: phoneNumber,
             };
@@ -16,7 +14,7 @@ const UserService = () => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                }
+                },
             );
             return data;
         } catch (error) {
@@ -25,7 +23,9 @@ const UserService = () => {
     };
 
     const fetchUserById = async (id) => {
-        const { data } = await axios.get(`http://10.0.2.2:8087/api/users/${id}`);
+        const { data } = await axios.get(
+            `http://10.0.2.2:8087/api/users/${id}`,
+        );
         return data;
     };
 
@@ -36,35 +36,27 @@ const UserService = () => {
         return data;
     };
 
-    const refetch = async (phoneNumber) => {
-        try {
-            await fetchUserByPhoneNumber(phoneNumber);
-        } catch (e) {
-            console.error('Error during refetch: ', e);
-        }
-    };
-
-    const updateUser = async (user) => {
+    const updateUser = async (newUser) => {
         const { data } = await axios.put(
             `http://10.0.2.2:8087/api/users`,
-            user,
+            newUser,
         );
         return data;
     };
-    const fetchPinByPinID = async (pinID) => {
-        const {data} = await axios.get(
-            `http://10.0.2.2:8087/api/pins/${pinID}`
-        );
 
+    const fetchPinByPinID = async (pinID) => {
+        const { data } = await axios.get(
+            `http://10.0.2.2:8087/api/pins/${pinID}`,
+        );
         return data;
-    }
+    };
 
     return {
         fetchUserByPhoneNumber,
         updateUser,
         register,
         fetchUserById,
-        refetch,
+        fetchPinByPinID,
     };
 };
 

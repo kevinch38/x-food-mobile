@@ -77,6 +77,8 @@ const styles = StyleSheet.create({
     textInput: {
         fontWeight: '400',
         fontSize: 17,
+        width: '100%',
+        height: '100%',
     },
     labelContainer: { flexDirection: 'row', marginTop: 17 },
     label: {

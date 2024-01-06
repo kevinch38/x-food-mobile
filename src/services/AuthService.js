@@ -6,7 +6,7 @@ const AuthService = () => {
 
     const login = async (user) => {
         const { data } = await axiosInstance.post(
-            'http://10.0.2.2:8083/api/auth/login',
+            'http://10.0.2.2:8087/api/auth/login',
             user,
         );
         if (data.token) {
@@ -21,7 +21,7 @@ const AuthService = () => {
 
     const getUserInfo = async () => {
         const { data } = await axiosInstance.get(
-            'http://10.0.2.2:8083/api/users/me',
+            'http://10.0.2.2:8087/api/users/me',
         );
         return data;
     };
@@ -41,7 +41,7 @@ const AuthService = () => {
     const fetchUserByPhoneNumber = async (phoneNumber) => {
         try {
             const { data } = await axios.get(
-                `http://10.0.2.2:8083/api/users/${phoneNumber}`,
+                `http://10.0.2.2:8087/api/users/${phoneNumber}`,
             );
             return data;
         } catch (error) {

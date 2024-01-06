@@ -1,40 +1,35 @@
 import {
     Alert,
     Image,
-    Modal,
     SafeAreaView,
     ScrollView,
     StatusBar,
     StyleSheet,
     Text,
-    TouchableOpacity,
     View,
 } from 'react-native';
-import bgProfile from '../../assets/images/bg-profile.png';
-import camera from '../../assets/icons/camera.png';
-import Color from '../../assets/Color';
-import Button from '../../components/button';
+import React, { useContext, useEffect, useState } from 'react';
 import { theme } from '../../theme';
 import { useDispatch, useSelector } from 'react-redux';
-import React, { useContext, useEffect, useState } from 'react';
 import { ServiceContext } from '../../context/ServiceContext';
 import { useFormik } from 'formik';
 import { userAction } from '../../slices/userSlice';
-import * as yup from 'yup';
+import { useRoute } from '@react-navigation/native';
+import Button from '../../components/button';
 import InputText from '../../components/inputText';
 import ErrorText from '../../components/errorText';
 import BackButton from '../../components/backButton';
-import * as ImagePicker from 'expo-image-picker';
-import * as Icon from 'react-native-feather';
-import { useRoute } from '@react-navigation/native';
+import * as yup from 'yup';
+import bgProfile from '../../assets/images/bg-profile.png';
+import Color from '../../assets/Color';
 
 function EditProfile({ navigation }) {
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
+    const { users } = useSelector((state) => state.user);
     const route = useRoute();
     const phoneNumbers = route.params?.users.phoneNumber;
     const [image, setImage] = useState();
-    const [modalVisible, setModalVisible] = useState(false);
 
     const imageUrl =
         'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
@@ -63,34 +58,13 @@ function EditProfile({ navigation }) {
     } = useFormik({
         initialValues: {
             accountID: null,
-            ktpID: '',
             accountEmail: '',
             firstName: '',
             lastName: '',
-            dateOfBirth: '',
             phoneNumber: '',
         },
         onSubmit: (values) => {
             if (!isValid) return;
-
-            //
-            // const formData = new FormData();
-            // formData.append('accountID', values.accountID.toString());
-            // formData.append('ktpID', values.ktpID);
-            // formData.append('accountEmail', values.accountEmail);
-            // formData.append('firstName', values.firstName);
-            // formData.append('lastName', values.lastName);
-            // formData.append('dateOfBirth', values.dateOfBirth);
-            // formData.append('phoneNumber', values.phoneNumber);
-            //
-            // if (values.profilePhoto) {
-            //     const uri = values.profilePhoto;
-            //     const type = 'image/jpeg';
-            //     const name = 'profile.jpg';
-            //     formData.append('profilePhoto', { uri, type, name });
-            // }
-            //
-            // console.log('FormData sebelum dikirim:', formData);
 
             dispatch(
                 userAction(async () => {
@@ -105,9 +79,6 @@ function EditProfile({ navigation }) {
                                     {
                                         text: 'Ok',
                                         onPress: async () => {
-                                            await userService.refetch(
-                                                phoneNumber,
-                                            );
                                             navigation.goBack();
                                         },
                                     },
@@ -117,7 +88,8 @@ function EditProfile({ navigation }) {
                         } else {
                             Alert.alert('Error', 'Failed to update data');
                         }
-                        return null;
+                        const update = { data: { ...users, temp: 'a' } };
+                        return update;
                     } catch (e) {
                         console.error('Error update user data: ', e);
                         Alert.alert('Error', 'Failed to update data');
@@ -156,62 +128,12 @@ function EditProfile({ navigation }) {
                         dateOfBirth: updateData.dateOfBirth,
                         phoneNumber: updateData.phoneNumber,
                     };
-                    setValues(values);
-                    return null;
+                    await setValues(values);
+                    return result;
                 }),
             );
         }
     }, [dispatch, userService, setValues]);
-
-    const openModal = () => {
-        setModalVisible(true);
-    };
-    const closeModal = () => {
-        setModalVisible(false);
-    };
-    const uploadImage = async (mode) => {
-        try {
-            let result = {};
-
-            if (mode === 'gallery') {
-                await ImagePicker.requestMediaLibraryPermissionsAsync();
-                result = await ImagePicker.launchImageLibraryAsync({
-                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                    allowsEditing: true,
-                    aspect: [1, 1],
-                    quality: 1,
-                });
-            } else {
-                await ImagePicker.requestCameraPermissionsAsync();
-                result = await ImagePicker.launchCameraAsync({
-                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                    allowsEditing: true,
-                    aspect: [1, 1],
-                    quality: 1,
-                });
-            }
-
-            if (!result.canceled) {
-                // save image
-                await saveImage(result.assets[0].uri);
-            }
-        } catch (e) {
-            alert('Error uploading image: ' + e.message);
-            closeModal();
-        }
-    };
-    const saveImage = async (image) => {
-        try {
-            setImage(image);
-            // setValues((prevState) => ({
-            //     ...prevState,
-            //     profilePhoto: image,
-            // }));
-            closeModal();
-        } catch (e) {
-            throw e;
-        }
-    };
 
     const renderHeader = () => {
         return (
@@ -221,59 +143,6 @@ function EditProfile({ navigation }) {
                     <Image source={bgProfile} style={styles.bgProfile} />
                 </View>
             </View>
-        );
-    };
-    const renderModal = () => {
-        return (
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={closeModal}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.titleModal}>Profile Photo</Text>
-                        <View style={styles.choiceBtnProfile}>
-                            <TouchableOpacity onPress={uploadImage}>
-                                <View style={styles.btnOption}>
-                                    <Icon.Camera
-                                        width={24}
-                                        height={24}
-                                        strokeWidth={2}
-                                        color={Color.primary}
-                                    />
-                                    <Text style={styles.textBtn}>Camera</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => uploadImage('gallery')}
-                            >
-                                <View style={styles.btnOption}>
-                                    <Icon.Image
-                                        width={24}
-                                        height={24}
-                                        strokeWidth={2}
-                                        color={Color.primary}
-                                    />
-                                    <Text style={styles.textBtn}>Gallery</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={closeModal}>
-                                <View style={styles.btnOption}>
-                                    <Icon.X
-                                        width={24}
-                                        height={24}
-                                        strokeWidth={3}
-                                        color={Color.primary}
-                                    />
-                                    <Text style={styles.textBtn}>Cancel</Text>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
         );
     };
 
@@ -299,19 +168,8 @@ function EditProfile({ navigation }) {
                                 Loading ...
                             </Text>
                         )}
-
-                        <View style={styles.wrapperCamera}>
-                            <TouchableOpacity onPress={openModal}>
-                                <Image
-                                    source={camera}
-                                    style={styles.iconCamera}
-                                />
-                            </TouchableOpacity>
-                        </View>
                     </View>
                 </View>
-
-                {renderModal()}
 
                 <View style={styles.wrapperInput}>
                     <View>
@@ -418,17 +276,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 55,
     },
-    wrapperCamera: {
-        position: 'absolute',
-        backgroundColor: 'white',
-        width: 27,
-        height: 27,
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
-        right: 10,
-        bottom: 2,
-    },
     buttonContainer: {
         alignItems: 'center',
         marginBottom: 60,
@@ -446,10 +293,20 @@ const styles = StyleSheet.create({
     },
     outerCircle: {
         position: 'absolute',
-        height: 108,
-        width: 108,
-        borderRadius: 108 / 2,
-        backgroundColor: 'white',
+        height: 118,
+        width: 118,
+        borderRadius: 118,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.22,
+        shadowRadius: 2.22,
+
+        elevation: 3,
     },
     bgProfile: {
         marginTop: -23,
@@ -460,14 +317,10 @@ const styles = StyleSheet.create({
     },
     photo: {
         position: 'absolute',
-        height: 90,
-        width: 90,
-        borderRadius: 90 / 2,
+        height: 100,
+        width: 100,
+        borderRadius: 100,
         margin: 9,
-    },
-    iconCamera: {
-        width: 11,
-        height: 9.9,
     },
     name: {
         fontWeight: '900',

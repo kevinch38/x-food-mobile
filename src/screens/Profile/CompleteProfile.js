@@ -22,11 +22,14 @@ import InputText from '../../components/inputText';
 import ErrorText from '../../components/errorText';
 import BackButton from '../../components/backButton';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useRoute } from '@react-navigation/native';
 
 function CompleteProfile({ navigation }) {
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
     const { users } = useSelector((state) => state.user);
+    const route = useRoute();
+    const phoneNumbers = route.params?.users.phoneNumber;
     const [nikInput, setNikInput] = useState('');
     const [isNikVerified, setIsNikVerified] = useState(false);
     const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState(true);
@@ -56,10 +59,6 @@ function CompleteProfile({ navigation }) {
         initialValues: {
             accountID: null,
             ktpID: '',
-            accountEmail: '',
-            phoneNumber: '',
-            firstName: '',
-            lastName: '',
             dateOfBirth: '',
         },
         onSubmit: async (values) => {
@@ -67,23 +66,31 @@ function CompleteProfile({ navigation }) {
 
             dispatch(
                 userAction(async () => {
-                    const result = await userService.updateUser(values);
-                    if (result.statusCode === 200) {
-                        Alert.alert(
-                            'Success',
-                            'Data updated successfully',
-                            [
-                                {
-                                    text: 'Ok',
-                                    onPress: () => {
-                                        navigation.goBack();
+                    try {
+                        const result = await userService.updateUser(values);
+                        if (result.statusCode === 200) {
+                            Alert.alert(
+                                'Success',
+                                'Data updated successfully',
+                                [
+                                    {
+                                        text: 'Ok',
+                                        onPress: async () => {
+                                            navigation.goBack();
+                                        },
                                     },
-                                },
-                            ],
-                            { cancelable: false },
-                        );
+                                ],
+                                { cancelable: false },
+                            );
+                        } else {
+                            Alert.alert('Error', 'Failed to update data');
+                        }
+                        const update = { data: { ...users, temp: 'a' } };
+                        return update;
+                    } catch (e) {
+                        console.error('Error update user data: ', e);
+                        Alert.alert('Error', 'Failed to update data');
                     }
-                    return null;
                 }),
             );
         },
@@ -91,12 +98,12 @@ function CompleteProfile({ navigation }) {
     });
 
     useEffect(() => {
-        if (users.phoneNumber) {
+        if (phoneNumbers) {
             dispatch(
                 userAction(async () => {
-                    const result = await userService.fetchUserByPhoneNumber(
-                        users.phoneNumber,
-                    );
+                    const result =
+                        await userService.fetchUserByPhoneNumber(phoneNumbers);
+
                     const updateData = {
                         ...result.data,
                     };
@@ -111,7 +118,7 @@ function CompleteProfile({ navigation }) {
                         dateOfBirth: updateData.dateOfBirth,
                     };
                     await setValues(values);
-                    return null;
+                    return result;
                 }),
             );
         }

@@ -10,21 +10,22 @@ import {
     View,
     Modal,
 } from 'react-native';
-import bgProfile from '../../assets/images/bg-profile.png';
-import card from '../../assets/images/card.png';
-import xfood from '../../assets/images/xfood.png';
-import camera from '../../assets/icons/camera.png';
-import dollar from '../../assets/icons/dollar.png';
-import basket from '../../assets/icons/basket.png';
-import Color from '../../assets/Color';
 import { useDispatch, useSelector } from 'react-redux';
-import { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ServiceContext } from '../../context/ServiceContext';
 import { userAction } from '../../slices/userSlice';
+import { loyaltyPointAction } from '../../slices/loyaltyPointSlice';
 import Button from '../../components/button';
 import * as ImagePicker from 'expo-image-picker';
 import * as Icon from 'react-native-feather';
-import { loyaltyPointAction } from '../../slices/loyaltyPointSlice';
+import bgProfile from '../../assets/images/bg-profile.png';
+import card from '../../assets/images/card.png';
+import xfood from '../../assets/images/xfood.png';
+import dollar from '../../assets/icons/dollar.png';
+import basket from '../../assets/icons/basket.png';
+import Color from '../../assets/Color';
+import camera from '../../assets/icons/camera.png';
+import axios from 'axios';
 
 function Profile({ navigation }) {
     const dispatch = useDispatch();
@@ -80,16 +81,16 @@ function Profile({ navigation }) {
         };
         onGetUserByPhoneNumber();
         onGetLoyaltyPointAmount();
-    }, [dispatch, userService, loyaltyPointService]);
-
-    console.log('first name => ', users.firstName);
+    }, [dispatch, userService, loyaltyPointService, Object.keys(users).length]);
 
     const openModal = () => {
         setModalVisible(true);
     };
+
     const closeModal = () => {
         setModalVisible(false);
     };
+
     const uploadImage = async (mode) => {
         try {
             let result = {};
@@ -113,23 +114,46 @@ function Profile({ navigation }) {
             }
 
             if (!result.canceled) {
-                // save image
-                await saveImage(result.assets[0].uri);
+                const formData = new FormData();
+                formData.append('accountID', users.accountID);
+                formData.append('profilePhoto', {
+                    uri: result.assets[0].uri,
+                    type: result.assets[0].type,
+                    name: 'profile.jpeg',
+                });
+
+                let res = await fetch(
+                    'http://10.0.2.2:8087/api/users/profile/photo',
+                    {
+                        method: 'post',
+                        body: formData,
+                        headers: { 'Content-Type': 'multipart/form-data' },
+                    },
+                );
+
+                let responseJson = await res.json();
+                console.log('response => ', responseJson);
+                closeModal();
             }
         } catch (e) {
             alert('Error uploading image: ' + e.message);
             closeModal();
         }
     };
-    const saveImage = async (image) => {
-        try {
-            // update displayed image
-            setImage(image);
-            closeModal();
-        } catch (e) {
-            throw e;
-        }
-    };
+
+    // const saveImage = async (image) => {
+    //     try {
+    //         await setImage(image.uri);
+    //         handleChangeFile('profilePhoto')(image.uri);
+    //         closeModal();
+    //     } catch (e) {
+    //         throw e;
+    //     }
+    // };
+
+    // const handleChangeFile = (field) => (value) => {
+    //     setFieldValue(field, value);
+    // };
 
     const handleLogout = () => {
         console.log('logout');
@@ -140,6 +164,70 @@ function Profile({ navigation }) {
             <View>
                 <View style={{ alignItems: 'center' }}>
                     <Image source={bgProfile} style={styles.bgProfile} />
+                </View>
+            </View>
+        );
+    };
+
+    const renderProfile = () => {
+        return (
+            <View>
+                <View style={styles.profile}>
+                    <View style={styles.outerCircle}>
+                        {image ? (
+                            <Image
+                                source={{
+                                    uri: image,
+                                }}
+                                style={styles.photo}
+                            />
+                        ) : (
+                            <Text
+                                style={{
+                                    textAlign: 'center',
+                                    color: '#9ca3af',
+                                }}
+                            >
+                                Loading ...
+                            </Text>
+                        )}
+                        <View style={styles.cameraWrapper}>
+                            <TouchableOpacity onPress={openModal}>
+                                <View style={styles.circleCamera}>
+                                    <Image
+                                        source={camera}
+                                        style={styles.iconCamera}
+                                    />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+
+                {renderModal()}
+
+                <View
+                    style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginTop: 55,
+                    }}
+                >
+                    <Text style={styles.name}>
+                        {users?.firstName} {users?.lastName}
+                    </Text>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            marginTop: 8,
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Image source={dollar} style={styles.iconDollar} />
+                        <Text style={styles.price}>
+                            {loyaltyPoints?.loyaltyPointAmount}
+                        </Text>
+                    </View>
                 </View>
             </View>
         );
@@ -199,58 +287,6 @@ function Profile({ navigation }) {
         );
     };
 
-    const renderProfile = () => {
-        return (
-            <View>
-                <View style={styles.profile}>
-                    <View style={styles.outerCircle}>
-                        {image ? (
-                            <Image
-                                source={{
-                                    uri: image,
-                                }}
-                                style={styles.photo}
-                            />
-                        ) : (
-                            <Text
-                                style={{
-                                    textAlign: 'center',
-                                    color: '#9ca3af',
-                                }}
-                            >
-                                Loading ...
-                            </Text>
-                        )}
-                    </View>
-                </View>
-
-                <View
-                    style={{
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginTop: 55,
-                    }}
-                >
-                    <Text style={styles.name}>
-                        {users?.firstName} {users?.lastName}
-                    </Text>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            marginTop: 8,
-                            alignItems: 'center',
-                        }}
-                    >
-                        <Image source={dollar} style={styles.iconDollar} />
-                        <Text style={styles.price}>
-                            {loyaltyPoints?.loyaltyPointAmount}
-                        </Text>
-                    </View>
-                </View>
-            </View>
-        );
-    };
-
     const renderEditProfile = () => {
         return (
             <View style={styles.editProfileContainer}>
@@ -263,7 +299,9 @@ function Profile({ navigation }) {
                 </View>
                 <TouchableOpacity
                     onPress={() =>
-                        navigation.navigate('EditProfile', { users })
+                        navigation.navigate('EditProfile', {
+                            users,
+                        })
                     }
                 >
                     <Text style={styles.edit}>Edit Profile</Text>
@@ -344,7 +382,9 @@ function Profile({ navigation }) {
                 title={'Complete Profile'}
                 buttonStyle={styles.customButton}
                 titleStyle={styles.customTitle}
-                onPress={() => navigation.navigate('CompleteProfile')}
+                onPress={() =>
+                    navigation.navigate('CompleteProfile', { users })
+                }
             />
         );
     };
@@ -389,6 +429,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 154,
+        marginBottom: 24,
     },
     editProfileContainer: {
         flex: 1,
@@ -400,25 +441,46 @@ const styles = StyleSheet.create({
     bioEditProfile: {
         flex: 0.95,
     },
-    btnEditProfile: {},
     outerCircle: {
         position: 'absolute',
-        height: 108,
-        width: 108,
-        borderRadius: 108 / 2,
-        backgroundColor: 'white',
+        height: 118,
+        width: 118,
+        borderRadius: 118,
+        backgroundColor: '#fff',
         justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.22,
+        shadowRadius: 2.22,
+
+        elevation: 3,
     },
     cameraWrapper: {
         position: 'absolute',
-        backgroundColor: 'white',
-        width: 27,
-        height: 27,
-        borderRadius: 25,
         justifyContent: 'center',
         alignItems: 'center',
         right: 10,
         bottom: 2,
+    },
+    circleCamera: {
+        backgroundColor: 'white',
+        width: 30,
+        height: 30,
+        borderRadius: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.32,
+        shadowRadius: 5.46,
+
+        elevation: 9,
     },
     bgProfile: {
         marginTop: -23,
@@ -429,14 +491,14 @@ const styles = StyleSheet.create({
     },
     photo: {
         position: 'absolute',
-        height: 90,
-        width: 90,
-        borderRadius: 90 / 2,
+        height: 100,
+        width: 100,
+        borderRadius: 100,
         margin: 9,
     },
     iconCamera: {
-        width: 11,
-        height: 9.9,
+        width: 14,
+        height: 12.9,
     },
     iconBasket: {
         position: 'absolute',

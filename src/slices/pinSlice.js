@@ -17,4 +17,4 @@ const pinSlice = createSlice({
 });
 
 export const { setPin } = pinSlice.actions;
-export default pinSlice.reducer;
+export default pinSlice;

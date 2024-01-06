@@ -25,7 +25,7 @@ export const selectedUserPhoneNumberAction = createAsyncThunk(
 const userSlice = createSlice({
     name: 'user',
     initialState: {
-        users: [],
+        users: {},
         selectedUser: null,
         registerUser: null,
     },
@@ -69,7 +69,6 @@ const userSlice = createSlice({
         builder.addCase(
             selectedUserPhoneNumberAction.rejected,
             (state, action) => {
-                // Handle jika nomor telepon tidak terdaftar
                 console.error(
                     'Error fetching user by phone number:',
                     action.error.message,
@@ -79,4 +78,4 @@ const userSlice = createSlice({
     },
 });
 
-export default userSlice.reducer;
+export default userSlice;
