@@ -1,6 +1,10 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import RequestHelper from '../services/RequestHelper';
+
+export const pinAction = createAsyncThunk('pin/getPin', RequestHelper);
 
 const initialState = {
+    pin: '',
     pinValue: '',
     confirmPinValue: '',
 };
@@ -13,6 +17,14 @@ const pinSlice = createSlice({
             state.pinValue = action.payload.pinValue;
             state.confirmPinValue = action.payload.confirmPinValue;
         },
+    },
+    extraReducers: (builder) => {
+        builder.addCase(pinAction.fulfilled, (state, { payload }) => {
+            if (payload) {
+                console.log(payload.data, ' =====  pin slice');
+                state.pin = payload.data;
+            }
+        });
     },
 });
 

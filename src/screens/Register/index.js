@@ -7,6 +7,7 @@ import {
     SafeAreaView,
     StatusBar,
     TouchableOpacity,
+    BackHandler,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import Color from '../../assets/Color';
@@ -119,6 +120,14 @@ export default function Register({ navigation }) {
             );
         }
     }, [dispatch, userService, setValues]);
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            () => true,
+        );
+        return () => backHandler.remove();
+    }, []);
 
     const handleInputFocus = (input) => {
         setFocusedInput(input);

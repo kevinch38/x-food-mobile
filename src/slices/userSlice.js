@@ -25,7 +25,7 @@ export const selectedUserPhoneNumberAction = createAsyncThunk(
 const userSlice = createSlice({
     name: 'user',
     initialState: {
-        users: [],
+        users: '',
         selectedUser: null,
         registerUser: null,
         phoneNumber: '+6281239124111',

@@ -26,14 +26,11 @@ import {
 } from '../../slices/cartSlice';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
-import { userAction, userRegisterAction } from '../../slices/userSlice';
-import orderService from '../../services/OrderService';
-import axios from 'axios';
-import menu from '../../assets/images/menu-1.png';
+import { userAction } from '../../slices/userSlice';
 import { ServiceContext } from '../../context/ServiceContext';
-import { isLoading } from 'expo-font';
 import Loading from '../../components/loading';
-import { selectedMerchantAction } from '../../slices/merchantSlice';
+import { createOrderAction } from '../../slices/orderSlice';
+import axios from 'axios';
 
 function Cart({ navigation }) {
     const dispatch = useDispatch();
@@ -45,7 +42,7 @@ function Cart({ navigation }) {
     const { selectedBranch } = useSelector((state) => state.merchantBranch);
     const [sale, setSale] = useState('');
     const [nameVoucher, setNameVoucher] = useState('');
-    const { userService } = useContext(ServiceContext);
+    const { userService, orderService } = useContext(ServiceContext);
     const { loading, setLoading } = useState(false);
     const [vouchers, setVouchers] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -55,7 +52,7 @@ function Cart({ navigation }) {
     );
 
     useEffect(() => {
-        setVouchers(users.vouchers);
+        setVouchers(users?.vouchers);
     }, [users]);
 
     useEffect(() => {
@@ -65,7 +62,7 @@ function Cart({ navigation }) {
 
                 await dispatch(
                     userAction(() =>
-                        userService.fetchUserByPhoneNumber('+62811112222'),
+                        userService.fetchUserByPhoneNumber('+628123401231'),
                     ),
                 );
 
@@ -97,7 +94,7 @@ function Cart({ navigation }) {
         initialValues: {
             accountID: null,
             orderValue: 0,
-            notess: '',
+            orderNote: '',
             tableNumber: 0,
             branchID: '',
             orderItems: [],
@@ -105,42 +102,79 @@ function Cart({ navigation }) {
         onSubmit: async (values) => {
             if (users.accountID) {
                 try {
-                    const orderItems = [];
-                    cartItems.forEach((cartItem) => {
-                        const existingItem = orderItems.find(
-                            (item) => item.itemId === cartItem.itemID,
-                        );
-                        if (existingItem) {
-                            existingItem.qty += 1;
-                        } else {
-                            orderItems.push({
-                                itemId: cartItem.itemID,
-                                qty: 1,
-                            });
-                        }
-                    });
+                    const groupedOrderItem = cartItems.reduce(
+                        (grouped, item) => {
+                            const key =
+                                item.itemID +
+                                JSON.stringify(
+                                    item.itemVarieties
+                                        .map((variety) => variety.subVarietyID)
+                                        .sort(),
+                                );
+                            if (!grouped[key]) {
+                                grouped[key] = {
+                                    itemID: item.itemID,
+                                    subVarieties: item.itemVarieties.map(
+                                        (variety) => ({
+                                            subVarietyID: variety.subVarietyID,
+                                        }),
+                                    ),
+                                    quantity: 0,
+                                };
+                            }
+                            grouped[key].quantity += 1;
+                            return grouped;
+                        },
+                        {},
+                    );
 
-                    const update = {
+                    const result = Object.values(groupedOrderItem);
+
+                    const orderItems = {
                         accountID: users.accountID,
                         orderValue: cartTotal - sale,
-                        notes: values.notess,
+                        notes: values.orderNote,
                         tableNumber: values.tableNumber,
                         branchID: selectedBranch.branchID,
-                        orderItems: orderItems,
+                        orderItems: result,
                     };
-                    // console.log(update);
 
-                    console.log(update, 'update ======');
+                    console.log(orderItems, 'order items');
                     // const response = await axios.post(
                     //     'http://10.0.2.2:8087/api/orders',
-                    //     update,
+                    //     orderItems,
                     // );
-                    // console.log(response);
+                    // console.log(response.data, 'ini response ===');
+                    dispatch(
+                        createOrderAction(async () => {
+                            //         const result =
+                            //             await orderService.orderItem(orderItems);
+                            //         console.log(result, 'ini result');
+                            //     }),
+                            // );
+                            try {
+                                const result =
+                                    await orderService.orderItem(orderItems);
+                                console.log(result, 'ini result');
+                                if (result.statusCode === 201) {
+                                    navigation.navigate('Pin', {
+                                        accountID: result.data.accountID,
+                                        orderID: result.data.orderID,
+                                    });
+                                    return result;
+                                }
+                                return null;
+                            } catch (e) {
+                                console.log('error e', e);
+                            }
+                        }),
+                    );
                 } catch (e) {
-                    console.error(e);
+                    console.error('error e', e);
                 }
             }
         },
+
         validationSchema: Schema,
     });
 
@@ -227,8 +261,8 @@ function Cart({ navigation }) {
         );
         return variety ? variety.subVarName : 'Unknown Variety';
     };
-    const handleCheckout = () => {
-        navigation.navigate('Pin');
+    const handleCheckout = (cartItems) => {
+        navigation.navigate('Pin', { cartItems });
     };
 
     const renderHeader = () => {
@@ -341,18 +375,18 @@ function Cart({ navigation }) {
                     placeholder={'1                                     '}
                     value={values.tableNumber}
                 />
+                {touched.tableNumber && errors.tableNumber && (
+                    <Text style={styles.errorText}>{errors.tableNumber}</Text>
+                )}
                 <InputText
                     label={'Note'}
                     placeholder={'example: extra spicy'}
-                    value={values.notess}
+                    value={values.orderNote}
                 />
             </View>
         );
     };
-    //
-    // const handleDropdown = () => {
-    //     console.log(data);
-    // };
+
     const renderVoucher = () => {
         return (
             <View style={styles.dropdownContainer}>
@@ -420,7 +454,7 @@ function Cart({ navigation }) {
                 <Loading />
             ) : (
                 <>
-                    <Button title={'tt'} onPress={console.log(cartItems)} />
+                    {/*<Button title={'tt'} onPress={console.log(cartItems)} />*/}
                     <ScrollView>
                         {renderHeader()}
                         <View style={styles.sectionWrapper}>
@@ -460,6 +494,10 @@ const styles = StyleSheet.create({
         marginTop: 45,
         fontWeight: '500',
         fontSize: 18,
+    },
+    errorText: {
+        color: 'red',
+        marginTop: 5,
     },
     sectionWrapper: {
         paddingHorizontal: 22,
