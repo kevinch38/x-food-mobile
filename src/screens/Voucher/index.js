@@ -7,7 +7,6 @@ import {
     TouchableOpacity,
     View,
     StyleSheet,
-    Button,
 } from 'react-native';
 import React, { useContext, useEffect } from 'react';
 import VoucherCard from '../../components/card/VoucherCard';
@@ -15,29 +14,39 @@ import Starbuck from '../../../assets/images/starbuck.png';
 import BackButton from '../../components/backButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
-import { userAction } from '../../slices/userSlice';
 import { useNavigation } from '@react-navigation/native';
+import { loyaltyPointAction } from '../../slices/loyaltyPointSlice';
 
 const Voucher = ({ navigation }) => {
     const navigate = useNavigation();
 
     const dispatch = useDispatch();
     const { users } = useSelector((state) => state.user);
-    const { userService } = useContext(ServiceContext);
+    const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
+    const { loyaltyPointService } = useContext(ServiceContext);
     const handleRedeemPress = () => {
         navigate.navigate('Redeem');
     };
 
     useEffect(() => {
-        const onGetUserByPhoneNumber = async () => {
-            await dispatch(
-                userAction(() =>
-                    userService.fetchUserByPhoneNumber('+62821948080'),
-                ),
-            );
+        const onGetLoyaltyPointAmount = () => {
+            try {
+                dispatch(
+                    loyaltyPointAction(async () => {
+                        const result =
+                            loyaltyPointService.fetchLoyaltyPointById(
+                                users.loyaltyPointID,
+                            );
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetching loyalty point data: ', e);
+            }
         };
-        onGetUserByPhoneNumber();
-    }, [dispatch, userService]);
+
+        onGetLoyaltyPointAmount();
+    }, [dispatch, loyaltyPointService]);
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -76,10 +85,13 @@ const Voucher = ({ navigation }) => {
                             source={require('../../../assets/images/Coin.png')}
                         />
                         <Text style={{ alignSelf: 'center', fontSize: 18 }}>
-                            980
+                            {loyaltyPoints.loyaltyPointAmount}
                         </Text>
                     </View>
-                    <TouchableOpacity style={{ marginTop: 25 }} onPress={handleRedeemPress}>
+                    <TouchableOpacity
+                        style={{ marginTop: 25 }}
+                        onPress={handleRedeemPress}
+                    >
                         <Image
                             source={require('../../../assets/images/redeembutton.png')}
                         />

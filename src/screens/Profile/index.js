@@ -30,6 +30,7 @@ import axios from 'axios';
 function Profile({ navigation }) {
     const dispatch = useDispatch();
     const { users } = useSelector((state) => state.user);
+    const { phoneNumber } = useSelector((state) => state.ui);
     const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
     const { userService, loyaltyPointService } = useContext(ServiceContext);
     const [image, setImage] = useState();
@@ -39,31 +40,6 @@ function Profile({ navigation }) {
         'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
 
     useEffect(() => {
-        const onGetUserByPhoneNumber = () => {
-            const phoneNumber = '+6285201205272';
-            try {
-                dispatch(
-                    userAction(async () => {
-                        const result =
-                            await userService.fetchUserByPhoneNumber(
-                                phoneNumber,
-                            );
-
-                        if (users.profilePhoto) {
-                            setImage(
-                                `data:image/jpeg;base64,${result.data.profilePhoto}`,
-                            );
-                        } else {
-                            setImage(imageUrl);
-                        }
-                        return result;
-                    }),
-                );
-            } catch (e) {
-                console.error('Error fetching user data: ', e);
-            }
-        };
-
         const onGetLoyaltyPointAmount = () => {
             try {
                 dispatch(
@@ -79,9 +55,32 @@ function Profile({ navigation }) {
                 console.error('Error fetching loyalty point data: ', e);
             }
         };
+
         onGetUserByPhoneNumber();
         onGetLoyaltyPointAmount();
     }, [dispatch, userService, loyaltyPointService, Object.keys(users).length]);
+
+    const onGetUserByPhoneNumber = () => {
+        try {
+            dispatch(
+                userAction(async () => {
+                    const result =
+                        await userService.fetchUserByPhoneNumber(phoneNumber);
+
+                    if (users.profilePhoto) {
+                        setImage(
+                            `data:image/jpeg;base64,${result.data.profilePhoto}`,
+                        );
+                    } else {
+                        setImage(imageUrl);
+                    }
+                    return result;
+                }),
+            );
+        } catch (e) {
+            console.error('Error fetching user data: ', e);
+        }
+    };
 
     const openModal = () => {
         setModalVisible(true);
@@ -114,25 +113,47 @@ function Profile({ navigation }) {
             }
 
             if (!result.canceled) {
-                const formData = new FormData();
+                let localUri = result.assets[0].uri;
+                setImage(localUri);
+                let filename = localUri.split('/').pop();
+
+                let match = /\.(\w+)$/.exec(filename);
+                let type = match ? `image/${match[1]}` : `image`;
+
+                let formData = new FormData();
                 formData.append('accountID', users.accountID);
                 formData.append('profilePhoto', {
-                    uri: result.assets[0].uri,
-                    type: result.assets[0].type,
-                    name: 'profile.jpeg',
+                    uri: localUri,
+                    name: filename,
+                    type,
                 });
 
-                let res = await fetch(
-                    'http://10.0.2.2:8087/api/users/profile/photo',
-                    {
-                        method: 'post',
-                        body: formData,
-                        headers: { 'Content-Type': 'multipart/form-data' },
-                    },
-                );
+                await axios
+                    .put(
+                        'http://10.0.2.2:8087/api/users/profile/photo',
+                        formData,
+                        {
+                            headers: { 'Content-Type': 'multipart/form-data' },
+                        },
+                    )
+                    .then(async (res) => {
+                        setImage(res.data.profilePhoto);
 
-                let responseJson = await res.json();
-                console.log('response => ', responseJson);
+                        try {
+                            await onGetUserByPhoneNumber();
+                        } catch (error) {
+                            console.error(
+                                'Error refetching user data after profile photo update:',
+                                error,
+                            );
+                        }
+
+                        const update = { data: { ...users, temp: 'a' } };
+                        return update;
+                    })
+                    .catch((err) => {
+                        console.log('Error update user data: ', err.response);
+                    });
                 closeModal();
             }
         } catch (e) {
@@ -141,22 +162,26 @@ function Profile({ navigation }) {
         }
     };
 
-    // const saveImage = async (image) => {
-    //     try {
-    //         await setImage(image.uri);
-    //         handleChangeFile('profilePhoto')(image.uri);
-    //         closeModal();
-    //     } catch (e) {
-    //         throw e;
-    //     }
-    // };
-
-    // const handleChangeFile = (field) => (value) => {
-    //     setFieldValue(field, value);
-    // };
-
     const handleLogout = () => {
-        console.log('logout');
+        Alert.alert(
+            'Log out',
+            'Do you want to logout?',
+            [
+                {
+                    text: 'Cancel',
+                    onPress: () => {
+                        return null;
+                    },
+                },
+                {
+                    text: 'Log out',
+                    onPress: () => {
+                        navigation.replace('Login');
+                    },
+                },
+            ],
+            { cancelable: false },
+        );
     };
 
     const renderHeader = () => {
@@ -347,32 +372,11 @@ function Profile({ navigation }) {
 
     const renderLogout = () => {
         return (
-            <TouchableOpacity
-                style={{ width: 50 }}
-                onPress={() => {
-                    Alert.alert(
-                        'Log out',
-                        'Do you want to logout?',
-                        [
-                            {
-                                text: 'Cancel',
-                                onPress: () => {
-                                    return null;
-                                },
-                            },
-                            {
-                                text: 'Log out',
-                                onPress: () => {
-                                    handleLogout();
-                                },
-                            },
-                        ],
-                        { cancelable: false },
-                    );
-                }}
-            >
-                <Text style={styles.logout}>Logout</Text>
-            </TouchableOpacity>
+            <View style={styles.logoutContainer}>
+                <TouchableOpacity onPress={() => handleLogout()}>
+                    <Text style={styles.logout}>Logout</Text>
+                </TouchableOpacity>
+            </View>
         );
     };
 
@@ -550,12 +554,16 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#9796A1',
     },
-    logout: {
-        color: Color.primary,
-        fontWeight: '700',
-        fontSize: 15,
+    logoutContainer: {
+        width: 85,
         marginTop: 13,
         marginBottom: 28,
+    },
+    logout: {
+        color: Color.primary,
+        paddingVertical: 4,
+        fontWeight: '700',
+        fontSize: 15,
     },
     customButton: {
         backgroundColor: Color.primary,

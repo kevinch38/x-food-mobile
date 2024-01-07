@@ -30,20 +30,20 @@ const Navigation = () => {
                 initialRouteName="InitialScreen"
                 screenOptions={{ headerShown: false }}
             >
-                {/*<Stack.Screen name="Splash" component={Splash} />*/}
-                {/*<Stack.Screen name="Welcome" component={Welcome} />*/}
-                {/*<Stack.Screen name="Login" component={Login} />*/}
-                {/*<Stack.Screen*/}
-                {/*    name="VerificationCode"*/}
-                {/*    component={VerificationCodeScreen}*/}
-                {/*/>*/}
-                {/*<Stack.Screen name="Register" component={Register} />*/}
-                {/*<Stack.Screen name="Home" component={PinCreationScreen} />*/}
-                {/*<Stack.Screen name="Redeem" component={Redeem} />*/}
-                {/*<Stack.Screen name="Tabs" component={Tabs} />*/}
-                {/*<Stack.Screen name="Merchant" component={MerchantBranch} />*/}
-                {/*<Stack.Screen name={'Menu'} component={Menu} />*/}
-                {/*<Stack.Screen name={'MenuDetail'} component={Detail} />*/}
+                <Stack.Screen name="Splash" component={Splash} />
+                <Stack.Screen name="Welcome" component={Welcome} />
+                <Stack.Screen name="Login" component={Login} />
+                <Stack.Screen
+                    name="VerificationCode"
+                    component={VerificationCodeScreen}
+                />
+                <Stack.Screen name="Register" component={Register} />
+                <Stack.Screen name="Home" component={PinCreationScreen} />
+                <Stack.Screen name="Redeem" component={Redeem} />
+                <Stack.Screen name="Tabs" component={Tabs} />
+                <Stack.Screen name="Merchant" component={MerchantBranch} />
+                <Stack.Screen name={'Menu'} component={Menu} />
+                <Stack.Screen name={'MenuDetail'} component={Detail} />
                 <Stack.Screen name={'Profile'} component={Profile} />
                 <Stack.Screen name={'EditProfile'} component={EditProfile} />
                 <Stack.Screen

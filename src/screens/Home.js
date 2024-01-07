@@ -20,13 +20,17 @@ import { cityAction } from '../slices/citySlice';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Icon } from '@rneui/themed';
 import { loyaltyPointAction } from '../slices/loyaltyPointSlice';
+import { userAction } from '../slices/userSlice';
+import userService from '../services/UserService';
 
 const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
     const { cities } = useSelector((state) => state.city);
     const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
-    const { merchantService, cityService, loyaltyPointService } =
+    const { users } = useSelector((state) => state.user);
+    const { phoneNumber } = useSelector((state) => state.ui);
+    const { merchantService, cityService, loyaltyPointService, userService } =
         useContext(ServiceContext);
     const [value, setValue] = useState('4028c7f08c813f12018c813f1eb20108');
     const [cityId, setCityId] = useState('ff8080818cc0054c018cc00563680119');
@@ -66,30 +70,48 @@ const Home = ({ navigation }) => {
     }, [dispatch, cityService]);
 
     useEffect(() => {
+        const onGetUserByPhoneNumber = () => {
+            try {
+                dispatch(
+                    userAction(async () => {
+                        const result =
+                            await userService.fetchUserByPhoneNumber(
+                                phoneNumber,
+                            );
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetching user data: ', e);
+            }
+        };
+
         const onGetMerchants = async () => {
             await dispatch(
                 merchantAction(() => merchantService.fetchMerchants()),
             );
         };
 
-        const onGetLoyaltyPointAmount = async () => {
-            const loyaltyPointID = 'ff8080818cc0054c018cc005c5600229';
+        const onGetLoyaltyPointAmount = () => {
             try {
-                await dispatch(
-                    loyaltyPointAction(() =>
-                        loyaltyPointService.fetchLoyaltyPointById(
-                            loyaltyPointID,
-                        ),
-                    ),
+                dispatch(
+                    loyaltyPointAction(async () => {
+                        const result =
+                            loyaltyPointService.fetchLoyaltyPointById(
+                                users.loyaltyPointID,
+                            );
+                        return result;
+                    }),
                 );
             } catch (e) {
                 console.error('Error fetching loyalty point data: ', e);
             }
         };
 
+        onGetUserByPhoneNumber();
         onGetMerchants();
         onGetLoyaltyPointAmount();
-    }, [dispatch, merchantService, loyaltyPointService]);
+    }, [dispatch, merchantService, loyaltyPointService, userService]);
 
     const handleTopUp = () => {
         navigation.navigate('TopUp');
