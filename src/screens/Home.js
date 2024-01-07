@@ -7,6 +7,7 @@ import {
     Image,
     Pressable,
     ScrollView,
+    Button,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Card from '../components/card/Card';
@@ -25,16 +26,11 @@ const Home = ({ navigation }) => {
     const merchants = useSelector((state) => state.merchant.merchants);
     const { cities } = useSelector((state) => state.city);
     const { merchantService, cityService } = useContext(ServiceContext);
-    const [cityId, setCityId] = useState('8a8ae40b8cabc928018cabc9359000c0');
+    const [cityId, setCityId] = useState('8a8ae40b8cd4debc018cd4dec9c70113');
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
 
     const filteredMerchants = merchants.filter((merchant) => {
-        // const branches = merchant.merchantBranches.map((branch) => {
-        //     return branch.city.cityID === cityId;
-        // });
-        // return branches.includes(true);
-
         const branches = merchant.merchantBranches || [];
         const hasMatchingBranch = branches.some(
             (branch) => branch.city.cityID === cityId,
@@ -51,8 +47,8 @@ const Home = ({ navigation }) => {
                       .includes(search.toLowerCase()),
               );
 
-    const handleCard = (id, cityId) => {
-        navigation.navigate('Merchant', { id, cityId });
+    const handleCard = (id) => {
+        navigation.navigate('Merchant', { id });
     };
 
     useEffect(() => {
@@ -170,9 +166,7 @@ const Home = ({ navigation }) => {
                             return (
                                 <Card
                                     key={idx}
-                                    onPress={() =>
-                                        handleCard(m.merchantID, cityId)
-                                    }
+                                    onPress={() => handleCard(m.merchantID)}
                                     image={m.image}
                                     title={m.merchantName}
                                 />

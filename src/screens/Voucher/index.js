@@ -25,6 +25,7 @@ const Voucher = ({ navigation }) => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const userService = UserService;
     const [userData, setUserData] = useState({ vouchers: [] });
+    
 
     const handleRedeemPress = () => {
         navigate.navigate('Redeem');
@@ -44,6 +45,7 @@ const Voucher = ({ navigation }) => {
         }
     };
 
+
     return (
         <SafeAreaView style={styles.wrapper}>
             <View>
@@ -55,7 +57,7 @@ const Voucher = ({ navigation }) => {
                     source={require('../../../assets/images/elipse.png')}
                     style={{ position: 'absolute', top: 0 }}
                 />
-                <BackButton style />
+                {/* <BackButton onPress={handleBack} /> */}
                 <Image
                     source={require('../../../assets/images/elipse2.png')}
                     style={{ position: 'absolute', top: 0, right: 0 }}
@@ -104,8 +106,8 @@ const Voucher = ({ navigation }) => {
                                 return (
                                     <VoucherCard
                                         key={idx}
-                                        title={`Starbucks Rp. 30.000 Off`}
-                                        content={`Some explanation of the code`}
+                                        title={`Discount 20%`}
+                                        content={`20% 0ff`}
                                         image={Starbuck}
                                         expired={`Will Expire on 25/10/2024`}
                                     />

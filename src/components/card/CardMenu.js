@@ -44,19 +44,35 @@ const CardMenu = ({
                         height: 45,
                         backgroundColor: '#fff',
                         borderRadius: 104 / 2,
+                        marginLeft: '2%',
                     }}
                 >
-                    <Text
-                        style={{
-                            fontSize: 18,
-                            fontWeight: '900',
-                            marginTop: '7%',
-                            textAlign: 'center',
-                            textAlignVertical: 'center',
-                        }}
-                    >
-                        Rp {isDiscount ? discountedPrice : initialPrice}
-                    </Text>
+                    <View style={{ flexDirection: 'row', marginLeft: '2%' }}>
+                        <Text
+                            style={{
+                                fontSize: 18,
+                                fontWeight: '900',
+                                marginTop: '7%',
+                                marginRight: '5%',
+                                textAlign: 'center',
+                                textAlignVertical: 'center',
+                                color: '#F08D18',
+                            }}
+                        >
+                            Rp
+                        </Text>
+                        <Text
+                            style={{
+                                fontSize: 18,
+                                fontWeight: '900',
+                                marginTop: '7%',
+                                textAlign: 'center',
+                                textAlignVertical: 'center',
+                            }}
+                        >
+                            {isDiscount ? discountedPrice : initialPrice}
+                        </Text>
+                    </View>
                 </View>
                 <Image
                     source={{ uri: base64StringImage }}
@@ -67,7 +83,7 @@ const CardMenu = ({
                         borderRadius: 15,
                     }}
                 />
-                <View style={{ padding: '2%' }}>
+                <View style={{ padding: '2%', marginLeft: '2%' }}>
                     <Text
                         style={{
                             fontWeight: '900',

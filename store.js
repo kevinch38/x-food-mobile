@@ -8,6 +8,7 @@ import citySlice from './src/slices/citySlice';
 import merchantBranchSlice from './src/slices/merchantBranch';
 import authSlice from './src/slices/authSlice';
 import { cartSlice } from './src/slices/cartSlice';
+import orderSlice from './src/slices/orderSlice';
 
 const setupStore = () =>
     configureStore({
@@ -20,6 +21,7 @@ const setupStore = () =>
             pin: pinReducer,
             auth: authSlice.reducer,
             cart: cartSlice.reducer,
+            order: orderSlice.reducer,
         },
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware().concat(asyncMiddlewareAction),
