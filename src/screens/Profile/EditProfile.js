@@ -222,7 +222,7 @@ function EditProfile({ navigation }) {
                     <View>
                         <Text style={styles.textSecondary}>Pin</Text>
                         <Text
-                            onPress={() => console.log('Create/Change PIN')}
+                            onPress={() => navigation.navigate('ChangePin')}
                             style={styles.changePin}
                         >
                             Create/Change PIN
@@ -345,6 +345,8 @@ const styles = StyleSheet.create({
         fontWeight: '900',
         fontSize: 15,
         color: theme.secondary,
+        paddingVertical: 8,
+        width: '40%',
     },
     modalContainer: {
         flex: 1,

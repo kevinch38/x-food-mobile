@@ -20,6 +20,7 @@ import MerchantBranch from '../screens/MerchantBranch';
 import Menu from '../screens/Menu';
 import Detail from '../screens/Menu/Detail';
 import Redeem from '../screens/Voucher/Redeem';
+import ChangePin from '../screens/Pin/ChangePin';
 
 const Stack = createStackNavigator();
 
@@ -68,6 +69,7 @@ const Navigation = () => {
                     options={{ presentation: 'modal' }}
                     component={Pin}
                 />
+                <Stack.Screen name={'ChangePin'} component={ChangePin} />
             </Stack.Navigator>
         </NavigationContainer>
     );
