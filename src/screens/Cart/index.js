@@ -18,8 +18,10 @@ import Button from '../../components/button';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     addToCart,
+    emptyCart,
     removeAll,
     removeFromCart,
+    removeFromTempCart,
     selectCartItems,
     selectCartItemsById,
     selectCartTotal,
@@ -100,78 +102,82 @@ function Cart({ navigation }) {
             orderItems: [],
         },
         onSubmit: async (values) => {
-            if (users.accountID) {
-                try {
-                    const groupedOrderItem = cartItems.reduce(
-                        (grouped, item) => {
-                            const key =
-                                item.itemID +
-                                JSON.stringify(
-                                    item.itemVarieties
-                                        .map((variety) => variety.subVarietyID)
-                                        .sort(),
-                                );
-                            if (!grouped[key]) {
-                                grouped[key] = {
-                                    itemID: item.itemID,
-                                    subVarieties: item.itemVarieties.map(
-                                        (variety) => ({
-                                            subVarietyID: variety.subVarietyID,
-                                        }),
-                                    ),
-                                    quantity: 0,
-                                };
-                            }
-                            grouped[key].quantity += 1;
-                            return grouped;
-                        },
-                        {},
-                    );
-
-                    const result = Object.values(groupedOrderItem);
-
-                    const orderItems = {
-                        accountID: users.accountID,
-                        orderValue: cartTotal - sale,
-                        notes: values.orderNote,
-                        tableNumber: values.tableNumber,
-                        branchID: selectedBranch.branchID,
-                        orderItems: result,
-                    };
-
-                    console.log(orderItems, 'order items');
-                    // const response = await axios.post(
-                    //     'http://10.0.2.2:8087/api/orders',
-                    //     orderItems,
-                    // );
-                    // console.log(response.data, 'ini response ===');
-                    dispatch(
-                        createOrderAction(async () => {
-                            //         const result =
-                            //             await orderService.orderItem(orderItems);
-                            //         console.log(result, 'ini result');
-                            //     }),
-                            // );
-                            try {
-                                const result =
-                                    await orderService.orderItem(orderItems);
-                                console.log(result, 'ini result');
-                                if (result.statusCode === 201) {
-                                    navigation.navigate('Pin', {
-                                        accountID: result.data.accountID,
-                                        orderID: result.data.orderID,
-                                    });
-                                    return result;
+            if (cartItems.length > 0) {
+                if (users.accountID) {
+                    try {
+                        const groupedOrderItem = cartItems.reduce(
+                            (grouped, item) => {
+                                const key =
+                                    item.itemID +
+                                    JSON.stringify(
+                                        item.itemVarieties
+                                            .map(
+                                                (variety) =>
+                                                    variety.subVarietyID,
+                                            )
+                                            .sort(),
+                                    );
+                                if (!grouped[key]) {
+                                    grouped[key] = {
+                                        itemID: item.itemID,
+                                        subVarieties: item.itemVarieties.map(
+                                            (variety) => ({
+                                                subVarietyID:
+                                                    variety.subVarietyID,
+                                            }),
+                                        ),
+                                        quantity: 0,
+                                    };
                                 }
-                                return null;
-                            } catch (e) {
-                                console.log('error e', e);
-                            }
-                        }),
-                    );
-                } catch (e) {
-                    console.error('error e', e);
+                                grouped[key].quantity += 1;
+                                return grouped;
+                            },
+                            {},
+                        );
+
+                        const result = Object.values(groupedOrderItem);
+
+                        const orderItems = {
+                            accountID: users.accountID,
+                            orderValue: cartTotal - sale,
+                            notes: values.orderNote,
+                            tableNumber: values.tableNumber,
+                            branchID: selectedBranch.branchID,
+                            orderItems: result,
+                        };
+                        dispatch(
+                            createOrderAction(async () => {
+                                //         const result =
+                                //             await orderService.orderItem(orderItems);
+                                //         console.log(result, 'ini result');
+                                //     }),
+                                // );
+                                try {
+                                    const result =
+                                        await orderService.orderItem(
+                                            orderItems,
+                                        );
+                                    console.log(result, 'ini result');
+                                    if (result.statusCode === 201) {
+                                        navigation.navigate('Pin', {
+                                            accountID: result.data.accountID,
+                                            orderID: result.data.orderID,
+                                        });
+                                        dispatch(emptyCart());
+                                        return result;
+                                    }
+                                    return null;
+                                } catch (e) {
+                                    console.log('error e', e);
+                                }
+                            }),
+                        );
+                    } catch (e) {
+                        console.error('error e', e);
+                    }
                 }
+            } else {
+                alert('Cart Empty');
             }
         },
 
@@ -183,19 +189,12 @@ function Cart({ navigation }) {
     };
 
     const handleDecrease = (item) => {
-        const itemIndex = cartItems.findIndex(
-            (cartItem) =>
-                cartItem.itemID === item.itemID &&
-                cartItem.itemVarieties.every(
-                    (cartVariety, index) =>
-                        cartVariety.subVarietyID ===
-                        item.itemVarieties[index].subVarietyID,
-                ),
+        dispatch(
+            removeFromCart({
+                itemID: item.itemID,
+                itemVarieties: item.itemVarieties,
+            }),
         );
-
-        if (itemIndex !== -1) {
-            dispatch(removeFromCart({ index: itemIndex, item: item }));
-        }
     };
 
     useEffect(() => {
@@ -252,7 +251,7 @@ function Cart({ navigation }) {
 
     const handleClose = (item) => {
         const { itemID, itemVarieties } = item;
-        dispatch(removeAll({ id: itemID, subVarietyID: itemVarieties }));
+        dispatch(removeAll({ itemID: itemID, itemVarieties: itemVarieties }));
     };
 
     const findVarietyName = (varieties, subVarietyID) => {
@@ -260,9 +259,6 @@ function Cart({ navigation }) {
             (variety) => variety.subVarietyID === subVarietyID,
         );
         return variety ? variety.subVarName : 'Unknown Variety';
-    };
-    const handleCheckout = (cartItems) => {
-        navigation.navigate('Pin', { cartItems });
     };
 
     const renderHeader = () => {
@@ -290,9 +286,7 @@ function Cart({ navigation }) {
                             <Text style={styles.titleMenu}>
                                 {item.itemName}
                             </Text>
-                            <TouchableOpacity
-                                onPress={() => handleClose(item.itemID)}
-                            >
+                            <TouchableOpacity onPress={() => handleClose(item)}>
                                 <Icon.X
                                     width={17}
                                     height={17}
@@ -332,7 +326,9 @@ function Cart({ navigation }) {
                                     </TouchableOpacity>
                                 ) : (
                                     <TouchableOpacity
-                                        onPress={() => handleDecrease(item)}
+                                        onPress={() =>
+                                            handleDecrease(items.items[0])
+                                        }
                                     >
                                         <Icon.MinusCircle
                                             width={28}
@@ -390,13 +386,20 @@ function Cart({ navigation }) {
     const renderVoucher = () => {
         return (
             <View style={styles.dropdownContainer}>
+                {/*<Image*/}
+                {/*    source={{*/}
+                {/*        uri: `data:image/png;base64,${vouchers[0].logoImage}`,*/}
+                {/*    }}*/}
+                {/*/>*/}
                 <SelectCountry
                     style={styles.dropdown}
                     placeholderStyle={styles.placeholderStyle}
                     selectedTextStyle={styles.selectedTextStyle}
                     imageStyle={styles.imageStyle}
                     data={vouchers}
-                    imageField="logoImage"
+                    imageField={`
+                        uri: "data:image/jpeg;base64,${'logoImage'}",
+                    `}
                     labelField="promotionName"
                     valueField="voucherValue"
                     // onChange={handleDropdown}
@@ -454,7 +457,7 @@ function Cart({ navigation }) {
                 <Loading />
             ) : (
                 <>
-                    {/*<Button title={'tt'} onPress={console.log(cartItems)} />*/}
+                    {/*<Button title={'tt'} onPress={console.log(groupedItems)} />*/}
                     <ScrollView>
                         {renderHeader()}
                         <View style={styles.sectionWrapper}>

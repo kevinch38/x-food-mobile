@@ -21,7 +21,6 @@ const pinSlice = createSlice({
     extraReducers: (builder) => {
         builder.addCase(pinAction.fulfilled, (state, { payload }) => {
             if (payload) {
-                console.log(payload.data, ' =====  pin slice');
                 state.pin = payload.data;
             }
         });

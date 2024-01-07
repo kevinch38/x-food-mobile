@@ -68,14 +68,12 @@ export default function Register({ navigation }) {
 
                 const { aggrement, ...values } = formValues;
 
-                console.log(values, '=========  values');
                 dispatch(
                     userRegisterAction(async () => {
                         // const result = await userService.updateUser(values);
                         // console.log(result, 'result-----');
                         try {
                             const result = await userService.updateUser(values);
-                            console.log(result, 'result-----');
                             if (result.statusCode === 200) {
                                 navigation.reset({
                                     index: 0,

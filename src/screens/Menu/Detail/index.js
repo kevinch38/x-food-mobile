@@ -8,9 +8,9 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import BackButton from '../../../components/backButton';
-import { Button } from '@rneui/themed';
+import { Button, CheckBox } from '@rneui/themed';
 import Color from '../../../assets/Color';
 import iconBag from '../../../assets/icons/bag.png';
 import { RoundedCheckbox } from 'react-native-rounded-checkbox';
@@ -19,8 +19,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     addToCart,
     removeFromCart,
+    addToTempCart,
+    emptyTempCart,
     selectCartItems,
     selectCartItemsById,
+    removeFromTempCart,
+    addTempCartToCart,
 } from '../../../slices/cartSlice';
 
 const Detail = ({ navigation }) => {
@@ -28,11 +32,10 @@ const Detail = ({ navigation }) => {
     const route = useRoute();
     // const cartItems = useSelector(selectCartItems);
     const item = route.params?.item;
+    const { tempItems } = useSelector((state) => state.cart);
     const defaultPrice = item.isDiscounted
         ? item.discountedPrice
         : item.initialPrice;
-
-    let [qty, setQty] = useState(1);
     const [itemVariety, setItemVariety] = useState([]);
     let [price, setPrice] = useState(defaultPrice);
 
@@ -41,16 +44,28 @@ const Detail = ({ navigation }) => {
     const totalItems = useSelector((state) =>
         selectCartItemsById(state, item.itemID),
     );
+
+    // useEffect(() => {
+    //     if (tempItems.length === 0) {
+    //         idxRef.current = 0;
+    //     }
+    // }, [tempItems]);
     const handleIncrease = () => {
         const cartItem = {
             ...item,
+            // idx: (idxRef.current += 1),
             itemVarieties: itemVariety,
             itemPrice: price,
         };
-        dispatch(addToCart(cartItem));
+        dispatch(addToTempCart(cartItem));
     };
     const handleDecrease = () => {
-        dispatch(removeFromCart({ id: item.itemID }));
+        dispatch(
+            removeFromTempCart({
+                itemID: item.itemID,
+                itemVarieties: itemVariety,
+            }),
+        );
     };
 
     const handleBack = () => {
@@ -74,14 +89,14 @@ const Detail = ({ navigation }) => {
     };
 
     const handleAddToCart = () => {
-        // addItemToCart(itemToAddCart);
+        dispatch(addTempCartToCart(tempItems));
+        dispatch(emptyTempCart());
         navigation.navigate('Cart');
     };
 
     return (
         <SafeAreaView style={styles.wrapper}>
             <ScrollView>
-                {/*<Button title={'hh'} onPress={console.log(item.itemID)} />*/}
                 <BackButton onPress={handleBack} />
                 <Image
                     source={{ uri: base64StringImage }}
@@ -103,7 +118,6 @@ const Detail = ({ navigation }) => {
                 >
                     {item.itemName}
                 </Text>
-
                 <View
                     style={{
                         display: 'flex',
@@ -147,7 +161,7 @@ const Detail = ({ navigation }) => {
                                 marginHorizontal: '8%',
                             }}
                         >
-                            {totalItems.length}
+                            {tempItems.length}
                         </Text>
                         <Button
                             onPress={handleIncrease}
@@ -162,7 +176,6 @@ const Detail = ({ navigation }) => {
                         />
                     </View>
                 </View>
-
                 {item.itemVarieties.map((v, idx) => {
                     return (
                         <View key={idx}>

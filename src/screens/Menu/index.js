@@ -23,9 +23,11 @@ import { selectCartTotal } from '../../slices/cartSlice';
 const Menu = ({ navigation }) => {
     const dispatch = useDispatch();
     const branch = useSelector((state) => state.merchantBranch.selectedBranch);
+    const merchant = useSelector((state) => state.merchant.selectedMerchant);
     const { merchantBranchService } = useContext(ServiceContext);
     const route = useRoute();
     const branchId = route.params?.branchId;
+
     const cartTotal = useSelector(selectCartTotal);
 
     const [isLoading, setIsLoading] = useState(true);
@@ -75,7 +77,12 @@ const Menu = ({ navigation }) => {
                         <View style={styles.wrapperProfile}>
                             <View style={styles.outerCircle}>
                                 <View style={styles.outerInnerCircle}>
-                                    <Image source={Logo} style={styles.logo} />
+                                    <Image
+                                        source={{
+                                            uri: `data:image/jpeg;base64,${merchant.logoImage}`,
+                                        }}
+                                        style={styles.logo}
+                                    />
                                 </View>
                             </View>
                         </View>
@@ -181,7 +188,8 @@ const Menu = ({ navigation }) => {
                                     Rp {cartTotal}
                                 </Text>
                             </View>
-                            <View
+                            <TouchableOpacity
+                                onPress={handleToCart}
                                 style={{
                                     height: '100%',
                                     width: 128,
@@ -199,7 +207,7 @@ const Menu = ({ navigation }) => {
                                 >
                                     Checkout
                                 </Text>
-                            </View>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>
@@ -246,10 +254,10 @@ const styles = StyleSheet.create({
         elevation: 16,
     },
     logo: {
-        height: 200,
-        width: 200,
-        borderRadius: 180 / 2,
-        margin: 9,
+        height: 190,
+        width: 190,
+        borderRadius: 190 / 2,
+        margin: 15,
     },
 });
 

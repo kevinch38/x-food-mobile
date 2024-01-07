@@ -19,7 +19,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { userAction } from '../../slices/userSlice';
 import { ServiceContext } from '../../context/ServiceContext';
 import { pinAction } from '../../slices/pinSlice';
-import { updateOrderAction } from '../../slices/orderSlice';
 
 function Pin({ navigation }) {
     const dispatch = useDispatch();

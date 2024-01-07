@@ -32,6 +32,7 @@ const Merchant = ({ navigation }) => {
     const route = useRoute();
     const receivedId = route.params?.id;
     const cityId = route.params?.cityId;
+
     const [branches, setBranches] = useState([]);
 
     const [isLoading, setIsLoading] = useState(true);
@@ -40,11 +41,11 @@ const Merchant = ({ navigation }) => {
     //     (branch) => branch.city.cityID === cityId,
     // );
 
-    handleBack = () => {
+    const handleBack = () => {
         navigation.navigate('Tabs');
     };
 
-    handleToMenu = (branchId) => {
+    const handleToMenu = (branchId) => {
         navigation.navigate('Menu', { branchId });
     };
 
@@ -108,7 +109,12 @@ const Merchant = ({ navigation }) => {
                     <View style={styles.wrapperProfile}>
                         <View style={styles.outerCircle}>
                             <View style={styles.outerInnerCircle}>
-                                <Image source={Logo} style={styles.logo} />
+                                <Image
+                                    source={{
+                                        uri: `data:image/jpeg;base64,${merchant.logoImage}`,
+                                    }}
+                                    style={styles.logo}
+                                />
                             </View>
                             <View style={styles.wrapperCamera}>
                                 <Image
