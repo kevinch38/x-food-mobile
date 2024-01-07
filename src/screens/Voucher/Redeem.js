@@ -1,11 +1,24 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View, ScrollView} from "react-native";
-import React, { useState, useEffect } from "react";
-import RedeemCard from "../../components/RedeemCard";
-import Starbuck from "../../../assets/images/starbuck.png";
-import PromotionService from "../../services/PromotionService";
+import {
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    ScrollView,
+} from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import RedeemCard from '../../components/RedeemCard';
+import Starbuck from '../../../assets/images/starbuck.png';
+import PromotionService from '../../services/PromotionService';
+import { loyaltyPointAction } from '../../slices/loyaltyPointSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { ServiceContext } from '../../context/ServiceContext';
 
-
-const Redeem = () => {
+const Redeem = ({ navigation }) => {
+    const dispatch = useDispatch();
+    const { users } = useSelector((state) => state.user);
+    const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
+    const { loyaltyPointService } = useContext(ServiceContext);
     const promotionService = PromotionService();
     const [promotions, setPromotions] = useState([]);
     const getAllPromotions = async () => {
@@ -13,15 +26,31 @@ const Redeem = () => {
             const userData = await promotionService.getPromotions();
             setPromotions(userData.data);
             console.log('userData:', userData);
-
         } catch (error) {
             console.error('Error fetching user data1:', error);
         }
     };
 
     useEffect(() => {
+        const onGetLoyaltyPointAmount = () => {
+            try {
+                dispatch(
+                    loyaltyPointAction(async () => {
+                        const result =
+                            loyaltyPointService.fetchLoyaltyPointById(
+                                users.loyaltyPointID,
+                            );
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetching loyalty point data: ', e);
+            }
+        };
+
+        onGetLoyaltyPointAmount();
         getAllPromotions();
-    }, []);
+    }, [dispatch, loyaltyPointService]);
     return (
         <>
             <View
@@ -32,24 +61,50 @@ const Redeem = () => {
                     // marginBottom:-100
                 }}
             >
-                <TouchableOpacity style={styles.button}>
-                    <Image source={require('../../../assets/images/button.png')} />
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={navigation.goBack()}
+                >
+                    <Image
+                        source={require('../../../assets/images/button.png')}
+                    />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.button}>
-                    <Text style={{ textAlign: 'center', marginTop: 20, fontSize: 16 }}>
+                    <Text
+                        style={{
+                            textAlign: 'center',
+                            marginTop: 20,
+                            fontSize: 16,
+                        }}
+                    >
                         Redeem
                     </Text>
                 </TouchableOpacity>
 
-                <View style={{flexDirection:'row', marginTop:10, marginRight:20, padding:10}}>
-                    <Image source={require('../../assets/icons/Coin.png')}/>
-                    <Text style={{ marginTop:30, marginLeft:-20, fontSize:16}}>
-                        980
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        marginTop: 10,
+                        marginRight: 20,
+                        padding: 10,
+                    }}
+                >
+                    <Image source={require('../../assets/icons/Coin.png')} />
+                    <Text
+                        style={{ marginTop: 30, marginLeft: -20, fontSize: 16 }}
+                    >
+                        {loyaltyPoints.loyaltyPointAmount}
                     </Text>
                 </View>
-
             </View>
-            <View style={{margin:20, display:'flex', justifyContent:'center', alignItems:'center'}}>
+            <View
+                style={{
+                    margin: 20,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
                 <ScrollView>
                     {promotions.map((promotion) => (
                         <RedeemCard
@@ -65,18 +120,12 @@ const Redeem = () => {
                     ))}
                 </ScrollView>
             </View>
-
-
         </>
-
-
-
 
         // <View>
         // </View>
-
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -92,9 +141,9 @@ const styles = StyleSheet.create({
     },
 
     font: {
-        fontWeight: "bold",
-        textAlign: "center",
-        justifyContent: "center",
+        fontWeight: 'bold',
+        textAlign: 'center',
+        justifyContent: 'center',
         fontSize: 16,
     },
 

@@ -111,7 +111,13 @@ const Home = ({ navigation }) => {
         onGetUserByPhoneNumber();
         onGetMerchants();
         onGetLoyaltyPointAmount();
-    }, [dispatch, merchantService, loyaltyPointService, userService]);
+    }, [
+        dispatch,
+        merchantService,
+        loyaltyPointService,
+        userService,
+        Object.keys(users).length,
+    ]);
 
     const handleTopUp = () => {
         navigation.navigate('TopUp');
