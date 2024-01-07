@@ -17,6 +17,13 @@ import Payment from '../screens/Payment';
 import MerchantConfirm from '../screens/MerchantConfirm';
 import Complete from '../screens/Complete';
 import EReceipt from '../screens/EReceipt';
+import Redeem from "../screens/Voucher/Redeem";
+import Welcome from "../screens/Welcome"
+import Splash from '../screens/Splash'
+import Login from '../screens/Login'
+import Register from '../screens/Register'
+import VerificationCodeScreen from '../screens/VerificationCodeScreen'
+import PinCreationScreen from '../screens/PinCreationScreen';
 
 const Stack = createStackNavigator();
 
@@ -27,14 +34,16 @@ const Navigation = () => {
                 initialRouteName="InitialScreen"
                 screenOptions={{ headerShown: false }}
             >
-                {/*<Stack.Screen name="Splash" component={Splash} />*/}
-                {/*<Stack.Screen name="Welcome" component={Welcome} />*/}
-                {/*<Stack.Screen name="Login" component={Login} />*/}
-                {/*<Stack.Screen*/}
-                {/*    name="VerificationCode"*/}
-                {/*    component={VerificationCodeScreen}*/}
-                {/*/>*/}
-                {/*<Stack.Screen name="Register" component={Register} />*/}
+                <Stack.Screen name="Splash" component={Splash} />
+                <Stack.Screen name="Welcome" component={Welcome} />
+                <Stack.Screen name="Login" component={Login} />
+                <Stack.Screen
+                    name="VerificationCode"
+                    component={VerificationCodeScreen}
+                />
+                <Stack.Screen name="Register" component={Register} />
+                <Stack.Screen name="Home" component={PinCreationScreen} />
+                <Stack.Screen name="Redeem" component={Redeem} />
                 <Stack.Screen name="Tabs" component={Tabs} />
                 <Stack.Screen name="Merchant" component={MerchantBranch} />
                 <Stack.Screen name={'Menu'} component={Menu} />
@@ -53,6 +62,7 @@ const Navigation = () => {
                     name={'SelectPayment'}
                     component={SelectPayment}
                 />
+
                 <Stack.Screen
                     name={'Cart'}
                     component={Cart}

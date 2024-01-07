@@ -21,7 +21,6 @@ import {
     emptyCart,
     removeAll,
     removeFromCart,
-    removeFromTempCart,
     selectCartItems,
     selectCartItemsById,
     selectCartTotal,
@@ -32,7 +31,6 @@ import { userAction } from '../../slices/userSlice';
 import { ServiceContext } from '../../context/ServiceContext';
 import Loading from '../../components/loading';
 import { createOrderAction } from '../../slices/orderSlice';
-import axios from 'axios';
 
 function Cart({ navigation }) {
     const dispatch = useDispatch();
@@ -45,13 +43,9 @@ function Cart({ navigation }) {
     const [sale, setSale] = useState('');
     const [nameVoucher, setNameVoucher] = useState('');
     const { userService, orderService } = useContext(ServiceContext);
-    const { loading, setLoading } = useState(false);
     const [vouchers, setVouchers] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-
-    const totalItems = useSelector((state) =>
-        selectCartItemsById(state, cartItems.itemID),
-    );
+    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
 
     useEffect(() => {
         setVouchers(users?.vouchers);
@@ -64,7 +58,7 @@ function Cart({ navigation }) {
 
                 await dispatch(
                     userAction(() =>
-                        userService.fetchUserByPhoneNumber('+628123401231'),
+                        userService.fetchUserByPhoneNumber(phoneNumber),
                     ),
                 );
 
@@ -81,18 +75,7 @@ function Cart({ navigation }) {
         tableNumber: yup.number().required('No Table Required'),
     });
 
-    const {
-        values,
-        errors,
-        touched,
-        dirty,
-        isValid,
-        handleChange,
-        handleBlur,
-        handleSubmit,
-        setFieldValue,
-        setValues,
-    } = useFormik({
+    const { values, errors, touched, handleSubmit } = useFormik({
         initialValues: {
             accountID: null,
             orderValue: 0,
@@ -453,29 +436,23 @@ function Cart({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            {isLoading ? (
-                <Loading />
-            ) : (
-                <>
-                    {/*<Button title={'tt'} onPress={console.log(groupedItems)} />*/}
-                    <ScrollView>
-                        {renderHeader()}
-                        <View style={styles.sectionWrapper}>
-                            {renderCart()}
-                            {renderInformation()}
-                            {renderVoucher()}
-                            {renderSubTotal()}
-                        </View>
-                        <View style={styles.buttonCheckout}>
-                            <Button
-                                title={'CHECKOUT'}
-                                titleStyle={styles.titleStyle}
-                                onPress={handleSubmit}
-                            />
-                        </View>
-                    </ScrollView>
-                </>
-            )}
+            {/*<Button title={'tt'} onPress={console.log(groupedItems)} />*/}
+            <ScrollView>
+                {renderHeader()}
+                <View style={styles.sectionWrapper}>
+                    {renderCart()}
+                    {renderInformation()}
+                    {renderVoucher()}
+                    {renderSubTotal()}
+                </View>
+                <View style={styles.buttonCheckout}>
+                    <Button
+                        title={'CHECKOUT'}
+                        titleStyle={styles.titleStyle}
+                        onPress={handleSubmit}
+                    />
+                </View>
+            </ScrollView>
         </SafeAreaView>
     );
 }

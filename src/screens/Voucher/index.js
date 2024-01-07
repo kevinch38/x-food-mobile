@@ -1,3 +1,4 @@
+import React, { useContext, useEffect, useState } from 'react';
 import {
     Image,
     SafeAreaView,
@@ -8,8 +9,8 @@ import {
     View,
     StyleSheet,
     Button,
+    BackHandler,
 } from 'react-native';
-import React, { useContext, useEffect } from 'react';
 import VoucherCard from '../../components/card/VoucherCard';
 import Starbuck from '../../../assets/images/starbuck.png';
 import BackButton from '../../components/backButton';
@@ -17,36 +18,36 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import { userAction } from '../../slices/userSlice';
 import { useNavigation } from '@react-navigation/native';
+import UserService from "../../services/UserService";
 
 const Voucher = ({ navigation }) => {
     const navigate = useNavigation();
+    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
+    const userService = UserService;
+    const [userData, setUserData] = useState({ vouchers: [] });
+    
 
-    const dispatch = useDispatch();
-    const { users } = useSelector((state) => state.user);
-    const { userService } = useContext(ServiceContext);
-    const { phoneNumber } = useSelector((state) => state.ui);
     const handleRedeemPress = () => {
         navigate.navigate('Redeem');
     };
 
-    const handleBack = () => {
-        navigation.navigate('Home');
+    useEffect(() => {
+        fetchUserData(phoneNumber);
+    }, [phoneNumber]);
+
+    const fetchUserData = async (phoneNumber) => {
+        try {
+            const fetchedUserData = await userService().fetchUserByPhoneNumber(phoneNumber);
+            setUserData(fetchedUserData);
+            // console.log('userData:', fetchedUserData);
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
     };
 
-    useEffect(() => {
-        const onGetUserByPhoneNumber = async () => {
-            await dispatch(
-                userAction(() =>
-                    userService.fetchUserByPhoneNumber('+6281239124111'),
-                ),
-            );
-        };
-        onGetUserByPhoneNumber();
-    }, [dispatch, userService]);
 
     return (
         <SafeAreaView style={styles.wrapper}>
-            {/*<Button title={'test'} onPress={console.log(users)} />*/}
             <View>
                 <Image
                     source={require('../../../assets/images/elipse3.png')}
@@ -56,7 +57,7 @@ const Voucher = ({ navigation }) => {
                     source={require('../../../assets/images/elipse.png')}
                     style={{ position: 'absolute', top: 0 }}
                 />
-                <BackButton onPress={handleBack} />
+                {/* <BackButton onPress={handleBack} /> */}
                 <Image
                     source={require('../../../assets/images/elipse2.png')}
                     style={{ position: 'absolute', top: 0, right: 0 }}
@@ -87,6 +88,7 @@ const Voucher = ({ navigation }) => {
                     <TouchableOpacity
                         style={{ marginTop: 25 }}
                         onPress={handleRedeemPress}
+                        activeOpacity={0.7}
                     >
                         <Image
                             source={require('../../../assets/images/redeembutton.png')}
@@ -98,9 +100,9 @@ const Voucher = ({ navigation }) => {
                         My Vouchers
                     </Text>
                     <ScrollView>
-                        {Array.isArray(users.vouchers) &&
-                            users.vouchers.length > 0 &&
-                            users.vouchers.map((item, idx) => {
+                        {Array.isArray(userData.vouchers) &&
+                            userData.vouchers.length > 0 &&
+                            userData.vouchers.map((item, idx) => {
                                 return (
                                     <VoucherCard
                                         key={idx}

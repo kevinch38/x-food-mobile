@@ -21,6 +21,10 @@ export const selectedUserPhoneNumberAction = createAsyncThunk(
         return response;
     },
 );
+export const selectUserByPhoneNumberAction = createAsyncThunk(
+    'user/selectUserByPhoneNumber',
+    RequestHelper,
+);
 
 const userSlice = createSlice({
     name: 'user',
@@ -56,20 +60,20 @@ const userSlice = createSlice({
                 ) {
                     console.log(`we're sorry, that email taken`);
                 } else {
-                    // alert(errorPayload);
+                    alert(errorPayload);
                     // console.log(errorPayload, 'error slice payload');
                 }
             });
         builder.addCase(
-            selectedUserPhoneNumberAction.fulfilled,
+            selectUserByPhoneNumberAction.fulfilled,
             (state, { payload }) => {
                 if (payload) {
-                    state.selectedUserPhoneNumberAction = payload;
+                    state.selectUserByPhoneNumberAction = payload;
                 }
             },
         );
         builder.addCase(
-            selectedUserPhoneNumberAction.rejected,
+            selectUserByPhoneNumberAction.rejected,
             (state, action) => {
                 // Handle jika nomor telepon tidak terdaftar
                 console.error(

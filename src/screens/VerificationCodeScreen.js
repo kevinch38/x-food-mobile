@@ -1,16 +1,43 @@
 
-import React, { useState } from 'react';
-import {Image, StyleSheet, Text, TextInput, View, Pressable, TouchableOpacity} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { Image, StyleSheet, Text, TextInput, View, Pressable, TouchableOpacity } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Color from '../assets/Color';
-import BackButton from "../components/backButton";
+import BackButton from '../components/backButton';
+import UserService from '../services/UserService';
+import axios from "axios"; // Import UserService
+import { useSelector } from 'react-redux';
 
 const VerificationCodeScreen = () => {
+    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
     const [focusedInput, setFocusedInput] = useState(null);
-    const [isValidCode, setIsValidCode] = useState(true)
+    const [isValidCode, setIsValidCode] = useState(true);
+    const [otpID, setOtpID] = useState(null);
+    const [firstName, setFirstName] = useState("")
     const navigation = useNavigation();
+    const route = useRoute();
+    const userService = UserService();
 
+    useEffect(() => {
+        fetchOtpID(phoneNumber);
+    }, [phoneNumber]);
+
+    const fetchOtpID = async (phoneNumber) => {
+        try {
+            const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
+            console.log('userData:', userData);
+
+            if (userData && userData.data.otpID) {
+                setFirstName(userData.data.firstName);
+                setOtpID(userData.data.otpID);
+            } else {
+                console.error('Error fetching user data or otpID is null:', userData);
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    };
 
     const handleInputChange = (text, index) => {
         const updatedCode = [...verificationCode];
@@ -23,20 +50,41 @@ const VerificationCodeScreen = () => {
 
     const checkOTP = async (enteredCode) => {
         try {
-            const response = await fetch('http://10.0.2.2:8087/api/otp');
-            const data = await response.json();
+            const isCodeComplete = enteredCode.length === verificationCode.length;
 
-            if (enteredCode === data.data.otp) {
-                setIsValidCode(true);
-                navigation.navigate('Register');
+            if (isCodeComplete) {
+                if (otpID) {
+                    const response = await axios.post('http://10.0.2.2:8087/api/otp', {
+                        otpID: otpID,
+                        enteredOtp: enteredCode,
+                    });
+
+                    const data = response.data;
+
+                    // console.log('Check OTP response:', data);
+                    console.log(firstName);
+                    if (data.data && firstName === "") {
+                        setIsValidCode(true);
+                        console.log('Code is valid. Navigating to Register.');
+                        navigation.navigate('Register');
+                    } else if (data.data && firstName !== "") {
+                        setIsValidCode(true);
+                        navigation.navigate('Tabs');
+                    } else {
+                        setIsValidCode(false);
+                        console.log('Code is invalid.');
+                    }
+
+                } else {
+                    console.error('otpID is null');
+                }
             } else {
-                setIsValidCode(false);
+                setIsValidCode(true);
             }
         } catch (error) {
             console.error('Error fetching OTP data:', error);
         }
     };
-
 
     const handleInputFocus = (index) => {
         setFocusedInput(index);
@@ -45,6 +93,7 @@ const VerificationCodeScreen = () => {
     const handleInputBlur = () => {
         setFocusedInput(null);
     };
+
 
     return (
 

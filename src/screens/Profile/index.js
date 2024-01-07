@@ -22,6 +22,7 @@ import { useContext, useEffect, useState } from 'react';
 import { ServiceContext } from '../../context/ServiceContext';
 import { userAction } from '../../slices/userSlice';
 import Button from '../../components/button';
+import BackButton from '../../components/backButton';
 
 function Profile({ navigation }) {
     const dispatch = useDispatch();

@@ -7,6 +7,7 @@ import {
     Image,
     Pressable,
     ScrollView,
+    Button,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Card from '../components/card/Card';
@@ -46,8 +47,8 @@ const Home = ({ navigation }) => {
                       .includes(search.toLowerCase()),
               );
 
-    const handleCard = (id, cityId) => {
-        navigation.navigate('Merchant', { id, cityId });
+    const handleCard = (id) => {
+        navigation.navigate('Merchant', { id });
     };
 
     useEffect(() => {
@@ -165,9 +166,7 @@ const Home = ({ navigation }) => {
                             return (
                                 <Card
                                     key={idx}
-                                    onPress={() =>
-                                        handleCard(m.merchantID, cityId)
-                                    }
+                                    onPress={() => handleCard(m.merchantID)}
                                     image={m.image}
                                     title={m.merchantName}
                                 />

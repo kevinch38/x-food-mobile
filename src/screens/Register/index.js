@@ -23,7 +23,7 @@ export default function Register({ navigation }) {
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
     const { users } = useSelector((state) => state.user);
-    const { phoneNumber } = useSelector((state) => state.user);
+    const { phoneNumber } = useSelector((state) => state.ui);
 
     const Schema = yup.object().shape({
         firstName: yup
@@ -83,7 +83,7 @@ export default function Register({ navigation }) {
                                 alert(`We're sorry, that email is taken`);
                             }
                         } catch (error) {
-                            alert(`We're sorry, that email is taken`);
+                            alert(`We're sorry, that email is taken 1`);
                         }
                     }),
                 );

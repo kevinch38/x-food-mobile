@@ -6,35 +6,70 @@ import {
     TouchableOpacity,
     SafeAreaView,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
 import Template from '../../components/background';
 import Color from '../../assets/Color';
 import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectedUserPhoneNumberAction } from '../../slices/uiSlice';
-
+import { setPhoneNumber } from '../../slices/uiSlice';
+import { ServiceContext } from '../../context/ServiceContext';
 
 export default function Login({ navigation }) {
+    const schema = Yup.object({
+        phoneNumber: Yup.string()
+            .min(10, 'Phone Number must be at least 10 digits')
+            .max(16, 'Phone Number must be at most 16 digits')
+            .required('Phone Number is required'),
+    });
+
     const dispatch = useDispatch();
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const user = useSelector(
-        (state) => state.user.selectedUserPhoneNumberAction,
-    );
+    const { userService } = useContext(ServiceContext);
+    const phoneNumberRedux = useSelector((state) => state.ui.phoneNumber);
+    const [isRegistered, setIsRegistered] = useState(false);
 
-    const handleClick = async () => {
-        try {
-            await dispatch(selectedUserPhoneNumberAction(phoneNumber));
+    const {
+        values: { phoneNumber },
+        handleBlur,
+        handleSubmit,
+        setFieldValue,
+        errors,
+    } = useFormik({
+        initialValues: {
+            phoneNumber: phoneNumberRedux,
+        },
+        onSubmit: async (values) => {
+            try {
+                console.log(values.phoneNumber);
+                const formatPhoneNumber = `${values.phoneNumber.substr(3)}`;
+                console.log(formatPhoneNumber);
 
-            if (user) {
-                navigation.navigate('Home');
-            } else {
-                // Jika tidak terdaftar, navigasi ke menu register
-                navigation.navigate('Register');
+                const userResponse = await userService.fetchUserByPhoneNumber(
+                    values.phoneNumber
+                );
+
+                const user = userResponse.data;
+
+                if (user && user.otpID !== null) {
+                    setIsRegistered(true);
+                    console.log("User ditemukan:", user);
+                } else {
+                    setIsRegistered(false);
+                    console.log("ini masuk")
+                    await userService.register(formatPhoneNumber);
+                    console.log("User tidak ditemukan, berhasil didaftarkan");
+                }
+
+                dispatch(setPhoneNumber(values.phoneNumber));
+                navigation.navigate('VerificationCode', { isRegistered });
+            } catch (error) {
+                console.warn('Error during form submission:', error);
             }
-        } catch (error) {
-            console.error('Error checking phone number:', error.message);
-        }
-    };
+        },
+
+        validationSchema: schema,
+    });
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -51,26 +86,35 @@ export default function Login({ navigation }) {
                     <Text style={styles.textPhoneNumber}>Phone Number</Text>
                     <TextInput
                         style={styles.phoneNumberInput}
-                        placeholder="+62"
+                        placeholder="(+62)"
                         keyboardType="phone-pad"
-                        // value={phoneNumber}
-                        onChangeText={setPhoneNumber}
+                        onChangeText={(text) => {
+                            let formattedText = text;
+                            if (text.startsWith('08')) {
+                                formattedText = `+62${text.substr(1)}`;
+
+                            }
+
+                            setFieldValue('phoneNumber', formattedText);
+
+                        }}
+                        onBlur={handleBlur('phoneNumber')}
+                        value={phoneNumber}
                     >
-                        {console.log(phoneNumber)}
-                        +62
                     </TextInput>
+                    {errors.phoneNumber && (
+                        <Text style={styles.errorText}>
+                            {errors.phoneNumber}
+                        </Text>
+                    )}
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={handleClick}
+                        onPress={handleSubmit}
                     >
                         <Text style={styles.textButton}>
                             Receive OTP via SMS
                         </Text>
                     </TouchableOpacity>
-                    <Text style={styles.textAlready}>
-                        Already have an account?{' '}
-                        <Text style={{ color: Color.primary }}>Login</Text>
-                    </Text>
                 </View>
             </View>
         </SafeAreaView>
@@ -116,8 +160,8 @@ const styles = StyleSheet.create({
         height: 50,
         width: 240,
     },
-    textAlready: {
-        alignSelf: 'center',
-        marginVertical: '50%',
+    errorText: {
+        color: 'red',
+        marginTop: 5,
     },
 });

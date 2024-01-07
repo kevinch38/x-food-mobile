@@ -9,6 +9,7 @@ import {
     ActivityIndicator,
     TouchableOpacity,
     Pressable,
+    Button,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import BackButton from '../../components/backButton';
@@ -31,7 +32,6 @@ const Merchant = ({ navigation }) => {
         useContext(ServiceContext);
     const route = useRoute();
     const receivedId = route.params?.id;
-    const cityId = route.params?.cityId;
 
     const [branches, setBranches] = useState([]);
 
@@ -111,7 +111,7 @@ const Merchant = ({ navigation }) => {
                             <View style={styles.outerInnerCircle}>
                                 <Image
                                     source={{
-                                        uri: `data:image/jpeg;base64,${merchant.logoImage}`,
+                                        uri: `data:image/jpeg;base64,${merchant?.logoImage}`,
                                     }}
                                     style={styles.logo}
                                 />

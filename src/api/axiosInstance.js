@@ -1,10 +1,11 @@
 import axios from 'axios';
+import { AsyncStorage } from 'react-native';
 
 const axiosInstance = axios.create();
 
 axiosInstance.interceptors.request.use(
     (config) => {
-        const token = sessionStorage.getItem('token');
+        const token = AsyncStorage.getItem('token');
         config.headers['Authorization'] = `Bearer ${token}`;
         return config;
     },

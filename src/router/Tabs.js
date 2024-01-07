@@ -1,11 +1,11 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Home from '../screens/Home';
 import Profile from '../screens/Profile';
 import { Image } from 'react-native';
 import PinCreationScreen from '../screens/PinCreationScreen';
 import History from '../screens/History';
 import Voucher from '../screens/Voucher';
+import VoucherScreen from "../screens/Loyalty_Point/VoucherScreen";
 
 const Tab = createBottomTabNavigator();
 
