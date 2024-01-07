@@ -1,9 +1,29 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { format } from 'date-fns';
+import VoucherService from "../services/VoucherService";
+import PromotionService from "../services/PromotionService";
 
-const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, points}) => {
+
+const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, points, isMaxRedeemed, promotionID, accountID, voucherEmpty}) => {
     const formattedExpiredDate = format(new Date(expired), 'yyyy/MM/dd');
+    const handleRedeem = async () => {
+        try {
+
+            const voucherService = VoucherService();
+            await voucherService.createVoucher(promotionID, accountID);
+            console.log('Voucher redeemed successfully!');
+        } catch (error) {
+            alert("Vouchers empty or your point not enough !!");
+            console.error('Error redeeming voucher:', error);
+
+        }
+    };
+
+    const handleRedeemAndFetchVoucher = async () => {
+        await handleRedeem();
+    };
+
     return (
         <>
             <View style={styles.card}>
@@ -14,7 +34,6 @@ const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, point
                         </View>
                         <Text style={{marginTop:-36, fontSize:13}}>Vouchers Left : {vouchersLeft}</Text>
                         <Text style={{marginTop:30, fontSize:11}}>Expired Date:{formattedExpiredDate}</Text>
-
                     </View>
                     <View style={{flexDirection:"row", marginLeft:-40, marginTop:10}}>
                         <View>
@@ -24,10 +43,11 @@ const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, point
                         <Text style={{marginLeft:20, fontSize:12, color:'#9796A1'}}>{items} Items</Text>
                         <Text style={{marginLeft:60, color:'#4EE476'}}>{points}</Text>
                     </View>
-
-
-                        <TouchableOpacity style={{marginTop:80, marginLeft:120, position: 'absolute',}}>
-                            <Image source={require('../assets/icons/RedeemButton.png')}/>
+                        <TouchableOpacity style={{marginTop:80, marginLeft:120, position: 'absolute'}} onPress={handleRedeemAndFetchVoucher}>
+                            {isMaxRedeemed || voucherEmpty ?
+                                <Image source={require('../assets/icons/RedeemedButton.png')}/> :
+                                <Image source={require('../assets/icons/RedeemButton.png')}/>
+                            }
                         </TouchableOpacity>
 
                 </View>

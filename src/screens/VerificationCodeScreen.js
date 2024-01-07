@@ -49,27 +49,36 @@ const VerificationCodeScreen = () => {
 
     const checkOTP = async (enteredCode) => {
         try {
-            if (otpID) {
-                const response = await axios.post('http://10.0.2.2:8087/api/otp', {
-                    otpID: otpID,
-                    enteredOtp: enteredCode,
-                });
-                console.log("=======================================")
-                console.log(response.data)
-                const data = response.data;
+            const isCodeComplete = enteredCode.length === verificationCode.length;
 
-                if (data.data && firstName === "") {
-                    setIsValidCode(true);
-                    navigation.navigate('Register');  // Pindah ke Register jika firstName kosong
-                } else if (data.data && firstName !== "") {
-                    setIsValidCode(true);
-                    navigation.navigate('Tabs');  // Pindah ke VerificationCode jika firstName sudah terisi
+            if (isCodeComplete) {
+                if (otpID) {
+                    const response = await axios.post('http://10.0.2.2:8087/api/otp', {
+                        otpID: otpID,
+                        enteredOtp: enteredCode,
+                    });
+
+                    const data = response.data;
+
+                    // console.log('Check OTP response:', data);
+                    console.log(firstName);
+                    if (data.data && firstName === "") {
+                        setIsValidCode(true);
+                        console.log('Code is valid. Navigating to Register.');
+                        navigation.navigate('Register');
+                    } else if (data.data && firstName !== "") {
+                        setIsValidCode(true);
+                        navigation.navigate('Tabs');
+                    } else {
+                        setIsValidCode(false);
+                        console.log('Code is invalid.');
+                    }
+
                 } else {
-                    setIsValidCode(false);
+                    console.error('otpID is null');
                 }
-
             } else {
-                console.error('otpID is null');
+                setIsValidCode(true);
             }
         } catch (error) {
             console.error('Error fetching OTP data:', error);
