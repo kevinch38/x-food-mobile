@@ -1,5 +1,4 @@
-
-import { Modal, StyleSheet, Text, Pressable, View, TextInput } from 'react-native';
+import {BackHandler, Modal, StyleSheet, Text, Pressable, View, TextInput, ActivityIndicator} from 'react-native';
 import PinCreationService from "../services/PinCreationService";
 import {setPin} from "../slices/pinSlice";
 import {useDispatch, useSelector} from "react-redux";
@@ -24,26 +23,54 @@ const PinCreationScreen = ({ navigation }) => {
     const dispatch = useDispatch();
     const [modalVisible, setModalVisible] = React.useState(false);
     const [pinIDExists, setPinIDExists] = React.useState(false);
+    const [pinIDFetched, setPinIDFetched] = React.useState(false);
+    const [isLoading, setIsLoading] = React.useState(false);
     const userService = UserService();
     const [pinID, setPinID]= useState("")
-
-
     useEffect(() => {
-        fetchPinID();
-        fetchUserData(phoneNumber);
-    }, [phoneNumber, pinID]);
-
-        const fetchUserData = async (phoneNumber) => {
-            try {
-                const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
-                console.log('userData:', userData);
-
-                    setPinID(userData.data.pinID);
-
-            } catch (error) {
-                console.error('Error fetching user data1:', error);
-            }
+        const fetchData = async () => {
+            setIsLoading(true);
+            await Promise.all([fetchUserData(phoneNumber), fetchPinID()]);
+            setIsLoading(false);
         };
+
+        fetchData();
+
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+        return () => {
+            backHandler.remove();
+        };
+    }, [phoneNumber, pinID, modalVisible]);
+
+
+    const handleBackPress = () => {
+        if (modalVisible) {
+            setModalVisible(false);
+            return true;
+        }
+        return false;
+    };
+
+    const hideModal = () => {
+        setModalVisible(true);
+    };
+
+    const showModal = () => {
+        setModalVisible(false);
+    };
+
+    const fetchUserData = async (phoneNumber) => {
+        try {
+            const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
+            // console.log('userData:', userData);
+
+            setPinID(userData.data.pinID);
+
+        } catch (error) {
+            console.error('Error fetching user data1:', error);
+        }
+    };
 
     const fetchPinID = async () => {
         try {
@@ -57,32 +84,56 @@ const PinCreationScreen = ({ navigation }) => {
             } else {
                 setPinIDExists(false);
             }
+
+            setPinIDFetched(true); // Menandakan bahwa fetchPinID sudah selesai
         } catch (error) {
             console.error('Error fetching user data2:', error);
         }
     };
 
-    const hideModal = () => {
-        setModalVisible(true);
-    };
 
     const handleFormSubmit = async (values, { resetForm }) => {
-        console.log(values.pinValue);
+        // console.log(values.pinValue);
         try {
             dispatch(setPin(values));
-            hideModal();
+            // hideModal();
             resetForm();
             const response = await PinCreationService(pinID,values.pinValue);
-            console.log('API Response:', response.data);
+            hideModal();
+            // if (values.pinValue){
+            //     showModal();
+            // }
+
+            // console.log('API Response:', response.data);
         } catch (error) {
             console.error('API Error:', error);
         }
     };
 
+
+    console.log('modalVisible:', modalVisible);
+    console.log('pinIDExists:', pinIDExists);
+
+
     return (
         <View style={styles.centeredView}>
             <Home navigation={navigation} />
-            {!modalVisible && pinIDExists !== undefined && !pinIDExists && (
+            {isLoading && (
+                <ActivityIndicator
+                    style={{
+                        position: 'absolute',
+                        zIndex: 2,
+                        width: '100%',
+                        height: '100%',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semitransparent white background
+                    }}
+                    size="large"
+                    color= '#FFC529'
+                />
+            )}
+            {!modalVisible && pinIDFetched && !pinIDExists && !isLoading && (
                 <BlurView
                     intensity={20}
                     tint="light"
@@ -97,8 +148,7 @@ const PinCreationScreen = ({ navigation }) => {
             <Modal
                 animationType="slide"
                 transparent={true}
-                visible={!modalVisible && !pinIDExists}
-                onRequestClose={hideModal}
+                visible={!modalVisible && pinIDFetched && !pinIDExists && !isLoading}
             >
                 <View
                     style={{
@@ -121,13 +171,13 @@ const PinCreationScreen = ({ navigation }) => {
                             onSubmit={handleFormSubmit}
                         >
                             {({
-                                handleChange,
-                                handleBlur,
-                                handleSubmit,
-                                values,
-                                errors,
-                                touched,
-                            }) => (
+                                  handleChange,
+                                  handleBlur,
+                                  handleSubmit,
+                                  values,
+                                  errors,
+                                  touched,
+                              }) => (
                                 <>
                                     <TextInput
                                         style={styles.input}
@@ -137,6 +187,8 @@ const PinCreationScreen = ({ navigation }) => {
                                         onChangeText={handleChange('pinValue')}
                                         onBlur={handleBlur('pinValue')}
                                         value={values.pinValue}
+                                        maxLength={6}
+                                        // keyboardType={'numeric'}
                                     />
                                     {touched.pinValue && errors.pinValue && (
                                         <Text
@@ -159,6 +211,7 @@ const PinCreationScreen = ({ navigation }) => {
                                         )}
                                         onBlur={handleBlur('confirmPinValue')}
                                         value={values.confirmPinValue}
+                                        maxLength={6}
                                     />
                                     {touched.confirmPinValue &&
                                         errors.confirmPinValue && (
@@ -250,7 +303,3 @@ const styles = StyleSheet.create({
 });
 
 export default PinCreationScreen;
-
-
-
-
