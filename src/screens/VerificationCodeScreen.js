@@ -26,7 +26,6 @@ const VerificationCodeScreen = () => {
     const fetchOtpID = async (phoneNumber) => {
         try {
             const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
-            console.log('userData:', userData);
 
             if (userData && userData.data.otpID) {
                 setFirstName(userData.data.firstName);
@@ -55,21 +54,18 @@ const VerificationCodeScreen = () => {
                     otpID: otpID,
                     enteredOtp: enteredCode,
                 });
-
+                console.log("=======================================")
+                console.log(response.data)
                 const data = response.data;
 
-                console.log('Check OTP response:', data);
-                console.log(firstName);
                 if (data.data && firstName === "") {
                     setIsValidCode(true);
-                    console.log('Code is valid. Navigating to Register.');
                     navigation.navigate('Register');  // Pindah ke Register jika firstName kosong
                 } else if (data.data && firstName !== "") {
                     setIsValidCode(true);
                     navigation.navigate('Tabs');  // Pindah ke VerificationCode jika firstName sudah terisi
                 } else {
                     setIsValidCode(false);
-                    console.log('Code is invalid.');
                 }
 
             } else {

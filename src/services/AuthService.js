@@ -9,9 +9,6 @@ const AuthService = () => {
             'http://10.0.2.2:8083/api/auth/login',
             user,
         );
-        if (data.token) {
-            await AsyncStorage.setItem(TOKEN_KEY, data.token);
-        }
         return data;
     };
 
@@ -30,27 +27,7 @@ const AuthService = () => {
         return AsyncStorage.getItem(TOKEN_KEY);
     };
 
-    // const fetchUserByPhoneNumber = async (phoneNumber) => {
-    //     const { data } = await axios.get(
-    //         `http://10.0.2.2:8083/api/users/${phoneNumber}`,
-    //     );
-    //     return data;
-    // };
-
-    // return { fetchUserByPhoneNumber };
-    const fetchUserByPhoneNumber = async (phoneNumber) => {
-        try {
-            const { data } = await axios.get(
-                `http://10.0.2.2:8083/api/users/${phoneNumber}`,
-            );
-            return data;
-        } catch (error) {
-            throw error;
-        }
-    };
-
     return {
-        fetchUserByPhoneNumber,
         login,
         logout,
         getUserInfo,

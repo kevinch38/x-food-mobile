@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
   image: {
     position: "absolute",
-    width: 400,
+    width: 420,
     height: 1000,
     objectFit: "cover",
   },
