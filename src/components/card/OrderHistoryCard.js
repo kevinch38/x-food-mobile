@@ -33,7 +33,7 @@ const OrderHistoryCard = ({image,items, title, date, status, orderValue, isSplit
                             <Text style={{fontSize:12, color:'#9796A1'}}>{date}</Text>
                             <View style={{flexDirection:"row"}}>
                                 <Text style={{fontWeight:900, fontSize:16}}>{title}</Text>
-                                <Text style={{marginLeft:14, fontSize:10, marginTop:3}}>{isSplit ? `Split` : ``}</Text>
+                                <Text style={{marginLeft:14, fontSize:10, marginTop:3}}>{isSplit ? `` : `Split`}</Text>
                             </View>
                             <Text style={{fontWeight:900, fontSize:12, color: statusColor}}>{status}</Text>
 
