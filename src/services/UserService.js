@@ -36,12 +36,16 @@ const UserService = () => {
         return data;
     };
 
-    const updateUser = async (newUser) => {
-        const { data } = await axios.put(
-            `http://10.0.2.2:8087/api/users`,
-            newUser,
-        );
-        return data;
+    const updateUser = async (user) => {
+        try {
+            const { data } = await axios.put(
+                `http://10.0.2.2:8087/api/users`,
+                user,
+            );
+            return data;
+        } catch (error) {
+            throw error.data || error;
+        }
     };
 
     const fetchPinByPinID = async (pinID) => {

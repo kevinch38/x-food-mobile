@@ -9,6 +9,7 @@ import {
     ActivityIndicator,
     TouchableOpacity,
     Pressable,
+    Button,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import BackButton from '../../components/backButton';
@@ -31,7 +32,7 @@ const Merchant = ({ navigation }) => {
         useContext(ServiceContext);
     const route = useRoute();
     const receivedId = route.params?.id;
-    const cityId = route.params?.cityId;
+
     const [branches, setBranches] = useState([]);
 
     const [isLoading, setIsLoading] = useState(true);
@@ -58,7 +59,7 @@ const Merchant = ({ navigation }) => {
                 setIsLoading(true);
 
                 await dispatch(
-                    selectUserByPhoneNumberAction(() =>
+                    selectedMerchantAction(() =>
                         merchantService.fetchMerchantById(receivedId),
                     ),
                 );
@@ -108,7 +109,12 @@ const Merchant = ({ navigation }) => {
                     <View style={styles.wrapperProfile}>
                         <View style={styles.outerCircle}>
                             <View style={styles.outerInnerCircle}>
-                                <Image source={Logo} style={styles.logo} />
+                                <Image
+                                    source={{
+                                        uri: `data:image/jpeg;base64,${merchant?.logoImage}`,
+                                    }}
+                                    style={styles.logo}
+                                />
                             </View>
                             <View style={styles.wrapperCamera}>
                                 <Image
@@ -151,6 +157,7 @@ const Merchant = ({ navigation }) => {
                                     image={b.image}
                                     onPress={() => handleToMenu(b.branchID)}
                                     branchName={b.branchName}
+                                    image={b.image}
                                     branchAddress={b.branchAddress}
                                 />
                             );

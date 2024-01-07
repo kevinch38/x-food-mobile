@@ -9,21 +9,28 @@ import {
     View,
 } from 'react-native';
 import BackButton from '../../components/backButton';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import * as Icon from 'react-native-feather';
 import { theme } from '../../theme';
 import InputText from '../../components/inputText';
 import { SelectCountry } from 'react-native-element-dropdown';
 import Button from '../../components/button';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     addToCart,
+    emptyCart,
+    removeAll,
     removeFromCart,
     selectCartItems,
     selectCartItemsById,
     selectCartTotal,
 } from '../../slices/cartSlice';
+import * as yup from 'yup';
+import { useFormik } from 'formik';
+import { userAction } from '../../slices/userSlice';
+import { ServiceContext } from '../../context/ServiceContext';
+import Loading from '../../components/loading';
+import { createOrderAction } from '../../slices/orderSlice';
 
 function Cart({ navigation }) {
     const dispatch = useDispatch();
@@ -31,59 +38,210 @@ function Cart({ navigation }) {
     const cartItems = useSelector(selectCartItems);
     const cartTotal = useSelector(selectCartTotal);
     const [groupedItems, setGroupedItems] = useState({});
-    const handleIncrease = (itemID) => {
-        dispatch(addToCart({ id: itemID }));
-    };
-
-    const handleDecrease = (itemID) => {
-        dispatch(removeFromCart({ id: itemID }));
-    };
-
-    const data = [
-        {
-            image: require('../../assets/images/voucher-img.png'),
-            label: 'Voucher 20,000 Off',
-            value: '1',
-        },
-        {
-            image: require('../../assets/images/voucher-img.png'),
-            label: 'Voucher 10,000 Off',
-            value: '2',
-        },
-        {
-            image: require('../../assets/images/voucher-img.png'),
-            label: 'Voucher 5,000 Off',
-            value: '3',
-        },
-        {
-            image: require('../../assets/images/voucher-img.png'),
-            label: 'Voucher 20,000 Off',
-            value: '4',
-        },
-    ];
+    const { users } = useSelector((state) => state.user);
+    const { selectedBranch } = useSelector((state) => state.merchantBranch);
+    const [sale, setSale] = useState('');
+    const [nameVoucher, setNameVoucher] = useState('');
+    const { userService, orderService } = useContext(ServiceContext);
+    const [vouchers, setVouchers] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
 
     useEffect(() => {
-        const items = cartItems.reduce((group, item) => {
-            if (group[item.itemID]) {
-                group[item.itemID].push(item);
+        setVouchers(users?.vouchers);
+    }, [users]);
+
+    useEffect(() => {
+        const onGetUserByPhoneNumber = async () => {
+            try {
+                setIsLoading(true);
+
+                await dispatch(
+                    userAction(() =>
+                        userService.fetchUserByPhoneNumber(phoneNumber),
+                    ),
+                );
+
+                setIsLoading(false);
+            } catch (error) {
+                console.error('Error fetching user:', error);
+                setIsLoading(false);
+            }
+        };
+        onGetUserByPhoneNumber();
+    }, [dispatch, userService]);
+
+    const Schema = yup.object().shape({
+        tableNumber: yup.number().required('No Table Required'),
+    });
+
+    const { values, errors, touched, handleSubmit } = useFormik({
+        initialValues: {
+            accountID: null,
+            orderValue: 0,
+            orderNote: '',
+            tableNumber: 0,
+            branchID: '',
+            orderItems: [],
+        },
+        onSubmit: async (values) => {
+            if (cartItems.length > 0) {
+                if (users.accountID) {
+                    try {
+                        const groupedOrderItem = cartItems.reduce(
+                            (grouped, item) => {
+                                const key =
+                                    item.itemID +
+                                    JSON.stringify(
+                                        item.itemVarieties
+                                            .map(
+                                                (variety) =>
+                                                    variety.subVarietyID,
+                                            )
+                                            .sort(),
+                                    );
+                                if (!grouped[key]) {
+                                    grouped[key] = {
+                                        itemID: item.itemID,
+                                        subVarieties: item.itemVarieties.map(
+                                            (variety) => ({
+                                                subVarietyID:
+                                                    variety.subVarietyID,
+                                            }),
+                                        ),
+                                        quantity: 0,
+                                    };
+                                }
+                                grouped[key].quantity += 1;
+                                return grouped;
+                            },
+                            {},
+                        );
+
+                        const result = Object.values(groupedOrderItem);
+
+                        const orderItems = {
+                            accountID: users.accountID,
+                            orderValue: cartTotal - sale,
+                            notes: values.orderNote,
+                            tableNumber: values.tableNumber,
+                            branchID: selectedBranch.branchID,
+                            orderItems: result,
+                        };
+                        dispatch(
+                            createOrderAction(async () => {
+                                //         const result =
+                                //             await orderService.orderItem(orderItems);
+                                //         console.log(result, 'ini result');
+                                //     }),
+                                // );
+                                try {
+                                    const result =
+                                        await orderService.orderItem(
+                                            orderItems,
+                                        );
+                                    console.log(result, 'ini result');
+                                    if (result.statusCode === 201) {
+                                        navigation.navigate('Pin', {
+                                            accountID: result.data.accountID,
+                                            orderID: result.data.orderID,
+                                        });
+                                        dispatch(emptyCart());
+                                        return result;
+                                    }
+                                    return null;
+                                } catch (e) {
+                                    console.log('error e', e);
+                                }
+                            }),
+                        );
+                    } catch (e) {
+                        console.error('error e', e);
+                    }
+                }
             } else {
-                group[item.itemID] = [item];
+                alert('Cart Empty');
+            }
+        },
+
+        validationSchema: Schema,
+    });
+
+    const handleIncrease = (item) => {
+        dispatch(addToCart(item));
+    };
+
+    const handleDecrease = (item) => {
+        dispatch(
+            removeFromCart({
+                itemID: item.itemID,
+                itemVarieties: item.itemVarieties,
+            }),
+        );
+    };
+
+    useEffect(() => {
+        const groupedItems = cartItems.reduce((group, item) => {
+            const variety = Array.isArray(item.itemVarieties)
+                ? item.itemVarieties
+                      .map((variety) => variety.subVarietyID)
+                      .join('-')
+                : 'No Variety';
+            const key = item.itemID + '-' + variety;
+            if (group[key]) {
+                group[key].push(item);
+            } else {
+                group[key] = [item];
             }
             return group;
         }, {});
-        setGroupedItems(items);
+
+        const mergedGroupedItems = Object.values(groupedItems).reduce(
+            (finalGroup, itemsArray) => {
+                const firstItem = itemsArray[0];
+                const matchingItems = finalGroup.find(
+                    (groupedItem) =>
+                        groupedItem.itemID === firstItem.itemID &&
+                        groupedItem.itemVarieties.join('-') ===
+                            firstItem.itemVarieties
+                                .map((variety) => variety.subVarietyID)
+                                .join('-'),
+                );
+
+                if (matchingItems) {
+                    matchingItems.items.push(...itemsArray);
+                } else {
+                    finalGroup.push({
+                        itemID: firstItem.itemID,
+                        itemVarieties: firstItem.itemVarieties.map(
+                            (variety) => variety.subVarietyID,
+                        ),
+                        items: itemsArray,
+                    });
+                }
+
+                return finalGroup;
+            },
+            [],
+        );
+
+        setGroupedItems(mergedGroupedItems);
     }, [cartItems]);
 
     const handleBack = () => {
         navigation.navigate('Menu');
     };
 
-    const handleClose = (itemId) => {
-        dispatch(removeFromCart({ id: itemId }));
+    const handleClose = (item) => {
+        const { itemID, itemVarieties } = item;
+        dispatch(removeAll({ itemID: itemID, itemVarieties: itemVarieties }));
     };
 
-    const handleCheckout = () => {
-        navigation.navigate('Pin');
+    const findVarietyName = (varieties, subVarietyID) => {
+        const variety = varieties.find(
+            (variety) => variety.subVarietyID === subVarietyID,
+        );
+        return variety ? variety.subVarName : 'Unknown Variety';
     };
 
     const renderHeader = () => {
@@ -99,11 +257,11 @@ function Cart({ navigation }) {
 
     const renderCart = () => {
         return Object.entries(groupedItems).map(([key, items]) => {
-            const item = items[0];
+            const item = items.items[0];
             return (
                 <View style={styles.sectionContainer} key={key}>
                     <Image
-                        source={require('../../assets/images/menu-cart.png')}
+                        source={{ uri: `data:image/jpeg;base64,${item.image}` }}
                         style={styles.imageCart}
                     />
                     <View style={styles.menuContainer}>
@@ -111,9 +269,7 @@ function Cart({ navigation }) {
                             <Text style={styles.titleMenu}>
                                 {item.itemName}
                             </Text>
-                            <TouchableOpacity
-                                onPress={() => handleClose(item.itemID)}
-                            >
+                            <TouchableOpacity onPress={() => handleClose(item)}>
                                 <Icon.X
                                     width={17}
                                     height={17}
@@ -123,14 +279,26 @@ function Cart({ navigation }) {
                             </TouchableOpacity>
                         </View>
                         <Text style={styles.toppings}>
-                            {item.itemDescription}
+                            {item.itemVarieties
+                                ? item.itemVarieties
+                                      .map((variety) =>
+                                          findVarietyName(
+                                              item.itemVarieties,
+                                              variety.subVarietyID,
+                                          ),
+                                      )
+                                      .join(' , ')
+                                : 'No Varieties'}
                         </Text>
                         <View style={styles.priceSection}>
                             <Text style={styles.priceMenu}>
-                                Rp. {item.initialPrice}
+                                Rp.{' '}
+                                {item.isDiscounted
+                                    ? item.discountedPrice
+                                    : item.initialPrice}
                             </Text>
                             <View style={styles.counter}>
-                                {order === cartTotal.length ? (
+                                {order === items.items.length ? (
                                     <TouchableOpacity disabled>
                                         <Icon.MinusCircle
                                             width={28}
@@ -142,7 +310,7 @@ function Cart({ navigation }) {
                                 ) : (
                                     <TouchableOpacity
                                         onPress={() =>
-                                            handleDecrease(item.itemID)
+                                            handleDecrease(items.items[0])
                                         }
                                     >
                                         <Icon.MinusCircle
@@ -153,9 +321,11 @@ function Cart({ navigation }) {
                                         />
                                     </TouchableOpacity>
                                 )}
-                                <Text style={styles.numCounter}>{order}</Text>
+                                <Text style={styles.numCounter}>
+                                    {items.items.length}
+                                </Text>
                                 <TouchableOpacity
-                                    onPress={() => handleIncrease(item.itemID)}
+                                    onPress={() => handleIncrease(item)}
                                 >
                                     <Icon.PlusCircle
                                         width={30}
@@ -181,35 +351,49 @@ function Cart({ navigation }) {
                     label={'Table No'}
                     icon={require('../../assets/icons/chair.png')}
                     keyboardType={'numeric'}
-                    placeholder={'1'}
+                    placeholder={'1                                     '}
+                    value={values.tableNumber}
                 />
+                {touched.tableNumber && errors.tableNumber && (
+                    <Text style={styles.errorText}>{errors.tableNumber}</Text>
+                )}
                 <InputText
                     label={'Note'}
                     placeholder={'example: extra spicy'}
+                    value={values.orderNote}
                 />
             </View>
         );
     };
 
-    const handleDropdown = () => {
-        console.log(data);
-    };
     const renderVoucher = () => {
         return (
             <View style={styles.dropdownContainer}>
+                {/*<Image*/}
+                {/*    source={{*/}
+                {/*        uri: `data:image/png;base64,${vouchers[0].logoImage}`,*/}
+                {/*    }}*/}
+                {/*/>*/}
                 <SelectCountry
                     style={styles.dropdown}
                     placeholderStyle={styles.placeholderStyle}
                     selectedTextStyle={styles.selectedTextStyle}
                     imageStyle={styles.imageStyle}
-                    data={data}
-                    imageField={'image'}
-                    labelField={'label'}
-                    valueField={'value'}
-                    onChange={handleDropdown}
+                    data={vouchers}
+                    imageField={`
+                        uri: "data:image/jpeg;base64,${'logoImage'}",
+                    `}
+                    labelField="promotionName"
+                    valueField="voucherValue"
+                    // onChange={handleDropdown}
                     maxHeight={300}
                     searchPlaceholder="Search..."
                     placeholder={'Select Voucher'}
+                    value={sale}
+                    onChange={(item) => {
+                        setSale(item.voucherValue);
+                        setNameVoucher(item.label);
+                    }}
                 />
             </View>
         );
@@ -220,14 +404,31 @@ function Cart({ navigation }) {
             <View style={styles.subtotalContainer}>
                 <View style={styles.subtotalStyle}>
                     <Text style={styles.textSubtotal}>Subtotal</Text>
-                    <Text style={styles.textSubtotal}>Rp. 155.000</Text>
+                    <Text style={styles.textSubtotal}>Rp. {cartTotal}</Text>
                 </View>
+                {sale ? (
+                    <View style={styles.subtotalStyle}>
+                        <Text style={styles.textSubtotal}>Voucher</Text>
+                        <Text style={styles.textSale}>Rp.- {sale}</Text>
+                    </View>
+                ) : (
+                    <View style={{ display: 'none' }} />
+                )}
                 <View style={styles.totalStyle}>
                     <View style={styles.subtotalStyle}>
                         <Text style={styles.textSubtotal}>Total</Text>
-                        <Text style={styles.textItem}>(2 items)</Text>
+                        <Text
+                            style={styles.textItem}
+                        >{`(${cartItems.length} items)`}</Text>
                     </View>
-                    <Text style={styles.textSubtotal}>Rp. 155.000</Text>
+                    <Text style={styles.textSubtotal}>
+                        Rp.{' '}
+                        {(sale ? cartTotal - sale : cartTotal) < 0
+                            ? 0
+                            : sale
+                              ? cartTotal - sale
+                              : cartTotal}
+                    </Text>
                 </View>
             </View>
         );
@@ -235,11 +436,10 @@ function Cart({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/*<Button title={'tt'} onPress={console.log(cartItems)} />*/}
+            {/*<Button title={'tt'} onPress={console.log(groupedItems)} />*/}
             <ScrollView>
                 {renderHeader()}
                 <View style={styles.sectionWrapper}>
-                    {renderCart()}
                     {renderCart()}
                     {renderInformation()}
                     {renderVoucher()}
@@ -249,7 +449,7 @@ function Cart({ navigation }) {
                     <Button
                         title={'CHECKOUT'}
                         titleStyle={styles.titleStyle}
-                        onPress={handleCheckout}
+                        onPress={handleSubmit}
                     />
                 </View>
             </ScrollView>
@@ -274,6 +474,10 @@ const styles = StyleSheet.create({
         marginTop: 45,
         fontWeight: '500',
         fontSize: 18,
+    },
+    errorText: {
+        color: 'red',
+        marginTop: 5,
     },
     sectionWrapper: {
         paddingHorizontal: 22,
@@ -342,10 +546,11 @@ const styles = StyleSheet.create({
         marginTop: 30,
     },
     dropdown: {
-        height: 65,
+        height: 66,
+        width: '70%',
         borderColor: theme.grey,
         borderWidth: 1,
-        borderRadius: 10,
+        borderRadius: 66 / 2,
         padding: 12,
     },
     placeholderStyle: {
@@ -380,6 +585,11 @@ const styles = StyleSheet.create({
     textSubtotal: {
         fontWeight: '500',
         fontSize: 16,
+    },
+    textSale: {
+        fontWeight: '500',
+        fontSize: 16,
+        color: 'red',
     },
     textItem: {
         fontWeight: '300',

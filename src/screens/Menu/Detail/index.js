@@ -8,9 +8,9 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import BackButton from '../../../components/backButton';
-import { Button } from '@rneui/themed';
+import { Button, CheckBox } from '@rneui/themed';
 import Color from '../../../assets/Color';
 import iconBag from '../../../assets/icons/bag.png';
 import { RoundedCheckbox } from 'react-native-rounded-checkbox';
@@ -19,48 +19,78 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     addToCart,
     removeFromCart,
+    addToTempCart,
+    emptyTempCart,
     selectCartItems,
     selectCartItemsById,
+    removeFromTempCart,
+    addTempCartToCart,
 } from '../../../slices/cartSlice';
 
 const Detail = ({ navigation }) => {
     const dispatch = useDispatch();
     const route = useRoute();
-    const cartItems = useSelector(selectCartItems);
+    // const cartItems = useSelector(selectCartItems);
     const item = route.params?.item;
-
-    let [qty, setQty] = useState(1);
+    const { tempItems } = useSelector((state) => state.cart);
+    const defaultPrice = item.isDiscounted
+        ? item.discountedPrice
+        : item.initialPrice;
     const [itemVariety, setItemVariety] = useState([]);
+    let [price, setPrice] = useState(defaultPrice);
 
     const base64StringImage = `data:image/jpeg;base64,${item.image}`;
 
     const totalItems = useSelector((state) =>
         selectCartItemsById(state, item.itemID),
     );
+
+    // useEffect(() => {
+    //     if (tempItems.length === 0) {
+    //         idxRef.current = 0;
+    //     }
+    // }, [tempItems]);
     const handleIncrease = () => {
-        const cartItem = { ...item, itemVarieties: itemVariety };
-        dispatch(addToCart(cartItem));
+        const cartItem = {
+            ...item,
+            // idx: (idxRef.current += 1),
+            itemVarieties: itemVariety,
+            itemPrice: price,
+        };
+        dispatch(addToTempCart(cartItem));
     };
     const handleDecrease = () => {
-        dispatch(removeFromCart({ id: item.itemID }));
+        dispatch(
+            removeFromTempCart({
+                itemID: item.itemID,
+                itemVarieties: itemVariety,
+            }),
+        );
     };
 
     const handleBack = () => {
         navigation.navigate('Menu');
     };
 
-    const handleVariety = (checked, varietyPrice, varietyName) => {
+    const handleVariety = (checked, varietyPrice, subVariety) => {
+        const newPrice = checked
+            ? defaultPrice + varietyPrice
+            : defaultPrice - varietyPrice;
+        setPrice(newPrice);
+
         if (checked) {
-            setItemVariety([...itemVariety, varietyName]);
+            setItemVariety([...itemVariety, subVariety]);
         } else {
             const updatedItemsVariety = itemVariety.filter(
-                (itemVariety) => itemVariety !== varietyName,
+                (itemVariety) => itemVariety !== subVariety,
             );
             setItemVariety(updatedItemsVariety);
         }
     };
 
     const handleAddToCart = () => {
+        dispatch(addTempCartToCart(tempItems));
+        dispatch(emptyTempCart());
         navigation.navigate('Cart');
     };
 
@@ -88,7 +118,6 @@ const Detail = ({ navigation }) => {
                 >
                     {item.itemName}
                 </Text>
-
                 <View
                     style={{
                         display: 'flex',
@@ -106,7 +135,10 @@ const Detail = ({ navigation }) => {
                         }}
                     >
                         {/*Rp. {price * qty}*/}
-                        Rp. {item.price}
+                        Rp.{' '}
+                        {item.isDiscounted
+                            ? item.discountedPrice
+                            : item.initialPrice}
                     </Text>
 
                     <View style={{ display: 'flex', flexDirection: 'row' }}>
@@ -129,7 +161,7 @@ const Detail = ({ navigation }) => {
                                 marginHorizontal: '8%',
                             }}
                         >
-                            {totalItems.length}
+                            {tempItems.length}
                         </Text>
                         <Button
                             onPress={handleIncrease}
@@ -144,7 +176,6 @@ const Detail = ({ navigation }) => {
                         />
                     </View>
                 </View>
-
                 {item.itemVarieties.map((v, idx) => {
                     return (
                         <View key={idx}>
@@ -202,8 +233,7 @@ const Detail = ({ navigation }) => {
                                                             checked,
                                                             s.subVariety
                                                                 .subVarPrice,
-                                                            s.subVariety
-                                                                .subVarName,
+                                                            s.subVariety,
                                                         )
                                                     }
                                                 />

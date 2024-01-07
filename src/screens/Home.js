@@ -7,6 +7,7 @@ import {
     Image,
     Pressable,
     ScrollView,
+    Button,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Card from '../components/card/Card';
@@ -21,19 +22,16 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { Icon } from '@rneui/themed';
 import { loyaltyPointAction } from '../slices/loyaltyPointSlice';
 import { userAction } from '../slices/userSlice';
-import userService from '../services/UserService';
 
 const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
     const { cities } = useSelector((state) => state.city);
-    const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
     const { users } = useSelector((state) => state.user);
     const { phoneNumber } = useSelector((state) => state.ui);
     const { merchantService, cityService, loyaltyPointService, userService } =
         useContext(ServiceContext);
-    const [value, setValue] = useState('4028c7f08c813f12018c813f1eb20108');
-    const [cityId, setCityId] = useState('ff8080818cc0054c018cc00563680119');
+    const [cityId, setCityId] = useState('8a8ae40b8cd4debc018cd4dec9c70113');
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
 
@@ -45,6 +43,11 @@ const Home = ({ navigation }) => {
         return hasMatchingBranch;
     });
 
+    console.log('users => ', users);
+     console.log('phoneNUmber => ', phoneNumber);
+    
+
+
     const filteredSearchMerchants =
         search.trim() === ''
             ? filteredMerchants
@@ -54,8 +57,8 @@ const Home = ({ navigation }) => {
                       .includes(search.toLowerCase()),
               );
 
-    const handleCard = (id, cityId) => {
-        navigation.navigate('Merchant', { id, cityId });
+    const handleCard = (id) => {
+        navigation.navigate('Merchant', { id });
     };
 
     useEffect(() => {
@@ -214,9 +217,7 @@ const Home = ({ navigation }) => {
                             return (
                                 <Card
                                     key={idx}
-                                    onPress={() =>
-                                        handleCard(m.merchantID, cityId)
-                                    }
+                                    onPress={() => handleCard(m.merchantID)}
                                     image={m.image}
                                     title={m.merchantName}
                                 />

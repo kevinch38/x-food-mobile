@@ -1,34 +1,34 @@
 import {
-    View,
-    Text,
-    SafeAreaView,
-    StyleSheet,
-    StatusBar,
     Image,
-    ActivityIndicator,
-    Button,
+    SafeAreaView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import BackButton from '../../components/backButton';
-import MenuOne from '../../assets/images/menu-1.png';
 import iconBag from '../../assets/icons/bag.png';
-import { TouchableOpacity } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import Logo from '../../assets/images/mechant-logo.png';
 import { selectedMerchantBranchAction } from '../../slices/merchantBranch';
-import Color from '../../assets/Color';
 import Loading from '../../components/loading';
 import CardMenu from '../../components/card/CardMenu';
+import { selectCartTotal } from '../../slices/cartSlice';
 
 const Menu = ({ navigation }) => {
     const dispatch = useDispatch();
     const branch = useSelector((state) => state.merchantBranch.selectedBranch);
+    const merchant = useSelector((state) => state.merchant.selectedMerchant);
     const { merchantBranchService } = useContext(ServiceContext);
     const route = useRoute();
     const branchId = route.params?.branchId;
+
+    const cartTotal = useSelector(selectCartTotal);
 
     const [isLoading, setIsLoading] = useState(true);
 
@@ -77,7 +77,12 @@ const Menu = ({ navigation }) => {
                         <View style={styles.wrapperProfile}>
                             <View style={styles.outerCircle}>
                                 <View style={styles.outerInnerCircle}>
-                                    <Image source={Logo} style={styles.logo} />
+                                    <Image
+                                        source={{
+                                            uri: `data:image/jpeg;base64,${merchant.logoImage}`,
+                                        }}
+                                        style={styles.logo}
+                                    />
                                 </View>
                             </View>
                         </View>
@@ -180,10 +185,11 @@ const Menu = ({ navigation }) => {
                                         fontSize: 16,
                                     }}
                                 >
-                                    Rp 155.000
+                                    Rp {cartTotal}
                                 </Text>
                             </View>
-                            <View
+                            <TouchableOpacity
+                                onPress={handleToCart}
                                 style={{
                                     height: '100%',
                                     width: 128,
@@ -201,7 +207,7 @@ const Menu = ({ navigation }) => {
                                 >
                                     Checkout
                                 </Text>
-                            </View>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>
@@ -248,10 +254,10 @@ const styles = StyleSheet.create({
         elevation: 16,
     },
     logo: {
-        height: 200,
-        width: 200,
-        borderRadius: 180 / 2,
-        margin: 9,
+        height: 190,
+        width: 190,
+        borderRadius: 190 / 2,
+        margin: 15,
     },
 });
 

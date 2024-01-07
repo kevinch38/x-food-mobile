@@ -21,6 +21,10 @@ export const selectedUserPhoneNumberAction = createAsyncThunk(
         return response;
     },
 );
+export const selectUserByPhoneNumberAction = createAsyncThunk(
+    'user/selectUserByPhoneNumber',
+    RequestHelper,
+);
 
 const userSlice = createSlice({
     name: 'user',
@@ -28,6 +32,7 @@ const userSlice = createSlice({
         users: {},
         selectedUser: null,
         registerUser: null,
+        phoneNumber: '+6281239124111',
     },
     extraReducers: (builder) => {
         builder.addCase(userAction.fulfilled, (state, { payload }) => {
@@ -46,16 +51,17 @@ const userSlice = createSlice({
                     state.registerUser = payload.data;
                 }
             })
-            .addCase(userAction.rejected, ({ payload }) => {
+            .addCase(userRegisterAction.rejected, ({ payload }) => {
                 const errorPayload = payload;
                 if (
                     errorPayload &&
                     errorPayload.response &&
                     errorPayload.response.status === 409
                 ) {
-                    alert('Email sudah terpakai');
+                    console.log(`we're sorry, that email taken`);
                 } else {
                     alert(errorPayload);
+                    // console.log(errorPayload, 'error slice payload');
                 }
             });
         builder.addCase(

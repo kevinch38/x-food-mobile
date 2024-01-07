@@ -1,14 +1,8 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import React from 'react';
-import Login from '../screens/Login';
-import Splash from '../screens/Splash';
-import Welcome from '../screens/Welcome';
-import Register from '../screens/Register';
 import Profile from '../screens/Profile';
 import EditProfile from '../screens/Profile/EditProfile';
-import PinCreationScreen from '../screens/PinCreationScreen';
-import VerificationCodeScreen from '../screens/VerificationCodeScreen';
 import Tabs from './Tabs';
 import CompleteProfile from '../screens/Profile/CompleteProfile';
 import History from '../screens/History';
@@ -19,8 +13,19 @@ import Pin from '../screens/Pin';
 import MerchantBranch from '../screens/MerchantBranch';
 import Menu from '../screens/Menu';
 import Detail from '../screens/Menu/Detail';
-import Redeem from '../screens/Voucher/Redeem';
+import Payment from '../screens/Payment';
+import MerchantConfirm from '../screens/MerchantConfirm';
+import Complete from '../screens/Complete';
+import EReceipt from '../screens/EReceipt';
+import Redeem from "../screens/Voucher/Redeem";
+import Welcome from "../screens/Welcome"
+import Splash from '../screens/Splash'
+import Login from '../screens/Login'
+import Register from '../screens/Register'
+import VerificationCodeScreen from '../screens/VerificationCodeScreen'
+import PinCreationScreen from '../screens/PinCreationScreen';
 import ChangePin from '../screens/Pin/ChangePin';
+
 
 const Stack = createStackNavigator();
 
@@ -70,6 +75,13 @@ const Navigation = () => {
                     component={Pin}
                 />
                 <Stack.Screen name={'ChangePin'} component={ChangePin} />
+                <Stack.Screen name="EReceipt" component={EReceipt} />
+                <Stack.Screen name="Complete" component={Complete} />
+                <Stack.Screen
+                    name="MerchantConfirm"
+                    component={MerchantConfirm}
+                />
+                <Stack.Screen name="Payment" component={Payment} />
             </Stack.Navigator>
         </NavigationContainer>
     );

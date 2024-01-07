@@ -9,6 +9,7 @@ import merchantBranchSlice from './src/slices/merchantBranch';
 import loyaltyPointSlice from './src/slices/loyaltyPointSlice';
 import authSlice from './src/slices/authSlice';
 import { cartSlice } from './src/slices/cartSlice';
+import orderSlice from './src/slices/orderSlice';
 
 const setupStore = () =>
     configureStore({
@@ -22,6 +23,7 @@ const setupStore = () =>
             auth: authSlice.reducer,
             loyaltyPoint: loyaltyPointSlice.reducer,
             cart: cartSlice.reducer,
+            order: orderSlice.reducer,
         },
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware().concat(asyncMiddlewareAction),
