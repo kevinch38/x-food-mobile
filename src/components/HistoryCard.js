@@ -1,7 +1,7 @@
 import {Text, View, StyleSheet, Image} from "react-native";
 import React from "react";
 
-const HistoryCard = ({image, date, title, content}) => {
+const HistoryCard = ({image, date, title, content, amount}) => {
     return(
         <>
         <View style={styles.card}>
@@ -13,7 +13,10 @@ const HistoryCard = ({image, date, title, content}) => {
             <View style={{flexDirection:"column", justifyContent:"center", marginLeft:10}}>
                 <Text style={{fontWeight:400, color:'#9796A1', fontSize:12}}>{date}</Text>
                 <Text style={{fontWeight:900, fontSize:16}}>{title}</Text>
-                <Text style={{fontWeight:500, fontSize:15}}>{content}</Text>
+                <View style={{flexDirection:"row"}}>
+                    <Text style={{fontWeight:500, fontSize:15}}>{content}</Text>
+                    <Text style={{marginLeft:3, fontWeight:500, fontSize:15}}>{amount}</Text>
+                </View>
             </View>
 
         </View>

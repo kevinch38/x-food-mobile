@@ -87,6 +87,8 @@ const Redeem = () => {
 
     };
 
+    console.log(promotions);
+
 
 
     useEffect(() => {

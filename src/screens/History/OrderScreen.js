@@ -29,7 +29,6 @@ const OrderScreen = () => {
     const fetchUserData = async (phoneNumber) => {
         try {
             const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
-            console.log('userData:', userData.data.accountID);
             const accountID = userData.data.accountID;
             setId(accountID);
 
@@ -41,29 +40,29 @@ const OrderScreen = () => {
     const getAllOrderHistories = async () => {
         try {
             const historyOrder = await historyService.getAllOrderByAccountId(id);
-            console.log("History :", historyOrder);
             setOrder(historyOrder.data);
-            console.log("data =====>", order);
 
         } catch (error) {
             console.error('Error fetching user data2:', error);
         }
     }
 
+    console.log(order);
+
 
     return (
       <View style={{margin:5}}>
             <ScrollView>
                 {order.map((orderItem, index) => (
-                    // key={index}
                     <TouchableOpacity  key={index}>
                         <OrderHistoryCard
                             image={orderItem.image}
-                            items={orderItem.items}
+                            items={orderItem.quantity}
                             title={orderItem.merchantName}
                             date={format(new Date(orderItem.createdAt), "dd MMM, HH:mm")}
                             status={orderItem.orderStatus}
                             orderValue={orderItem.orderValue}
+                            isSplit={orderItem.isSplit}
                         />
                     </TouchableOpacity>
 
