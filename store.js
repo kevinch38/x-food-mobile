@@ -10,6 +10,7 @@ import loyaltyPointSlice from './src/slices/loyaltyPointSlice';
 import authSlice from './src/slices/authSlice';
 import { cartSlice } from './src/slices/cartSlice';
 import orderSlice from './src/slices/orderSlice';
+import balanceSlice from './src/slices/balanceSlice';
 
 const setupStore = () =>
     configureStore({
@@ -24,6 +25,7 @@ const setupStore = () =>
             loyaltyPoint: loyaltyPointSlice.reducer,
             cart: cartSlice.reducer,
             order: orderSlice.reducer,
+            balance: balanceSlice.reducer,
         },
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware().concat(asyncMiddlewareAction),

@@ -22,16 +22,23 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { Icon } from '@rneui/themed';
 import { loyaltyPointAction } from '../slices/loyaltyPointSlice';
 import { userAction } from '../slices/userSlice';
+import { fetchBalanceAction } from '../slices/balanceSlice';
 
 const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
-        const { cities } = useSelector((state) => state.city);
-        const { users } = useSelector((state) => state.user);
-        const { phoneNumber } = useSelector((state) => state.ui);
-        const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
-    const { merchantService, cityService, loyaltyPointService, userService } =
-        useContext(ServiceContext);
+    const { cities } = useSelector((state) => state.city);
+    const { users } = useSelector((state) => state.user);
+    const { phoneNumber } = useSelector((state) => state.ui);
+    const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
+    const { balance } = useSelector((state) => state.balance);
+    const {
+        merchantService,
+        cityService,
+        loyaltyPointService,
+        userService,
+        balanceService,
+    } = useContext(ServiceContext);
     const [cityId, setCityId] = useState('8a8ae40b8cd4debc018cd4dec9c70113');
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
@@ -43,11 +50,6 @@ const Home = ({ navigation }) => {
         );
         return hasMatchingBranch;
     });
-
-    console.log('users => ', users);
-     console.log('phoneNUmber => ', phoneNumber);
-    
-
 
     const filteredSearchMerchants =
         search.trim() === ''
@@ -96,13 +98,28 @@ const Home = ({ navigation }) => {
             );
         };
 
+        const onGetBalanceUser = async () => {
+            try {
+                dispatch(
+                    fetchBalanceAction(async () => {
+                        const result = balanceService.fetchBalance(
+                            users.balanceID,
+                        );
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetchin balance data: ', e);
+            }
+        };
+
         const onGetLoyaltyPointAmount = () => {
             try {
                 dispatch(
                     loyaltyPointAction(async () => {
                         const result =
                             loyaltyPointService.fetchLoyaltyPointById(
-                                users.loyaltyPointID,
+                                users.loyaltyPoint.loyaltyPointID,
                             );
                         return result;
                     }),
@@ -115,11 +132,13 @@ const Home = ({ navigation }) => {
         onGetUserByPhoneNumber();
         onGetMerchants();
         onGetLoyaltyPointAmount();
+        onGetBalanceUser();
     }, [
         dispatch,
         merchantService,
         loyaltyPointService,
         userService,
+        balanceService,
         Object.keys(users).length,
     ]);
 
@@ -196,7 +215,7 @@ const Home = ({ navigation }) => {
                             style={{ width: 33, height: 19 }}
                             source={require('../assets/images/card.png')}
                         />
-                        <Text>Rp.0</Text>
+                        <Text>Rp. {balance.totalBalance}</Text>
                         <Pressable onPress={handleTopUp}>
                             <Text style={{ color: '#5681A5' }}>TOP UP</Text>
                         </Pressable>

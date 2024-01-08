@@ -32,7 +32,9 @@ function Profile({ navigation }) {
     const { users } = useSelector((state) => state.user);
     const { phoneNumber } = useSelector((state) => state.ui);
     const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
-    const { userService, loyaltyPointService } = useContext(ServiceContext);
+    const { balance } = useSelector((state) => state.balance);
+    const { userService, loyaltyPointService, balanceService } =
+        useContext(ServiceContext);
     const [image, setImage] = useState();
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -46,7 +48,7 @@ function Profile({ navigation }) {
                     loyaltyPointAction(async () => {
                         const result =
                             loyaltyPointService.fetchLoyaltyPointById(
-                                users.loyaltyPointID,
+                                users.loyaltyPoint.loyaltyPointID,
                             );
                         return result;
                     }),
@@ -56,9 +58,31 @@ function Profile({ navigation }) {
             }
         };
 
+        const onGetBalanceUser = async () => {
+            try {
+                dispatch(
+                    fetchBalanceAction(async () => {
+                        const result = balanceService.fetchBalance(
+                            users.balanceID,
+                        );
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetchin balance data: ', e);
+            }
+        };
+
+        onGetBalanceUser();
         onGetUserByPhoneNumber();
         onGetLoyaltyPointAmount();
-    }, [dispatch, userService, loyaltyPointService, Object.keys(users).length]);
+    }, [
+        dispatch,
+        userService,
+        loyaltyPointService,
+        balanceService,
+        Object.keys(users).length,
+    ]);
 
     const onGetUserByPhoneNumber = () => {
         try {
@@ -348,7 +372,9 @@ function Profile({ navigation }) {
                 >
                     <View>
                         <Text style={styles.name}>Balance</Text>
-                        <Text style={styles.textSecond}>Rp 37,000</Text>
+                        <Text style={styles.textSecond}>
+                            Rp {balance.totalBalance}
+                        </Text>
                     </View>
                     <TouchableOpacity
                         onPress={() => navigation.navigate('TopUp')}

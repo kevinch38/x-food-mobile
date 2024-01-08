@@ -115,7 +115,7 @@ const Redeem = ({ navigation }) => {
                     loyaltyPointAction(async () => {
                         const result =
                             loyaltyPointService.fetchLoyaltyPointById(
-                                users.loyaltyPointID,
+                                users.loyaltyPoint.loyaltyPointID,
                             );
                         return result;
                     }),
