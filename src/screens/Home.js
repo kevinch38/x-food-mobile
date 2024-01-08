@@ -26,9 +26,10 @@ import { userAction } from '../slices/userSlice';
 const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
-    const { cities } = useSelector((state) => state.city);
-    const { users } = useSelector((state) => state.user);
-    const { phoneNumber } = useSelector((state) => state.ui);
+        const { cities } = useSelector((state) => state.city);
+        const { users } = useSelector((state) => state.user);
+        const { phoneNumber } = useSelector((state) => state.ui);
+        const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
     const { merchantService, cityService, loyaltyPointService, userService } =
         useContext(ServiceContext);
     const [cityId, setCityId] = useState('8a8ae40b8cd4debc018cd4dec9c70113');

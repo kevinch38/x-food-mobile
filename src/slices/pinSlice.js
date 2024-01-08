@@ -2,11 +2,13 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import RequestHelper from '../services/RequestHelper';
 
 export const pinAction = createAsyncThunk('pin/getPin', RequestHelper);
+export const pinCheckAction = createAsyncThunk('pin/checkPin', RequestHelper);
 
 const initialState = {
     pin: '',
     pinValue: '',
     confirmPinValue: '',
+    checkPin: '',
 };
 
 const pinSlice = createSlice({
@@ -22,6 +24,12 @@ const pinSlice = createSlice({
         builder.addCase(pinAction.fulfilled, (state, { payload }) => {
             if (payload) {
                 state.pin = payload.data;
+            }
+        });
+        builder.addCase(pinCheckAction.fulfilled, (state, { payload }) => {
+            if (payload) {
+                console.log(payload.data, 'data slice update order');
+                state.checkPin = payload.data;
             }
         });
     },

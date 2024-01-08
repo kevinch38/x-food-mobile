@@ -171,8 +171,7 @@ const style = StyleSheet.create({
 
     buttonImage: {
         position: 'absolute',
-        top: 20,
-
+        top: 30,
     },
 });
 

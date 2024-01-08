@@ -6,7 +6,15 @@ const PinService = () => {
         return data;
     };
 
-    return { getPin };
+    const pinCheck = async (user) => {
+        const { data } = await axios.post(
+            `http://10.0.2.2:8087/api/pins`,
+            user,
+        );
+        return data;
+    };
+
+    return { getPin, pinCheck };
 };
 
 export default PinService;

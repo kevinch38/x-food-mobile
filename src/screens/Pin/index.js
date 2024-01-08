@@ -18,7 +18,7 @@ import { useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { userAction } from '../../slices/userSlice';
 import { ServiceContext } from '../../context/ServiceContext';
-import { pinAction } from '../../slices/pinSlice';
+import { pinAction, pinCheckAction } from '../../slices/pinSlice';
 
 function Pin({ navigation }) {
     const dispatch = useDispatch();
@@ -67,14 +67,35 @@ function Pin({ navigation }) {
             const verificationCode =
                 input1 + input2 + input3 + input4 + input5 + input6;
 
-            if (verificationCode === pin.pin) {
-                navigation.navigate('Payment', {
-                    accountID: accountID,
-                    orderID: orderID,
-                });
-            } else {
-                Alert.alert('Verifikasi gagal', 'Kode verifikasi salah.');
-            }
+            dispatch(
+                pinCheckAction(async () => {
+                    try {
+                        const result = await pinService.pinCheck({
+                            pinID: users.pinID,
+                            pin: verificationCode,
+                        });
+
+                        console.log(result, '=== data');
+
+                        if (result.data) {
+                            navigation.navigate('Payment', {
+                                accountID: accountID,
+                                orderID: orderID,
+                            });
+                        } else {
+                            Alert.alert(
+                                'Verifikasi gagal',
+                                'Kode verifikasi salah.',
+                            );
+                        }
+                    } catch (error) {
+                        Alert.alert(
+                            'Verifikasi gagal 1',
+                            'Kode verifikasi salah.',
+                        );
+                    }
+                }),
+            );
         }
     }, [input6]);
     useEffect(() => {

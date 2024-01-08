@@ -25,7 +25,6 @@ const Voucher = ({ navigation }) => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const userService = UserService;
     const [userData, setUserData] = useState({ vouchers: [] });
-    
 
     const dispatch = useDispatch();
     const { users } = useSelector((state) => state.user);
@@ -41,14 +40,14 @@ const Voucher = ({ navigation }) => {
 
     const fetchUserData = async (phoneNumber) => {
         try {
-            const fetchedUserData = await userService().fetchUserByPhoneNumber(phoneNumber);
+            const fetchedUserData =
+                await userService().fetchUserByPhoneNumber(phoneNumber);
             setUserData(fetchedUserData);
             // console.log('userData:', fetchedUserData);
         } catch (error) {
             console.error('Error fetching user data:', error);
         }
     };
-
 
     useEffect(() => {
         const onGetLoyaltyPointAmount = () => {
@@ -69,7 +68,6 @@ const Voucher = ({ navigation }) => {
 
         onGetLoyaltyPointAmount();
     }, [dispatch, loyaltyPointService]);
-
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -125,16 +123,16 @@ const Voucher = ({ navigation }) => {
                         My Vouchers
                     </Text>
                     <ScrollView>
-                        {Array.isArray(userData.vouchers) &&
-                            userData.vouchers.length > 0 &&
-                            userData.vouchers.map((item, idx) => {
+                        {Array.isArray(users.vouchers) &&
+                            users.vouchers.length > 0 &&
+                            users.vouchers.map((item, idx) => {
                                 return (
                                     <VoucherCard
                                         key={idx}
-                                        title={`Discount 20%`}
-                                        content={`20% 0ff`}
-                                        image={Starbuck}
-                                        expired={`Will Expire on 25/10/2024`}
+                                        title={item.promotionName}
+                                        content={item.promotionDescription}
+                                        image={item.logoImage}
+                                        expired={item.expiredDate}
                                     />
                                 );
                             })}

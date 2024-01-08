@@ -102,7 +102,9 @@ const Merchant = ({ navigation }) => {
                     <BackButton onPress={handleBack} />
                     <View style={{ alignItems: 'center' }}>
                         <Image
-                            source={BgMerchantBranch}
+                            source={{
+                                uri: `data:image/jpeg;base64,${merchant?.image}`,
+                            }}
                             style={styles.bgProfile}
                         />
                     </View>
@@ -118,7 +120,7 @@ const Merchant = ({ navigation }) => {
                             </View>
                             <View style={styles.wrapperCamera}>
                                 <Image
-                                    source={Verified}
+                                    source={require('../../assets/images/verified.png')}
                                     style={styles.iconVerified}
                                 />
                             </View>

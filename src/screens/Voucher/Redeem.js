@@ -1,16 +1,17 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View, ScrollView, ActivityIndicator} from "react-native";
-import React, { useState, useEffect } from "react";
-import RedeemCard from "../../components/RedeemCard";
-import Starbuck from "../../../assets/images/starbuck.png";
-import PromotionService from "../../services/PromotionService";
-import UserService from "../../services/UserService";
-import VoucherService from "../../services/VoucherService";
+import React, { useState, useEffect, useContext } from 'react';
+import RedeemCard from '../../components/RedeemCard';
+import Starbuck from '../../../assets/images/starbuck.png';
+import PromotionService from '../../services/PromotionService';
+import UserService from '../../services/UserService';
+import VoucherService from '../../services/VoucherService';
 import { loyaltyPointAction } from '../../slices/loyaltyPointSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
+import BackButton from '../../components/backButton';
+import { useNavigation } from '@react-navigation/native';
 
-
-const Redeem = () => {
+const Redeem = ({ navigation }) => {
     const dispatch = useDispatch();
     const { users } = useSelector((state) => state.user);
     const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
@@ -20,17 +21,16 @@ const Redeem = () => {
     const voucherService = VoucherService();
     const [promotions, setPromotions] = useState([]);
     const userService = UserService();
-    const [id, setId] = useState("");
+    const [id, setId] = useState('');
     const [isMaxRedeemed, setIsMaxRedeemed] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [vouchersLeftData, setVouchersLeftData] = useState({});
     const [isVoucherEmpty, setIsVoucherEmpty] = useState({});
 
     const getAllPromotions = async () => {
-        console.log("Manggil getAllPromotions");
+        console.log('Manggil getAllPromotions');
         try {
-            setIsLoading(true)
-            console.log("=====>",isLoading)
+            setIsLoading(true);
             const userData = await promotionService.getPromotions();
             const fetchedPromotions = userData.data;
 
@@ -45,11 +45,16 @@ const Redeem = () => {
             });
 
             const promises = fetchedPromotions.map(async (promotion) => {
-                const voucher = await voucherService.getVoucherByAccountIDAndPromoID(id, promotion.promotionID);
+                const voucher =
+                    await voucherService.getVoucherByAccountIDAndPromoID(
+                        id,
+                        promotion.promotionID,
+                    );
 
                 setIsMaxRedeemed((prev) => ({
                     ...prev,
-                    [promotion.promotionID]: promotion.maxRedeem <= voucher.data.length,
+                    [promotion.promotionID]:
+                        promotion.maxRedeem <= voucher.data.length,
                 }));
 
                 setIsVoucherEmpty((prev) => ({
@@ -60,17 +65,17 @@ const Redeem = () => {
 
             await Promise.all(promises);
             setIsLoading(false);
-            console.log("====+>", isLoading)
+            console.log('====+>', isLoading);
         } catch (error) {
             console.error('Error fetching user data:', error);
-            alert("Vouchers empty or your point not enough !!");
-
+            alert('Vouchers empty or your point not enough !!');
         }
     };
 
     const fetchUserData = async (phoneNumber) => {
         try {
-            const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
+            const userData =
+                await userService.fetchUserByPhoneNumber(phoneNumber);
             const accountID = userData.data.accountID;
             setId(accountID);
         } catch (error) {
@@ -79,7 +84,6 @@ const Redeem = () => {
     };
 
     const handleRedeemPress = async (promotionID) => {
-
         setVouchersLeftData((prevData) => {
             const newData = { ...prevData };
             newData[promotionID] = newData[promotionID] - 1;
@@ -90,19 +94,16 @@ const Redeem = () => {
 
             return newData;
         });
-
     };
 
-    console.log(promotions);
-
-
+    // console.log(promotions);
 
     useEffect(() => {
         fetchUserData(phoneNumber);
     }, [phoneNumber]);
 
     useEffect(() => {
-        if (id !== "") {
+        if (id !== '') {
             getAllPromotions();
         }
     }, [id]);
@@ -128,6 +129,10 @@ const Redeem = () => {
         getAllPromotions();
     }, [dispatch, loyaltyPointService]);
 
+    const handleBack = () => {
+        navigation.goBack();
+    };
+
     return (
         <>
             {isLoading && (
@@ -142,7 +147,7 @@ const Redeem = () => {
                         backgroundColor: 'rgba(255, 255, 255, 0.8)',
                     }}
                     size="large"
-                    color= '#FFC529'
+                    color="#FFC529"
                 />
             )}
             <View
@@ -152,14 +157,14 @@ const Redeem = () => {
                     marginBottom: -60,
                 }}
             >
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={navigation.goBack()}
-                >
+                <TouchableOpacity style={styles.button} onPress={handleBack}>
                     <Image
                         source={require('../../../assets/images/button.png')}
                     />
                 </TouchableOpacity>
+
+                {/* <BackButton /> */}
+
                 <TouchableOpacity style={styles.button}>
                     <Text
                         style={{
@@ -188,31 +193,50 @@ const Redeem = () => {
                     </Text>
                 </View>
             </View>
-            <View style={{margin:20, display:'flex', justifyContent:'center', alignItems:'center', marginBottom:50}}>
-                <ScrollView style={{marginBottom:50}}>
+            <View
+                style={{
+                    margin: 20,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: 50,
+                }}
+            >
+                <ScrollView style={{ marginBottom: 50 }}>
                     {promotions.map((promotion) => (
                         <RedeemCard
                             key={promotion.promotionID}
                             image={Starbuck}
-                            vouchersLeft={vouchersLeftData[promotion.promotionID] ? vouchersLeftData[promotion.promotionID].toString() : '0'}
+                            vouchersLeft={
+                                vouchersLeftData[promotion.promotionID]
+                                    ? vouchersLeftData[
+                                          promotion.promotionID
+                                      ].toString()
+                                    : '0'
+                            }
                             points={promotion.cost.toString()}
                             items={promotion.quantity.toString()}
                             expired={promotion.expiredDate}
                             title={promotion.promotionName}
-                            isMaxRedeemed={isMaxRedeemed[promotion.promotionID] || false}
-                            voucherEmpty={isVoucherEmpty[promotion.promotionID] || false}
+                            isMaxRedeemed={
+                                isMaxRedeemed[promotion.promotionID] || false
+                            }
+                            voucherEmpty={
+                                isVoucherEmpty[promotion.promotionID] || false
+                            }
                             percenOff={promotion.promotionValue.toString()}
                             accountID={id}
                             promotionID={promotion.promotionID}
-                            onRedeemPress={() => handleRedeemPress(promotion.promotionID)}
+                            onRedeemPress={() =>
+                                handleRedeemPress(promotion.promotionID)
+                            }
                         />
                     ))}
-
                 </ScrollView>
             </View>
         </>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
