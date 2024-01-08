@@ -46,19 +46,18 @@ export default function Login({ navigation }) {
                 console.log(formatPhoneNumber);
 
                 const userResponse = await userService.fetchUserByPhoneNumber(
-                    values.phoneNumber
+                    values.phoneNumber,
                 );
 
                 const user = userResponse.data;
 
                 if (user && user.otpID !== null) {
                     setIsRegistered(true);
-                    console.log("User ditemukan:", user);
                 } else {
                     setIsRegistered(false);
-                    console.log("ini masuk")
+                    console.log('ini masuk');
                     await userService.register(formatPhoneNumber);
-                    console.log("User tidak ditemukan, berhasil didaftarkan");
+                    console.log('User tidak ditemukan, berhasil didaftarkan');
                 }
 
                 dispatch(setPhoneNumber(values.phoneNumber));
@@ -92,16 +91,13 @@ export default function Login({ navigation }) {
                             let formattedText = text;
                             if (text.startsWith('08')) {
                                 formattedText = `+62${text.substr(1)}`;
-
                             }
 
                             setFieldValue('phoneNumber', formattedText);
-
                         }}
                         onBlur={handleBlur('phoneNumber')}
                         value={phoneNumber}
-                    >
-                    </TextInput>
+                    ></TextInput>
                     {errors.phoneNumber && (
                         <Text style={styles.errorText}>
                             {errors.phoneNumber}

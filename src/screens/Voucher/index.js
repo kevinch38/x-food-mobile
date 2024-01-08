@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import { useNavigation } from '@react-navigation/native';
 import { loyaltyPointAction } from '../../slices/loyaltyPointSlice';
-import UserService from "../../services/UserService";
+import UserService from '../../services/UserService';
 
 const Voucher = ({ navigation }) => {
     const navigate = useNavigation();
@@ -40,9 +40,9 @@ const Voucher = ({ navigation }) => {
 
     const fetchUserData = async (phoneNumber) => {
         try {
-            const fetchedUserData = await userService().fetchUserByPhoneNumber(phoneNumber);
+            const fetchedUserData =
+                await userService().fetchUserByPhoneNumber(phoneNumber);
             setUserData(fetchedUserData);
-            // console.log('userData:', fetchedUserData);
         } catch (error) {
             console.error('Error fetching user data:', error);
         }
