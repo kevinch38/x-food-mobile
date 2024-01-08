@@ -14,6 +14,7 @@ const OrderScreen = () => {
     const [isLoading, setIsLoading] = React.useState(false);
     const [id, setId] = useState('');
     const [order, setOrder] = useState([]);
+    const [status, setStatus] = useState({});
 
     useEffect(() => {
         const fetchData = async () => {
@@ -48,7 +49,31 @@ const OrderScreen = () => {
         }
     };
 
-    console.log(order);
+    const getAllOrderHistoriesWithStatus = async () => {
+        order.forEach((or)=> {
+            let status = "";
+            if (or.orderStatus === "WAITING_FOR_PAYMENT") {
+                status = "Waiting for payment";
+            } else if (or.orderStatus === "DONE") {
+                status = "Order Done";
+            } else if (or.orderStatus === "REJECTED"){
+                status = "Order Rejected";
+            } else {
+                status = "Order Failed";
+            }
+
+            setStatus(prevState => ({
+                ...prevState,
+                [or.orderID] : status
+            }))
+        })
+
+
+    }
+
+    useEffect(()=> {
+        getAllOrderHistoriesWithStatus()
+    }, [order]);
 
     return (
         <View style={{ margin: 5 }}>
@@ -63,7 +88,7 @@ const OrderScreen = () => {
                                 new Date(orderItem.createdAt),
                                 'dd MMM, HH:mm',
                             )}
-                            status={orderItem.orderStatus}
+                            status={status[orderItem.orderID]}
                             orderValue={orderItem.orderValue}
                             isSplit={orderItem.isSplit}
                         />

@@ -4,11 +4,13 @@ import React from "react";
 const OrderHistoryCard = ({image,items, title, date, status, orderValue, isSplit}) => {
     let statusColor = '#000';
 
-    if (status === 'WAITING_FOR_PAYMENT') {
+    if (status === 'Waiting for payment') {
         statusColor = '#FFA500';
-    } else if (status === 'DONE') {
+    } else if (status === 'Order Done') {
         statusColor = '#4EE476';
-    } else if (status === 'REJECTED') {
+    } else if (status === 'Order Rejected') {
+        statusColor = '#FF0000';
+    }else {
         statusColor = '#FF0000';
     }
     return (

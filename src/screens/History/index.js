@@ -6,7 +6,7 @@ import PaymentScreen from "./PaymentScreen";
 import TopUpScreen from "./TopUpScreen";
 
 const History = () => {
-    const [activeButton, setActiveButton] = useState(null);
+    const [activeButton, setActiveButton] = useState('button1');
 
     const handleButtonPress = (buttonName) => {
         setActiveButton(buttonName);
