@@ -63,11 +63,11 @@ const VerificationCodeScreen = () => {
 
                     // console.log('Check OTP response:', data);
                     console.log(firstName);
-                    if (data.data && firstName === "") {
+                    if (data.data.check && firstName === "") {
                         setIsValidCode(true);
                         console.log('Code is valid. Navigating to Register.');
                         navigation.navigate('Register');
-                    } else if (data.data && firstName !== "") {
+                    } else if (data.data.check && firstName !== "") {
                         setIsValidCode(true);
                         navigation.navigate('Tabs');
                     } else {
