@@ -5,29 +5,36 @@ import {
     ScrollView,
     StatusBar,
     StyleSheet,
+    Text,
     View,
 } from 'react-native';
-import bgProfile from '../../assets/images/bg-profile.png';
-import photo from '../../assets/images/profile.png';
-import camera from '../../assets/icons/camera.png';
-import Color from '../../assets/Color';
-import Button from '../../components/button';
+import React, { useContext, useEffect, useState } from 'react';
 import { theme } from '../../theme';
-import { useDispatch } from 'react-redux';
-import { useContext, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import { useFormik } from 'formik';
 import { userAction } from '../../slices/userSlice';
-import * as yup from 'yup';
+import { useRoute } from '@react-navigation/native';
+import Button from '../../components/button';
 import InputText from '../../components/inputText';
 import ErrorText from '../../components/errorText';
 import BackButton from '../../components/backButton';
+import * as yup from 'yup';
+import bgProfile from '../../assets/images/bg-profile.png';
+import Color from '../../assets/Color';
 
 function EditProfile({ navigation }) {
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
+    const { users } = useSelector((state) => state.user);
+    const route = useRoute();
+    const phoneNumbers = route.params?.users.phoneNumber;
+    const [image, setImage] = useState();
 
-    const Schema = yup.object().shape({
+    const imageUrl =
+        'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
+
+    const schema = yup.object().shape({
         firstName: yup
             .string()
             .matches('^[a-zA-Z\\s]*$', 'Invalid Firstname')
@@ -51,57 +58,63 @@ function EditProfile({ navigation }) {
     } = useFormik({
         initialValues: {
             accountID: null,
-            ktpID: '',
             accountEmail: '',
-            phoneNumber: '',
-            pinID: '',
-            createdAt: new Date(),
             firstName: '',
             lastName: '',
-            dateOfBirth: '',
-            updatedAt: new Date(),
-            balanceID: '',
-            loyaltyPointID: '',
-            otpID: '',
+            phoneNumber: '',
         },
-        onSubmit: async (values) => {
+        onSubmit: (values) => {
             if (!isValid) return;
 
             dispatch(
                 userAction(async () => {
-                    const result = await userService.updateUser(values);
-                    if (result.statusCode === 200) {
-                        Alert.alert(
-                            'Success',
-                            'Data updated successfully',
-                            [
-                                {
-                                    text: 'Ok',
-                                    onPress: () => {
-                                        navigation.goBack();
+                    try {
+                        const result = await userService.updateUser(values);
+
+                        if (result.statusCode === 200) {
+                            Alert.alert(
+                                'Success',
+                                'Data updated successfully',
+                                [
+                                    {
+                                        text: 'Ok',
+                                        onPress: async () => {
+                                            navigation.goBack();
+                                        },
                                     },
-                                },
-                            ],
-                            { cancelable: false },
-                        );
+                                ],
+                                { cancelable: false },
+                            );
+                        } else {
+                            Alert.alert('Error', 'Failed to update data');
+                        }
+                        const update = { data: { ...users, temp: 'a' } };
+                        return update;
+                    } catch (e) {
+                        console.error('Error update user data: ', e);
+                        Alert.alert('Error', 'Failed to update data');
                     }
-                    return null;
                 }),
             );
         },
-        validationSchema: Schema,
+        validationSchema: schema,
     });
 
-    const handleBack = () => {
-        navigation.goBack();
-    };
-
     useEffect(() => {
-        if ('1') {
+        if (phoneNumbers) {
             dispatch(
                 userAction(async () => {
                     const result =
-                        await userService.fetchUserByPhoneNumber('1');
+                        await userService.fetchUserByPhoneNumber(phoneNumbers);
+
+                    if (result.data.profilePhoto) {
+                        setImage(
+                            `data:image/jpeg;base64,${result.data.profilePhoto}`,
+                        );
+                    } else {
+                        setImage(imageUrl);
+                    }
+
                     const updateData = {
                         ...result.data,
                     };
@@ -110,19 +123,13 @@ function EditProfile({ navigation }) {
                         accountID: updateData.accountID,
                         ktpID: updateData.ktpID,
                         accountEmail: updateData.accountEmail,
-                        phoneNumber: updateData.phoneNumber,
-                        pinID: updateData.pinID,
-                        createdAt: updateData.createdAt,
                         firstName: updateData.firstName,
                         lastName: updateData.lastName,
                         dateOfBirth: updateData.dateOfBirth,
-                        updatedAt: new Date(),
-                        balanceID: updateData.balanceID,
-                        loyaltyPointID: updateData.loyaltyPointID,
-                        otpID: updateData.otpID,
+                        phoneNumber: updateData.phoneNumber,
                     };
-                    setValues(values);
-                    return null;
+                    await setValues(values);
+                    return result;
                 }),
             );
         }
@@ -131,7 +138,7 @@ function EditProfile({ navigation }) {
     const renderHeader = () => {
         return (
             <View>
-                <BackButton onPress={handleBack} />
+                <BackButton onPress={() => navigation.goBack()} />
                 <View style={{ alignItems: 'center' }}>
                     <Image source={bgProfile} style={styles.bgProfile} />
                 </View>
@@ -144,10 +151,23 @@ function EditProfile({ navigation }) {
             <View>
                 <View style={styles.wrapperProfile}>
                     <View style={styles.outerCircle}>
-                        <Image source={photo} style={styles.photo} />
-                        <View style={styles.wrapperCamera}>
-                            <Image source={camera} style={styles.iconCamera} />
-                        </View>
+                        {image ? (
+                            <Image
+                                source={{
+                                    uri: image,
+                                }}
+                                style={styles.photo}
+                            />
+                        ) : (
+                            <Text
+                                style={{
+                                    textAlign: 'center',
+                                    color: '#9ca3af',
+                                }}
+                            >
+                                Loading ...
+                            </Text>
+                        )}
                     </View>
                 </View>
 
@@ -194,13 +214,19 @@ function EditProfile({ navigation }) {
                             labelRequired={'*'}
                             placeholder={'81201234321'}
                             keyboardType={'phone-pad'}
-                            onChangeText={handleChange('phoneNumber')}
                             value={phoneNumber}
                             editable={false}
                         />
-                        {touched.phoneNumber && errors.phoneNumber && (
-                            <ErrorText message={errors.phoneNumber} />
-                        )}
+                    </View>
+
+                    <View>
+                        <Text style={styles.textSecondary}>Pin</Text>
+                        <Text
+                            onPress={() => navigation.navigate('ChangePin')}
+                            style={styles.changePin}
+                        >
+                            Create/Change PIN
+                        </Text>
                     </View>
                 </View>
             </View>
@@ -215,7 +241,7 @@ function EditProfile({ navigation }) {
                     buttonStyle={[
                         styles.customButton,
                         {
-                            opacity: isValid && dirty ? 1 : 0.5,
+                            opacity: isValid && dirty ? 1 : 0.3,
                         },
                     ]}
                     titleStyle={styles.customTitle}
@@ -250,17 +276,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 55,
     },
-    wrapperCamera: {
-        position: 'absolute',
-        backgroundColor: 'white',
-        width: 27,
-        height: 27,
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
-        right: 10,
-        bottom: 2,
-    },
     buttonContainer: {
         alignItems: 'center',
         marginBottom: 60,
@@ -278,10 +293,20 @@ const styles = StyleSheet.create({
     },
     outerCircle: {
         position: 'absolute',
-        height: 108,
-        width: 108,
-        borderRadius: 108 / 2,
-        backgroundColor: 'white',
+        height: 118,
+        width: 118,
+        borderRadius: 118,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.22,
+        shadowRadius: 2.22,
+
+        elevation: 3,
     },
     bgProfile: {
         marginTop: -23,
@@ -292,14 +317,10 @@ const styles = StyleSheet.create({
     },
     photo: {
         position: 'absolute',
-        height: 90,
-        width: 90,
-        borderRadius: 90 / 2,
+        height: 100,
+        width: 100,
+        borderRadius: 100,
         margin: 9,
-    },
-    iconCamera: {
-        width: 11,
-        height: 9.9,
     },
     name: {
         fontWeight: '900',
@@ -307,17 +328,62 @@ const styles = StyleSheet.create({
         marginTop: 13,
     },
     textSecondary: {
-        marginTop: 29,
+        marginTop: 17,
         color: theme.grey,
         fontWeight: '400',
         fontSize: 16,
     },
     customButton: {
-        backgroundColor: Color.secondary,
+        backgroundColor: Color.primary,
     },
     customTitle: {
         fontWeight: 900,
         fontSize: 15,
+    },
+    changePin: {
+        marginTop: 10,
+        fontWeight: '900',
+        fontSize: 15,
+        color: theme.secondary,
+        paddingVertical: 8,
+        width: '40%',
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 12,
+        elevation: 5,
+    },
+    titleModal: {
+        textAlign: 'center',
+        fontSize: 20,
+        fontWeight: '800',
+        marginBottom: 15,
+    },
+    choiceBtnProfile: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    btnOption: {
+        alignItems: 'center',
+        padding: 12,
+        borderRadius: 12,
+        marginHorizontal: 8,
+        backgroundColor: '#f3f4f6',
+    },
+    textBtn: {
+        marginTop: 4,
+        fontSize: 12,
+    },
+    modalOption: {
+        fontSize: 18,
+        marginBottom: 15,
     },
 });
 export default EditProfile;

@@ -29,7 +29,7 @@ export const selectUserByPhoneNumberAction = createAsyncThunk(
 const userSlice = createSlice({
     name: 'user',
     initialState: {
-        users: [],
+        users: {},
         selectedUser: null,
         registerUser: null,
         phoneNumber: '+6281239124111',
@@ -65,17 +65,16 @@ const userSlice = createSlice({
                 }
             });
         builder.addCase(
-            selectUserByPhoneNumberAction.fulfilled,
+            selectedUserPhoneNumberAction.fulfilled,
             (state, { payload }) => {
                 if (payload) {
-                    state.selectUserByPhoneNumberAction = payload;
+                    state.selectedUserPhoneNumberAction = payload;
                 }
             },
         );
         builder.addCase(
-            selectUserByPhoneNumberAction.rejected,
+            selectedUserPhoneNumberAction.rejected,
             (state, action) => {
-                // Handle jika nomor telepon tidak terdaftar
                 console.error(
                     'Error fetching user by phone number:',
                     action.error.message,
@@ -85,5 +84,4 @@ const userSlice = createSlice({
     },
 });
 
-// export const {}
-export default userSlice.reducer;
+export default userSlice;

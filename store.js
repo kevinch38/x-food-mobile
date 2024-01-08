@@ -6,22 +6,26 @@ import asyncMiddlewareAction from './src/middlewares/asyncMiddlewareAction';
 import merchantSlice from './src/slices/merchantSlice';
 import citySlice from './src/slices/citySlice';
 import merchantBranchSlice from './src/slices/merchantBranch';
+import loyaltyPointSlice from './src/slices/loyaltyPointSlice';
 import authSlice from './src/slices/authSlice';
 import { cartSlice } from './src/slices/cartSlice';
 import orderSlice from './src/slices/orderSlice';
+import balanceSlice from './src/slices/balanceSlice';
 
 const setupStore = () =>
     configureStore({
         reducer: {
-            user: userSlice,
+            user: userSlice.reducer,
             merchant: merchantSlice.reducer,
             merchantBranch: merchantBranchSlice.reducer,
             city: citySlice.reducer,
             ui: uiSlice.reducer,
-            pin: pinReducer,
+            pin: pinReducer.reducer,
             auth: authSlice.reducer,
+            loyaltyPoint: loyaltyPointSlice.reducer,
             cart: cartSlice.reducer,
             order: orderSlice.reducer,
+            balance: balanceSlice.reducer,
         },
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware().concat(asyncMiddlewareAction),

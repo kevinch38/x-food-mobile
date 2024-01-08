@@ -41,60 +41,60 @@ export default function Welcome({navigation}) {
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    paddingTop: StatusBar.currentHeight,
-    height: "100%",
-    backgroundColor: "#fff",
-  },
-  layout: {
-    padding: "5%",
-  },
-  image: {
-    position: "absolute",
-    width: 400,
-    height: 1000,
-    objectFit: "cover",
-  },
-  welcomeText: {
-    fontSize: 35,
-    fontWeight: "bold",
-    marginTop: 160,
-  },
-  xfoodText: {
-    fontSize: 35,
-    color: Color.primary,
-  },
-  button: {
-    alignSelf: "center",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.5)",
-    padding: 10,
-    margin: "5%",
-    borderRadius: 40,
-    borderBlockColor: "black",
-    height: "8%",
-    width: "85%",
-  },
-  textButton: {
-    fontWeight: "bold",
-    color: "white",
-  },
-  loginText: {
-    alignSelf: "center",
-    paddingTop: "80%",
-    color: "white",
-  },
-  yourText: {
-    color: "white",
-  },
-  line: {
-    height: 1,
-    backgroundColor: "white",
-    width: "100%",
-    alignSelf: "center",
-    marginTop: 10,
-    marginBottom: 10,
-  },
+    wrapper: {
+        flex: 1,
+        paddingTop: StatusBar.currentHeight,
+        height: '100%',
+        backgroundColor: '#fff',
+    },
+    layout: {
+        padding: '5%',
+    },
+    image: {
+        position: 'absolute',
+        width: '100%',
+        height: 1000,
+        objectFit: 'cover',
+    },
+    welcomeText: {
+        fontSize: 35,
+        fontWeight: 'bold',
+        marginTop: 160,
+    },
+    xfoodText: {
+        fontSize: 35,
+        color: Color.primary,
+    },
+    button: {
+        alignSelf: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+        padding: 10,
+        margin: '5%',
+        borderRadius: 40,
+        borderBlockColor: 'black',
+        height: '8%',
+        width: '85%',
+    },
+    textButton: {
+        fontWeight: 'bold',
+        color: 'white',
+    },
+    loginText: {
+        alignSelf: 'center',
+        paddingTop: '80%',
+        color: 'white',
+    },
+    yourText: {
+        color: 'white',
+    },
+    line: {
+        height: 1,
+        backgroundColor: 'white',
+        width: '100%',
+        alignSelf: 'center',
+        marginTop: 10,
+        marginBottom: 10,
+    },
 });

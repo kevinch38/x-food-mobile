@@ -15,6 +15,8 @@ function InputText({
     editable,
     onBlur,
     inputContainerCustom,
+    maxLength,
+    textInputStyleCustom,
     ...otherProps
 }) {
     const [isFocused, setFocused] = useState(false);
@@ -52,7 +54,7 @@ function InputText({
             >
                 {icon && <Image source={icon} style={styles.iconContainer} />}
                 <TextInput
-                    style={styles.textInput}
+                    style={[styles.textInput, textInputStyleCustom]}
                     placeholder={placeholder}
                     placeholderTextColor={theme.grey}
                     keyboardType={keyboardType}
@@ -64,6 +66,7 @@ function InputText({
                     showSoftInputOnFocus={showSoftInputOnFocus}
                     onChangeText={onChangeText}
                     editable={editable}
+                    maxLength={maxLength}
                 />
             </View>
         </>
@@ -74,6 +77,8 @@ const styles = StyleSheet.create({
     textInput: {
         fontWeight: '400',
         fontSize: 17,
+        width: '100%',
+        height: '100%',
     },
     labelContainer: { flexDirection: 'row', marginTop: 17 },
     label: {

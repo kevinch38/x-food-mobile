@@ -24,6 +24,8 @@ import Login from '../screens/Login'
 import Register from '../screens/Register'
 import VerificationCodeScreen from '../screens/VerificationCodeScreen'
 import PinCreationScreen from '../screens/PinCreationScreen';
+import ChangePin from '../screens/Pin/ChangePin';
+
 
 const Stack = createStackNavigator();
 
@@ -62,7 +64,6 @@ const Navigation = () => {
                     name={'SelectPayment'}
                     component={SelectPayment}
                 />
-
                 <Stack.Screen
                     name={'Cart'}
                     component={Cart}
@@ -73,6 +74,7 @@ const Navigation = () => {
                     options={{ presentation: 'modal' }}
                     component={Pin}
                 />
+                <Stack.Screen name={'ChangePin'} component={ChangePin} />
                 <Stack.Screen name="EReceipt" component={EReceipt} />
                 <Stack.Screen name="Complete" component={Complete} />
                 <Stack.Screen

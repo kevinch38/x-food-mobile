@@ -83,7 +83,7 @@ export default function Register({ navigation }) {
                                 alert(`We're sorry, that email is taken`);
                             }
                         } catch (error) {
-                            alert(`We're sorry, that email is taken 1`);
+                            alert(`message`, error);
                         }
                     }),
                 );
@@ -181,6 +181,7 @@ export default function Register({ navigation }) {
                             onChangeText={handleChange('firstName')}
                             onBlur={handleBlur('firstName')}
                             value={values.firstName}
+                            maxLength={30}
                         />
                         {touched.firstName && errors.firstName && (
                             <Text style={styles.errorText}>
@@ -207,6 +208,7 @@ export default function Register({ navigation }) {
                             onChangeText={handleChange('lastName')}
                             onBlur={handleBlur('lastName')}
                             value={values.lastName}
+                            maxLength={30}
                         />
                     </View>
                     <View>
