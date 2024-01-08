@@ -45,16 +45,11 @@ const Redeem = ({ navigation }) => {
             });
 
             const promises = fetchedPromotions.map(async (promotion) => {
-                const voucher =
-                    await voucherService.getVoucherByAccountIDAndPromoID(
-                        id,
-                        promotion.promotionID,
-                    );
+                const voucher = await voucherService.getVoucherByAccountIDAndPromoID(id, promotion.promotionID);
 
                 setIsMaxRedeemed((prev) => ({
                     ...prev,
-                    [promotion.promotionID]:
-                        promotion.maxRedeem <= voucher.data.length,
+                    [promotion.promotionID]: promotion.maxRedeem <= voucher.data.length,
                 }));
 
                 setIsVoucherEmpty((prev) => ({
@@ -65,17 +60,17 @@ const Redeem = ({ navigation }) => {
 
             await Promise.all(promises);
             setIsLoading(false);
-            console.log('====+>', isLoading);
+            console.log("====+>", isLoading)
         } catch (error) {
             console.error('Error fetching user data:', error);
-            alert('Vouchers empty or your point not enough !!');
+            alert("Vouchers empty or your point not enough !!");
+
         }
     };
 
     const fetchUserData = async (phoneNumber) => {
         try {
-            const userData =
-                await userService.fetchUserByPhoneNumber(phoneNumber);
+            const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
             const accountID = userData.data.accountID;
             setId(accountID);
         } catch (error) {
@@ -84,6 +79,7 @@ const Redeem = ({ navigation }) => {
     };
 
     const handleRedeemPress = async (promotionID) => {
+
         setVouchersLeftData((prevData) => {
             const newData = { ...prevData };
             newData[promotionID] = newData[promotionID] - 1;
@@ -207,31 +203,20 @@ const Redeem = ({ navigation }) => {
                         <RedeemCard
                             key={promotion.promotionID}
                             image={Starbuck}
-                            vouchersLeft={
-                                vouchersLeftData[promotion.promotionID]
-                                    ? vouchersLeftData[
-                                          promotion.promotionID
-                                      ].toString()
-                                    : '0'
-                            }
+                            vouchersLeft={vouchersLeftData[promotion.promotionID] ? vouchersLeftData[promotion.promotionID].toString() : '0'}
                             points={promotion.cost.toString()}
                             items={promotion.quantity.toString()}
                             expired={promotion.expiredDate}
                             title={promotion.promotionName}
-                            isMaxRedeemed={
-                                isMaxRedeemed[promotion.promotionID] || false
-                            }
-                            voucherEmpty={
-                                isVoucherEmpty[promotion.promotionID] || false
-                            }
+                            isMaxRedeemed={isMaxRedeemed[promotion.promotionID] || false}
+                            voucherEmpty={isVoucherEmpty[promotion.promotionID] || false}
                             percenOff={promotion.promotionValue.toString()}
                             accountID={id}
                             promotionID={promotion.promotionID}
-                            onRedeemPress={() =>
-                                handleRedeemPress(promotion.promotionID)
-                            }
+                            onRedeemPress={() => handleRedeemPress(promotion.promotionID)}
                         />
                     ))}
+
                 </ScrollView>
             </View>
         </>
