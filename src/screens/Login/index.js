@@ -41,9 +41,7 @@ export default function Login({ navigation }) {
         },
         onSubmit: async (values) => {
             try {
-                console.log(values.phoneNumber);
                 const formatPhoneNumber = `${values.phoneNumber.substr(3)}`;
-                console.log(formatPhoneNumber);
 
                 const userResponse = await userService.fetchUserByPhoneNumber(
                     values.phoneNumber
@@ -53,12 +51,9 @@ export default function Login({ navigation }) {
 
                 if (user && user.otpID !== null) {
                     setIsRegistered(true);
-                    console.log("User ditemukan:", user);
                 } else {
                     setIsRegistered(false);
-                    console.log("ini masuk")
                     await userService.register(formatPhoneNumber);
-                    console.log("User tidak ditemukan, berhasil didaftarkan");
                 }
 
                 dispatch(setPhoneNumber(values.phoneNumber));
