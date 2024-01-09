@@ -16,9 +16,9 @@ import Starbuck from '../../../assets/images/starbuck.png';
 import BackButton from '../../components/backButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
-import { userAction } from '../../slices/userSlice';
 import { useNavigation } from '@react-navigation/native';
-import UserService from "../../services/UserService";
+import { loyaltyPointAction } from '../../slices/loyaltyPointSlice';
+import UserService from '../../services/UserService';
 
 const Voucher = ({ navigation }) => {
     const navigate = useNavigation();
@@ -26,6 +26,10 @@ const Voucher = ({ navigation }) => {
     const userService = UserService;
     const [userData, setUserData] = useState({ vouchers: [] });
 
+    const dispatch = useDispatch();
+    const { users } = useSelector((state) => state.user);
+    const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
+    const { loyaltyPointService } = useContext(ServiceContext);
     const handleRedeemPress = () => {
         navigate.navigate('Redeem');
     };
@@ -36,13 +40,33 @@ const Voucher = ({ navigation }) => {
 
     const fetchUserData = async (phoneNumber) => {
         try {
-            const fetchedUserData = await userService().fetchUserByPhoneNumber(phoneNumber);
+            const fetchedUserData =
+                await userService().fetchUserByPhoneNumber(phoneNumber);
             setUserData(fetchedUserData);
-            // console.log('userData:', fetchedUserData);
         } catch (error) {
             console.error('Error fetching user data:', error);
         }
     };
+
+    useEffect(() => {
+        const onGetLoyaltyPointAmount = () => {
+            try {
+                dispatch(
+                    loyaltyPointAction(async () => {
+                        const result =
+                            loyaltyPointService.fetchLoyaltyPointById(
+                                users.loyaltyPoint.loyaltyPointID,
+                            );
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetching loyalty point data: ', e);
+            }
+        };
+
+        onGetLoyaltyPointAmount();
+    }, [dispatch, loyaltyPointService]);
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -55,7 +79,7 @@ const Voucher = ({ navigation }) => {
                     source={require('../../../assets/images/elipse.png')}
                     style={{ position: 'absolute', top: 0 }}
                 />
-                <BackButton style />
+                {/* <BackButton onPress={handleBack} /> */}
                 <Image
                     source={require('../../../assets/images/elipse2.png')}
                     style={{ position: 'absolute', top: 0, right: 0 }}
@@ -80,7 +104,7 @@ const Voucher = ({ navigation }) => {
                             source={require('../../../assets/images/Coin.png')}
                         />
                         <Text style={{ alignSelf: 'center', fontSize: 18 }}>
-                            980
+                            {loyaltyPoints.loyaltyPointAmount}
                         </Text>
                     </View>
                     <TouchableOpacity
@@ -104,10 +128,10 @@ const Voucher = ({ navigation }) => {
                                 return (
                                     <VoucherCard
                                         key={idx}
-                                        title={`Starbucks Rp. 30.000 Off`}
-                                        content={`Some explanation of the code`}
-                                        image={Starbuck}
-                                        expired={`Will Expire on 25/10/2024`}
+                                        title={item.promotionName}
+                                        content={item.promotionDescription}
+                                        image={item.logoImage}
+                                        expired={item.expiredDate}
                                     />
                                 );
                             })}

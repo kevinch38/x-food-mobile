@@ -1,10 +1,8 @@
 import axios from 'axios';
 
-
 const UserService = () => {
     const register = async (phoneNumber) => {
         try {
-
             const newUserRequest = {
                 phoneNumber: phoneNumber,
             };
@@ -16,7 +14,7 @@ const UserService = () => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                }
+                },
             );
             return data;
         } catch (error) {
@@ -25,48 +23,44 @@ const UserService = () => {
     };
 
     const fetchUserById = async (id) => {
-        const { data } = await axios.get(`http://10.0.2.2:8087/api/users/${id}`);
+        const { data } = await axios.get(
+            `http://10.0.2.2:8087/api/users/${id}`,
+        );
         return data;
     };
 
     const fetchUserByPhoneNumber = async (phoneNumber) => {
+        const { data } = await axios.get(
+            `http://10.0.2.2:8087/api/users/${phoneNumber}`,
+        );
+        return data;
+    };
+
+    const updateUser = async (user) => {
         try {
-            const { data } = await axios.get(
-                `http://10.0.2.2:8087/api/users/${phoneNumber}`,
-                {
-                    headers: {
-                        'Accept': 'application/json',
-                    },
-                }
+            const { data } = await axios.put(
+                `http://10.0.2.2:8087/api/users`,
+                user,
             );
             return data;
         } catch (error) {
-            throw error;
+            throw error.data || error;
         }
     };
 
-
-    const updateUser = async (user) => {
-        const { data } = await axios.put(
-            `http://10.0.2.2:8087/api/users`,
-            user,
+    const fetchPinByPinID = async (pinID) => {
+        const { data } = await axios.get(
+            `http://10.0.2.2:8087/api/pins/${pinID}`,
         );
         return data;
     };
-    const fetchPinByPinID = async (pinID) => {
-        const {data} = await axios.get(
-            `http://10.0.2.2:8087/api/pins/${pinID}`
-        );
-
-        return data;
-    }
 
     return {
-        fetchPinByPinID,
         fetchUserByPhoneNumber,
         updateUser,
-        register, 
+        register,
         fetchUserById,
+        fetchPinByPinID,
     };
 };
 

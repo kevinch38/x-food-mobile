@@ -7,6 +7,7 @@ import {
     Image,
     Pressable,
     ScrollView,
+    Button,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Card from '../components/card/Card';
@@ -19,22 +20,30 @@ import { merchantAction } from '../slices/merchantSlice';
 import { cityAction } from '../slices/citySlice';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Icon } from '@rneui/themed';
+import { loyaltyPointAction } from '../slices/loyaltyPointSlice';
+import { userAction } from '../slices/userSlice';
+import { fetchBalanceAction } from '../slices/balanceSlice';
 
 const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
     const { cities } = useSelector((state) => state.city);
-    const { merchantService, cityService } = useContext(ServiceContext);
-    const [cityId, setCityId] = useState('8a8ae40b8cabc928018cabc9359000c0');
+    const { users } = useSelector((state) => state.user);
+    const { phoneNumber } = useSelector((state) => state.ui);
+    const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
+    const { balance } = useSelector((state) => state.balance);
+    const {
+        merchantService,
+        cityService,
+        loyaltyPointService,
+        userService,
+        balanceService,
+    } = useContext(ServiceContext);
+    const [cityId, setCityId] = useState('8a8ae40b8cd4debc018cd4dec9c70113');
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
 
     const filteredMerchants = merchants.filter((merchant) => {
-        // const branches = merchant.merchantBranches.map((branch) => {
-        //     return branch.city.cityID === cityId;
-        // });
-        // return branches.includes(true);
-
         const branches = merchant.merchantBranches || [];
         const hasMatchingBranch = branches.some(
             (branch) => branch.city.cityID === cityId,
@@ -51,8 +60,8 @@ const Home = ({ navigation }) => {
                       .includes(search.toLowerCase()),
               );
 
-    const handleCard = (id, cityId) => {
-        navigation.navigate('Merchant', { id, cityId });
+    const handleCard = (id) => {
+        navigation.navigate('Merchant', { id });
     };
 
     useEffect(() => {
@@ -67,13 +76,71 @@ const Home = ({ navigation }) => {
     }, [dispatch, cityService]);
 
     useEffect(() => {
+        const onGetUserByPhoneNumber = () => {
+            try {
+                dispatch(
+                    userAction(async () => {
+                        const result =
+                            await userService.fetchUserByPhoneNumber(
+                                phoneNumber,
+                            );
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetching user data: ', e);
+            }
+        };
+
         const onGetMerchants = async () => {
             await dispatch(
                 merchantAction(() => merchantService.fetchMerchants()),
             );
         };
+
+        const onGetBalanceUser = async () => {
+            try {
+                dispatch(
+                    fetchBalanceAction(async () => {
+                        const result = balanceService.fetchBalance(
+                            users.balanceID,
+                        );
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetchin balance data: ', e);
+            }
+        };
+
+        const onGetLoyaltyPointAmount = () => {
+            try {
+                dispatch(
+                    loyaltyPointAction(async () => {
+                        const result =
+                            loyaltyPointService.fetchLoyaltyPointById(
+                                users.loyaltyPoint.loyaltyPointID,
+                            );
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetching loyalty point data: ', e);
+            }
+        };
+
+        onGetUserByPhoneNumber();
         onGetMerchants();
-    }, [dispatch, merchantService]);
+        onGetLoyaltyPointAmount();
+        onGetBalanceUser();
+    }, [
+        dispatch,
+        merchantService,
+        loyaltyPointService,
+        userService,
+        balanceService,
+        Object.keys(users).length,
+    ]);
 
     const handleTopUp = () => {
         navigation.navigate('TopUp');
@@ -148,7 +215,7 @@ const Home = ({ navigation }) => {
                             style={{ width: 33, height: 19 }}
                             source={require('../assets/images/card.png')}
                         />
-                        <Text>Rp.0</Text>
+                        <Text>Rp. {balance.totalBalance}</Text>
                         <Pressable onPress={handleTopUp}>
                             <Text style={{ color: '#5681A5' }}>TOP UP</Text>
                         </Pressable>
@@ -156,7 +223,7 @@ const Home = ({ navigation }) => {
                             style={{ width: 20, height: 20 }}
                             source={require('../assets/icons/dollar.png')}
                         />
-                        <Text>0</Text>
+                        <Text>{loyaltyPoints.loyaltyPointAmount}</Text>
                     </View>
                     <View style={styles.viewTitle}>
                         <Text style={styles.titleList}>
@@ -170,9 +237,7 @@ const Home = ({ navigation }) => {
                             return (
                                 <Card
                                     key={idx}
-                                    onPress={() =>
-                                        handleCard(m.merchantID, cityId)
-                                    }
+                                    onPress={() => handleCard(m.merchantID)}
                                     image={m.image}
                                     title={m.merchantName}
                                 />

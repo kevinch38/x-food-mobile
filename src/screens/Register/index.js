@@ -1,27 +1,29 @@
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  Pressable,
-  Image,
-  SafeAreaView,
-  StatusBar,
-    TouchableOpacity
-} from "react-native";
-import React, {useContext, useState} from 'react';
+    View,
+    Text,
+    StyleSheet,
+    TextInput,
+    Image,
+    SafeAreaView,
+    StatusBar,
+    TouchableOpacity,
+    BackHandler,
+} from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
 import Color from '../../assets/Color';
 import { CheckBox, Icon } from '@rneui/themed';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { useDispatch } from 'react-redux';
-import { userAction } from '../../slices/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { userAction, userRegisterAction } from '../../slices/userSlice';
 import { ServiceContext } from '../../context/ServiceContext';
-import {theme} from "../../theme";
-export default function Register({ navigation, noPhone }) {
+import { theme } from '../../theme';
+export default function Register({ navigation }) {
     const [focusedInput, setFocusedInput] = useState(null);
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
+    const { users } = useSelector((state) => state.user);
+    const { phoneNumber } = useSelector((state) => state.ui);
 
     const Schema = yup.object().shape({
         firstName: yup
@@ -47,43 +49,83 @@ export default function Register({ navigation, noPhone }) {
         handleBlur,
         handleSubmit,
         setFieldValue,
+        setValues,
     } = useFormik({
         initialValues: {
-            firstName: '',
-            phoneNumber: '121415135',
-            lastName: '',
+            accountID: null,
+            ktpID: '',
             accountEmail: '',
+            phoneNumber: '',
+            firstName: '',
+            lastName: '',
+            dateOfBirth: '',
             aggrement: false,
         },
         onSubmit: async (formValues) => {
+            console.log(formValues, 'form values');
             try {
                 if (!formValues) return;
 
                 const { aggrement, ...values } = formValues;
 
                 dispatch(
-                    userAction(async () => {
+                    userRegisterAction(async () => {
+                        // const result = await userService.updateUser(values);
+                        // console.log(result, 'result-----');
                         try {
-                            const result = await userService.register(values);
-                            if (result.status === 409) {
-                                alert('email already exist');
-                            } else if (result.status === 200) {
+                            const result = await userService.updateUser(values);
+                            if (result.statusCode === 200) {
                                 navigation.reset({
                                     index: 0,
                                     routes: [{ name: 'Tabs' }],
                                 });
+                            } else if (result.statusCode === 409) {
+                                alert(`We're sorry, that email is taken`);
                             }
                         } catch (error) {
-                            alert('Email already exist');
+                            alert(`message`, error);
                         }
                     }),
                 );
             } catch (error) {
-                alert('Torouble in trasfering data');
+                alert('Trouble in trasfering data');
             }
         },
         validationSchema: Schema,
     });
+
+    useEffect(() => {
+        if (phoneNumber) {
+            dispatch(
+                userAction(async () => {
+                    const response =
+                        await userService.fetchUserByPhoneNumber(phoneNumber);
+                    const updateData = {
+                        ...response.data,
+                    };
+
+                    const values = {
+                        accountID: updateData.accountID,
+                        ktpID: updateData.ktpID,
+                        phoneNumber: updateData.phoneNumber,
+                        firstName: updateData.firstName,
+                        lastName: updateData.lastName,
+                        dateOfBirth: updateData.dateOfBirth,
+                    };
+                    setValues(values);
+                    return null;
+                }),
+            );
+        }
+    }, [dispatch, userService, setValues]);
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            () => true,
+        );
+        return () => backHandler.remove();
+    }, []);
 
     const handleInputFocus = (input) => {
         setFocusedInput(input);
@@ -126,8 +168,12 @@ export default function Register({ navigation, noPhone }) {
                             style={[
                                 styles.input,
                                 {
-                                    borderColor: focusedInput === 'firstName' ? Color.primary : '#000000',
-                                    borderWidth: focusedInput === 'firstName' ? 1 : 0.3
+                                    borderColor:
+                                        focusedInput === 'firstName'
+                                            ? Color.primary
+                                            : '#000000',
+                                    borderWidth:
+                                        focusedInput === 'firstName' ? 1 : 0.3,
                                 },
                             ]}
                             onFocus={() => handleInputFocus('firstName')}
@@ -135,6 +181,7 @@ export default function Register({ navigation, noPhone }) {
                             onChangeText={handleChange('firstName')}
                             onBlur={handleBlur('firstName')}
                             value={values.firstName}
+                            maxLength={30}
                         />
                         {touched.firstName && errors.firstName && (
                             <Text style={styles.errorText}>
@@ -148,8 +195,12 @@ export default function Register({ navigation, noPhone }) {
                             style={[
                                 styles.input,
                                 {
-                                    borderColor: focusedInput === 'lastName' ? Color.primary : '#000000',
-                                    borderWidth: focusedInput === 'lastName' ? 1 : 0.3
+                                    borderColor:
+                                        focusedInput === 'lastName'
+                                            ? Color.primary
+                                            : '#000000',
+                                    borderWidth:
+                                        focusedInput === 'lastName' ? 1 : 0.3,
                                 },
                             ]}
                             onFocus={() => handleInputFocus('lastName')}
@@ -157,6 +208,7 @@ export default function Register({ navigation, noPhone }) {
                             onChangeText={handleChange('lastName')}
                             onBlur={handleBlur('lastName')}
                             value={values.lastName}
+                            maxLength={30}
                         />
                     </View>
                     <View>
@@ -165,8 +217,14 @@ export default function Register({ navigation, noPhone }) {
                             style={[
                                 styles.input,
                                 {
-                                    borderColor: focusedInput === 'accountEmail' ? Color.primary : '#000000',
-                                    borderWidth: focusedInput === 'accountEmail' ? 1 : 0.3
+                                    borderColor:
+                                        focusedInput === 'accountEmail'
+                                            ? Color.primary
+                                            : '#000000',
+                                    borderWidth:
+                                        focusedInput === 'accountEmail'
+                                            ? 1
+                                            : 0.3,
                                 },
                             ]}
                             onFocus={() => handleInputFocus('accountEmail')}
@@ -184,7 +242,11 @@ export default function Register({ navigation, noPhone }) {
                     </View>
                     <View style={styles.checkBox}>
                         <CheckBox
-                            textStyle={{ color: values.aggrement ? theme.dark : theme.grey }}
+                            textStyle={{
+                                color: values.aggrement
+                                    ? theme.dark
+                                    : theme.grey,
+                            }}
                             title={
                                 'I agree to our Terms and Conditions and Privacy Policy'
                             }
@@ -200,13 +262,13 @@ export default function Register({ navigation, noPhone }) {
                             </Text>
                         )}
                     </View>
-                    <Pressable
+                    <TouchableOpacity
                         style={styles.button}
                         onPress={handleSubmit}
                         disabled={!isValid || !dirty}
                     >
                         <Text style={styles.textStyle}>Sign Up</Text>
-                    </Pressable>
+                    </TouchableOpacity>
                 </View>
             </View>
         </SafeAreaView>

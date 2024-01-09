@@ -6,7 +6,7 @@ const AuthService = () => {
 
     const login = async (user) => {
         const { data } = await axiosInstance.post(
-            'http://10.0.2.2:8083/api/auth/login',
+            'http://10.0.2.2:8087/api/auth/login',
             user,
         );
         return data;
@@ -18,7 +18,7 @@ const AuthService = () => {
 
     const getUserInfo = async () => {
         const { data } = await axiosInstance.get(
-            'http://10.0.2.2:8083/api/users/me',
+            'http://10.0.2.2:8087/api/users/me',
         );
         return data;
     };

@@ -1,5 +1,7 @@
 import {
     Alert,
+    Platform,
+    Pressable,
     SafeAreaView,
     ScrollView,
     StatusBar,
@@ -7,11 +9,11 @@ import {
     Text,
     View,
 } from 'react-native';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Color from '../../assets/Color';
 import Button from '../../components/button';
 import { theme } from '../../theme';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import { userAction } from '../../slices/userSlice';
 import { useFormik } from 'formik';
@@ -19,40 +21,29 @@ import * as yup from 'yup';
 import InputText from '../../components/inputText';
 import ErrorText from '../../components/errorText';
 import BackButton from '../../components/backButton';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useRoute } from '@react-navigation/native';
 
 function CompleteProfile({ navigation }) {
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
+    const { users } = useSelector((state) => state.user);
+    const route = useRoute();
+    const phoneNumbers = route.params?.users.phoneNumber;
+    const [nikInput, setNikInput] = useState('');
+    const [isNikVerified, setIsNikVerified] = useState(false);
+    const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState(true);
+    const [isVisibleButton, setIsVisibleButton] = useState(false);
 
-    const Schema = yup.object().shape({
+    const [dob, setDOB] = useState('');
+    const [date, setDate] = useState(new Date());
+    const [showPicker, setShowPicker] = useState(false);
+
+    const schema = yup.object().shape({
         ktpID: yup
             .string()
             .matches(/^\d{16}$/, 'NIK must be exactly 16 digits')
             .required('NIK is Required!'),
-        dateOfBirth: yup
-            .string()
-            .matches(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)')
-            .required('Date of Birth is Required!')
-            .test('valid-dob', 'Invalid Date of Birth', function (value) {
-                if (value) {
-                    const currentDate = new Date();
-                    const selectedDate = new Date(value);
-
-                    const isValidMonth =
-                        selectedDate.getMonth() + 1 >= 1 &&
-                        selectedDate.getMonth() + 1 <= 12;
-                    const isValidDay =
-                        selectedDate.getDate() >= 1 &&
-                        selectedDate.getDate() <= 31;
-
-                    return (
-                        isValidMonth &&
-                        isValidDay &&
-                        selectedDate <= currentDate
-                    );
-                }
-                return true;
-            }),
     });
 
     const {
@@ -68,60 +59,51 @@ function CompleteProfile({ navigation }) {
         initialValues: {
             accountID: null,
             ktpID: '',
-            accountEmail: '',
-            phoneNumber: '',
-            pinID: '',
-            createdAt: new Date(),
-            firstName: '',
-            lastName: '',
             dateOfBirth: '',
-            updatedAt: new Date(),
-            balanceID: '',
-            loyaltyPointID: '',
-            otpID: '',
         },
         onSubmit: async (values) => {
             if (!isValid) return;
 
             dispatch(
                 userAction(async () => {
-                    const result = await userService.updateUser(values);
-                    if (result.statusCode === 200) {
-                        Alert.alert(
-                            'Success',
-                            'Data updated successfully',
-                            [
-                                {
-                                    text: 'Ok',
-                                    onPress: () => {
-                                        navigation.goBack();
+                    try {
+                        const result = await userService.updateUser(values);
+                        if (result.statusCode === 200) {
+                            Alert.alert(
+                                'Success',
+                                'Data updated successfully',
+                                [
+                                    {
+                                        text: 'Ok',
+                                        onPress: async () => {
+                                            navigation.goBack();
+                                        },
                                     },
-                                },
-                            ],
-                            { cancelable: false },
-                        );
+                                ],
+                                { cancelable: false },
+                            );
+                        } else {
+                            Alert.alert('Error', 'Failed to update data');
+                        }
+                        const update = { data: { ...users, temp: 'a' } };
+                        return update;
+                    } catch (e) {
+                        console.error('Error update user data: ', e);
+                        Alert.alert('Error', 'Failed to update data');
                     }
-                    return null;
                 }),
             );
         },
-        validationSchema: Schema,
+        validationSchema: schema,
     });
 
-    const handleBack = () => {
-        navigation.goBack();
-    };
-
-    const handleChangePin = () => {
-        console.log('Create/Change PIN');
-    };
-
     useEffect(() => {
-        if ('1') {
+        if (phoneNumbers) {
             dispatch(
                 userAction(async () => {
                     const result =
-                        await userService.fetchUserByPhoneNumber('1');
+                        await userService.fetchUserByPhoneNumber(phoneNumbers);
+
                     const updateData = {
                         ...result.data,
                     };
@@ -131,27 +113,90 @@ function CompleteProfile({ navigation }) {
                         ktpID: updateData.ktpID,
                         accountEmail: updateData.accountEmail,
                         phoneNumber: updateData.phoneNumber,
-                        pinID: updateData.pinID,
-                        createdAt: updateData.createdAt,
                         firstName: updateData.firstName,
                         lastName: updateData.lastName,
                         dateOfBirth: updateData.dateOfBirth,
-                        updatedAt: new Date(),
-                        balanceID: updateData.balanceID,
-                        loyaltyPointID: updateData.loyaltyPointID,
-                        otpID: updateData.otpID,
                     };
-                    setValues(values);
-                    return null;
+                    await setValues(values);
+                    return result;
                 }),
             );
         }
     }, [dispatch, userService, setValues]);
 
+    const handleVerifyKtp = async () => {
+        const registeredKtpIDs = [
+            '1234567890123456',
+            '9876543210987654',
+            '1111222233334444',
+        ];
+
+        const exists = registeredKtpIDs.includes(ktpID);
+
+        if (exists) {
+            Alert.alert('Warning', 'NIK is already registered');
+            setIsNikVerified(true);
+        } else {
+            Alert.alert('Success', 'NIK Verified', [
+                {
+                    text: 'OK',
+                    onPress: () => {
+                        setIsNikVerified(false);
+                        setIsVisibleButton(true);
+                        setIsSaveButtonDisabled(false);
+                    },
+                },
+            ]);
+        }
+    };
+
+    const isVerify = ktpID.length !== 16;
+
+    const toggleDatepicker = () => {
+        setShowPicker(!showPicker);
+    };
+
+    const currentDate = new Date();
+    const maximumDate = new Date(
+        currentDate.getFullYear() - 13,
+        currentDate.getMonth(),
+        currentDate.getDate(),
+    );
+
+    const formatDate = (rawDate) => {
+        let date = new Date(rawDate);
+
+        date.setUTCHours(date.getUTCHours() + 7);
+
+        let year = date.getFullYear();
+        let month = date.getMonth() + 1;
+        let day = date.getDate();
+
+        month = month < 10 ? `0${month}` : month;
+        day = day < 10 ? `0${day}` : day;
+
+        return `${year}-${month}-${day}`;
+    };
+
+    const onChange = ({ type }, selectDate) => {
+        if (type === 'set') {
+            const currentDate = selectDate;
+            setDate(currentDate);
+
+            if (Platform.OS === 'android') {
+                toggleDatepicker();
+                setDOB(formatDate(currentDate));
+                handleChange('dateOfBirth')(formatDate(currentDate));
+            }
+        } else {
+            toggleDatepicker();
+        }
+    };
+
     const renderHeader = () => {
         return (
             <View>
-                <BackButton onPress={handleBack} />
+                <BackButton onPress={() => navigation.goBack()} />
                 <View style={{ alignItems: 'center' }}>
                     <Text style={styles.title}>Profile Info</Text>
                 </View>
@@ -163,36 +208,86 @@ function CompleteProfile({ navigation }) {
         return (
             <View style={styles.wrapperInput}>
                 <View>
-                    <InputText
-                        label={'NIK'}
-                        labelRequired={'*'}
-                        placeholder={'3347891801970001'}
-                        keyboardType={'numeric'}
-                        onChangeText={handleChange('ktpID')}
-                        value={ktpID}
-                    />
+                    {!isVisibleButton ? (
+                        <InputText
+                            label={'NIK'}
+                            labelRequired={'*'}
+                            placeholder={'3347891801970001'}
+                            keyboardType={'numeric'}
+                            onChangeText={(value) => {
+                                setNikInput(value);
+                                handleChange('ktpID')(value);
+                                setIsNikVerified(false);
+                            }}
+                            maxLength={16}
+                            value={ktpID}
+                        />
+                    ) : (
+                        <InputText
+                            label={'NIK'}
+                            labelRequired={'*'}
+                            placeholder={'3347891801970001'}
+                            keyboardType={'numeric'}
+                            onChangeText={(value) => {
+                                setNikInput(value);
+                                handleChange('ktpID')(value);
+                                setIsNikVerified(false);
+                            }}
+                            maxLength={16}
+                            value={ktpID}
+                            editable={false}
+                            textInputStyleCustom={{ color: 'black' }}
+                        />
+                    )}
                     {touched.ktpID && errors.ktpID && (
                         <ErrorText message={errors.ktpID} />
                     )}
                 </View>
-                <View>
-                    <InputText
-                        label={'Date of Birth'}
-                        labelRequired={'*'}
-                        placeholder={'1990-02-24'}
-                        keyboardType={'numeric'}
-                        onChangeText={handleChange('dateOfBirth')}
-                        value={dateOfBirth}
-                    />
-                    {touched.dateOfBirth && errors.dateOfBirth && (
-                        <ErrorText message={errors.dateOfBirth} />
-                    )}
+
+                <View style={styles.verifyContainer}>
+                    {!isVisibleButton ? (
+                        <Button
+                            title={'Verify'}
+                            buttonStyle={[
+                                styles.customButtonVerify,
+                                nikInput.length !== 16 && { opacity: 0.5 },
+                            ]}
+                            titleStyle={styles.customTitle}
+                            onPress={handleVerifyKtp}
+                            disabled={isVerify}
+                        />
+                    ) : null}
                 </View>
+
                 <View>
-                    <Text style={styles.textSecondary}>Pin</Text>
-                    <Text onPress={handleChangePin} style={styles.changePin}>
-                        Create/Change PIN
-                    </Text>
+                    {showPicker && (
+                        <DateTimePicker
+                            value={date}
+                            mode={'date'}
+                            display={'calendar'}
+                            onChange={onChange}
+                            maximumDate={maximumDate}
+                            minimumDate={new Date(1950, 0, 1)}
+                        />
+                    )}
+
+                    {!showPicker && (
+                        <Pressable onPress={toggleDatepicker}>
+                            <InputText
+                                label={'Date of Birth'}
+                                labelRequired={'*'}
+                                placeholder={'1990-02-24'}
+                                keyboardType={'numeric'}
+                                onChangeText={(value) => {
+                                    setDOB(value);
+                                    handleChange('dateOfBirth')(value);
+                                }}
+                                value={dob}
+                                editable={false}
+                                textInputStyleCustom={{ color: 'black' }}
+                            />
+                        </Pressable>
+                    )}
                 </View>
             </View>
         );
@@ -206,12 +301,12 @@ function CompleteProfile({ navigation }) {
                     buttonStyle={[
                         styles.customButton,
                         {
-                            opacity: isValid && dirty ? 1 : 0.5,
+                            opacity: !isSaveButtonDisabled ? 1 : 0,
                         },
                     ]}
                     titleStyle={styles.customTitle}
                     onPress={() => handleSubmit()}
-                    disabled={!isValid || !dirty}
+                    disabled={!isValid || !dirty || isSaveButtonDisabled}
                 />
             </View>
         );
@@ -273,19 +368,34 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     customButton: {
-        backgroundColor: Color.secondary,
+        backgroundColor: Color.primary,
         fontWeight: '900',
         fontSize: 15,
     },
-    changePin: {
-        marginTop: 9,
+    customButtonVerify: {
+        backgroundColor: Color.primary,
+        width: 99,
+        height: 34,
         fontWeight: '900',
         fontSize: 15,
-        color: theme.secondary,
     },
     customTitle: {
         fontWeight: 900,
         fontSize: 15,
+    },
+    verifyContainer: {
+        alignItems: 'flex-end',
+        marginTop: 8,
+    },
+    titleVerify: {
+        backgroundColor: Color.primary,
+        color: '#fff',
+        borderRadius: 24,
+        paddingVertical: 8,
+        paddingHorizontal: 24,
+        fontSize: 16,
+        fontWeight: '500',
+        textAlign: 'center',
     },
 });
 export default CompleteProfile;

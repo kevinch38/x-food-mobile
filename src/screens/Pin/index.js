@@ -1,5 +1,7 @@
 import {
     Alert,
+    BackHandler,
+    Button,
     Image,
     SafeAreaView,
     StatusBar,
@@ -11,9 +13,25 @@ import {
 } from 'react-native';
 import BackButton from '../../components/backButton';
 import { theme } from '../../theme';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { userAction } from '../../slices/userSlice';
+import { ServiceContext } from '../../context/ServiceContext';
+import { pinAction, pinCheckAction } from '../../slices/pinSlice';
 
 function Pin({ navigation }) {
+    const dispatch = useDispatch();
+    const route = useRoute();
+    const orderItem = route.params?.cartItems;
+    const { users } = useSelector((state) => state.user);
+    const { order } = useSelector((state) => state.order);
+    const { pin } = useSelector((state) => state.pin);
+    const [isLoading, setIsLoading] = useState(false);
+    const { pinService, orderService } = useContext(ServiceContext);
+    const accountID = route.params?.accountID;
+    const orderID = route.params?.orderID;
+
     const input1Ref = useRef();
     const input2Ref = useRef();
     const input3Ref = useRef();
@@ -29,17 +47,64 @@ function Pin({ navigation }) {
     const [input6, setInput6] = useState('');
 
     useEffect(() => {
+        const onGetPinUser = async () => {
+            try {
+                setIsLoading(true);
+
+                await dispatch(pinAction(() => pinService.getPin(users.pinID)));
+
+                setIsLoading(false);
+            } catch (error) {
+                console.error('Error fetching pin:', error);
+                setIsLoading(false);
+            }
+        };
+        onGetPinUser();
+    }, [dispatch, pinService]);
+
+    useEffect(() => {
         if (input6.length === 1) {
             const verificationCode =
                 input1 + input2 + input3 + input4 + input5 + input6;
 
-            if (verificationCode === '123123') {
-                Alert.alert('Verifikasi berhasil', 'Kode verifikasi benar.');
-            } else {
-                Alert.alert('Verifikasi gagal', 'Kode verifikasi salah.');
-            }
+            dispatch(
+                pinCheckAction(async () => {
+                    try {
+                        const result = await pinService.pinCheck({
+                            pinID: users.pinID,
+                            pin: verificationCode,
+                        });
+
+                        console.log(result, '=== data');
+
+                        if (result.data) {
+                            navigation.navigate('Payment', {
+                                accountID: accountID,
+                                orderID: orderID,
+                            });
+                        } else {
+                            Alert.alert(
+                                'Verifikasi gagal',
+                                'Kode verifikasi salah.',
+                            );
+                        }
+                    } catch (error) {
+                        Alert.alert(
+                            'Verifikasi gagal 1',
+                            'Kode verifikasi salah.',
+                        );
+                    }
+                }),
+            );
         }
     }, [input6]);
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            () => true,
+        );
+        return () => backHandler.remove();
+    }, []);
 
     const handleTextChange = (
         text,
@@ -170,6 +235,7 @@ function Pin({ navigation }) {
 
     return (
         <SafeAreaView style={styles.controller}>
+            {/*<Button title={'tt'} onPress={console.log(order, 'di pin')} />*/}
             <View>
                 {renderHeader()}
                 {renderPin()}

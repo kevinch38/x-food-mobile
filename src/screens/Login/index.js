@@ -44,7 +44,7 @@ export default function Login({ navigation }) {
                 const formatPhoneNumber = `${values.phoneNumber.substr(3)}`;
 
                 const userResponse = await userService.fetchUserByPhoneNumber(
-                    values.phoneNumber
+                    values.phoneNumber,
                 );
 
                 const user = userResponse.data;
@@ -87,16 +87,13 @@ export default function Login({ navigation }) {
                             let formattedText = text;
                             if (text.startsWith('08')) {
                                 formattedText = `+62${text.substr(1)}`;
-
                             }
 
                             setFieldValue('phoneNumber', formattedText);
-
                         }}
                         onBlur={handleBlur('phoneNumber')}
                         value={phoneNumber}
-                    >
-                    </TextInput>
+                    ></TextInput>
                     {errors.phoneNumber && (
                         <Text style={styles.errorText}>
                             {errors.phoneNumber}

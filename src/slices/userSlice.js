@@ -13,6 +13,14 @@ export const userRegisterAction = createAsyncThunk(
     RequestHelper,
 );
 
+export const selectedUserPhoneNumberAction = createAsyncThunk(
+    'user/selectedUserPhoneNumberAction',
+    async (phoneNumber) => {
+        const authService = AuthService();
+        const response = await authService.fetchUserByPhoneNumber(phoneNumber);
+        return response;
+    },
+);
 export const selectUserByPhoneNumberAction = createAsyncThunk(
     'user/selectUserByPhoneNumber',
     RequestHelper,
@@ -21,9 +29,10 @@ export const selectUserByPhoneNumberAction = createAsyncThunk(
 const userSlice = createSlice({
     name: 'user',
     initialState: {
-        users: [],
+        users: {},
         selectedUser: null,
         registerUser: null,
+        phoneNumber: '+6281239124111',
     },
     extraReducers: (builder) => {
         builder.addCase(userAction.fulfilled, (state, { payload }) => {
@@ -42,30 +51,30 @@ const userSlice = createSlice({
                     state.registerUser = payload.data;
                 }
             })
-            .addCase(userAction.rejected, ({ payload }) => {
+            .addCase(userRegisterAction.rejected, ({ payload }) => {
                 const errorPayload = payload;
                 if (
                     errorPayload &&
                     errorPayload.response &&
                     errorPayload.response.status === 409
                 ) {
-                    alert('Email sudah terpakai');
+                    console.log(`we're sorry, that email taken`);
                 } else {
                     alert(errorPayload);
+                    // console.log(errorPayload, 'error slice payload');
                 }
             });
         builder.addCase(
-            selectUserByPhoneNumberAction.fulfilled,
+            selectedUserPhoneNumberAction.fulfilled,
             (state, { payload }) => {
                 if (payload) {
-                    state.selectUserByPhoneNumberAction = payload;
+                    state.selectedUserPhoneNumberAction = payload;
                 }
             },
         );
         builder.addCase(
-            selectUserByPhoneNumberAction.rejected,
+            selectedUserPhoneNumberAction.rejected,
             (state, action) => {
-                // Handle jika nomor telepon tidak terdaftar
                 console.error(
                     'Error fetching user by phone number:',
                     action.error.message,
@@ -75,5 +84,4 @@ const userSlice = createSlice({
     },
 });
 
-// export const {}
-export default userSlice.reducer;
+export default userSlice;
