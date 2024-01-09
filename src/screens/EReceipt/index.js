@@ -12,16 +12,46 @@ import BackButton from '../../components/backButton';
 import { theme } from '../../theme';
 import * as Progress from 'react-native-progress';
 import Button from '../../components/button';
-import { useEffect } from 'react';
+import {useEffect, useState} from 'react';
+import {useRoute} from "@react-navigation/native";
+import OrderService from "../../services/OrderService";
 
 function EReceipt({ navigation }) {
+    const orderService = OrderService();
+    const route = useRoute();
+    const orderId = route.params?.orderID;
+    const [order, setOrder] = useState();
+    console.log("ini order id", orderId);
+
+
+
     useEffect(() => {
         const backHandler = BackHandler.addEventListener(
             'hardwareBackPress',
             () => true,
         );
         return () => backHandler.remove();
-    }, []);
+    }, [order]);
+
+    useEffect(() => {
+        fetchOrderByID()
+    }, [orderId]);
+
+
+    const fetchOrderByID = async () => {
+        try {
+            const getOrder = await orderService.getOrderById(orderId);
+            if (orderId)
+                setOrder(getOrder);
+
+        } catch (error) {
+            console.error('Error fetching user data1:', error);
+        }
+    };
+    // console.log(order?.data.quantity, '========') ;
+    const dataOrder = order?.data;
+    // console.log(dataOrder?.orderID, "ahahahaahahahah")
+
 
     const handleToHome = () => {
         navigation.navigate('Tabs');
@@ -32,7 +62,7 @@ function EReceipt({ navigation }) {
             <View style={styles.imageController}>
                 <Image
                     style={styles.imageHeader}
-                    source={require('../../assets/icons/confirm-icon.png')}
+                    source={{ uri: `data:image/jpeg;base64,${dataOrder?.image}` }}
                 />
                 <Text style={styles.title}>
                     Order Confirmed, Your Food is On The Way :)
@@ -44,6 +74,8 @@ function EReceipt({ navigation }) {
             </View>
         );
     };
+
+    // console.log("ini =============>", route.params.orderItems[0]);
 
     const renderContent = () => {
         return (
@@ -87,7 +119,7 @@ function EReceipt({ navigation }) {
                                 fontSize: 16,
                             }}
                         >
-                            Order ID #237
+                            Order ID {dataOrder?.orderID}
                         </Text>
                         <Text
                             style={{
@@ -95,7 +127,7 @@ function EReceipt({ navigation }) {
                                 fontSize: 14,
                             }}
                         >
-                            April 8th, 2022
+                            {dataOrder?.date}
                         </Text>
                     </View>
                     <View
@@ -108,7 +140,7 @@ function EReceipt({ navigation }) {
                     >
                         <Image
                             style={{ width: 130, height: 130 }}
-                            source={require('../../assets/images/mechant-logo.png')}
+                            source={{ uri: `data:image/jpeg;base64,${dataOrder?.image}` }}
                         />
                         <Text
                             style={{
@@ -119,62 +151,47 @@ function EReceipt({ navigation }) {
                         >
                             Order Completed
                         </Text>
-                        <View style={{ width: '100%', marginTop: '5%' }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                }}
-                            >
-                                <Text style={{ fontSize: 16, fontWeight: 400 }}>
-                                    Mushroom Signature
-                                </Text>
-                                <Text style={{ fontSize: 14, fontWeight: 400 }}>
-                                    x1
-                                </Text>
-                                <Text
-                                    style={{ fontWeight: '700', fontSize: 16 }}
+
+
+                        {dataOrder?.orderItems?.map((order) => (
+                            <View style={{ width: '100%', marginTop: '5%' }}>
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-evenly',
+                                    }}
                                 >
-                                    Rp 55,000
-                                </Text>
+                                    <Text style={{ fontSize: 16, fontWeight: 400 }}>
+                                        {order.itemName}
+                                    </Text>
+                                    <Text style={{ fontSize: 14, fontWeight: 400 }}>
+                                        x{order.quantity}
+                                    </Text>
+                                    <Text style={{ fontWeight: '700', fontSize: 16 }}>
+                                        Rp {order.price}
+                                    </Text>
+                                </View>
+                                <View style={{ marginLeft: '9%' }}>
+                                    {order.orderItemSubVarieties.length > 0 && (
+                                        <Text style={{ fontSize: 14, fontWeight: 400, marginTop: 10 }}>
+                                            [{order.orderItemSubVarieties.map((or) => or.subVariety.subVarName).join(', ')}]
+                                        </Text>
+                                    )}
+                                </View>
                             </View>
-                            <View style={{ marginLeft: '9%' }}>
-                                <Text style={{ fontSize: 14, fontWeight: 400 }}>
-                                    [Spice, Mushroom]
-                                </Text>
-                            </View>
+                        ))}
+
+                        <View
+                            style={{ flexDirection: "row", marginTop: 20, marginLeft: '40%' }}
+
+
+
+                        >
+                            <Text style={{ fontSize: 16, fontWeight: 700, marginRight: 10 }}>Total</Text>
+                            <Text style={{ fontSize: 16, fontWeight: 700 }}>Rp {dataOrder?.orderValue}</Text>
                         </View>
 
-                        <View style={{ width: '100%', marginTop: '5%' }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    marginHorizontal: '9%',
-                                }}
-                            >
-                                <Text style={{ fontSize: 16, fontWeight: 400 }}>
-                                    Chicken Hawaian
-                                </Text>
-                                <Text style={{ fontSize: 14, fontWeight: 400 }}>
-                                    x1
-                                </Text>
-                                <Text
-                                    style={{ fontWeight: '700', fontSize: 16 }}
-                                >
-                                    Rp 55,000
-                                </Text>
-                            </View>
-                            <View style={{ marginLeft: '9%' }}>
-                                <Text style={{ fontSize: 14, fontWeight: 400 }}>
-                                    [Spice, Mushroom]
-                                </Text>
-                            </View>
-                        </View>
-                        <View>
-                            <Text>Total</Text>
-                            <Text></Text>
-                        </View>
+
                     </View>
                 </ImageBackground>
             </View>
@@ -192,16 +209,19 @@ function EReceipt({ navigation }) {
                     alignItems: 'center',
                 }}
             >
-                <Button
-                    buttonStyle={{
-                        width: '80%',
-                        borderRadius: 20,
-                        marginBottom: 15,
-                        backgroundColor: '#029094',
-                    }}
-                    title={'Split Bill'}
-                    titleStyle={{ fontWeight: 'bold', fontSize: 16 }}
-                />
+                {route.params.isSplit ? ``:
+                    <Button
+                        buttonStyle={{
+                            width: '80%',
+                            borderRadius: 20,
+                            marginBottom: 15,
+                            backgroundColor: '#029094',
+                        }}
+                        title={'Split Bill'}
+                        titleStyle={{ fontWeight: 'bold', fontSize: 16 }}
+                    />
+                }
+
                 <Button
                     onPress={handleToHome}
                     buttonStyle={{
