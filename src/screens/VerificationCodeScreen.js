@@ -71,7 +71,7 @@ const VerificationCodeScreen = () => {
                             otpID: otpID,
                             enteredOtp: enteredCode,
                         },
-                    );
+                    );che
 
                     const data = response.data;
 
