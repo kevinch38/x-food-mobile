@@ -17,15 +17,14 @@ import Payment from '../screens/Payment';
 import MerchantConfirm from '../screens/MerchantConfirm';
 import Complete from '../screens/Complete';
 import EReceipt from '../screens/EReceipt';
-import Redeem from "../screens/Voucher/Redeem";
-import Welcome from "../screens/Welcome"
-import Splash from '../screens/Splash'
-import Login from '../screens/Login'
-import Register from '../screens/Register'
-import VerificationCodeScreen from '../screens/VerificationCodeScreen'
+import Redeem from '../screens/Voucher/Redeem';
+import Welcome from '../screens/Welcome';
+import Splash from '../screens/Splash';
+import Login from '../screens/Login';
+import Register from '../screens/Register';
+import VerificationCodeScreen from '../screens/VerificationCodeScreen';
 import PinCreationScreen from '../screens/PinCreationScreen';
 import ChangePin from '../screens/Pin/ChangePin';
-
 
 const Stack = createStackNavigator();
 

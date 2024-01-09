@@ -22,15 +22,14 @@ import {
     removeAll,
     removeFromCart,
     selectCartItems,
-    selectCartItemsById,
     selectCartTotal,
 } from '../../slices/cartSlice';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
 import { userAction } from '../../slices/userSlice';
 import { ServiceContext } from '../../context/ServiceContext';
-import Loading from '../../components/loading';
 import { createOrderAction } from '../../slices/orderSlice';
+import { fetchBalanceAction } from '../../slices/balanceSlice';
 
 function Cart({ navigation }) {
     const dispatch = useDispatch();
@@ -39,17 +38,24 @@ function Cart({ navigation }) {
     const cartTotal = useSelector(selectCartTotal);
     const [groupedItems, setGroupedItems] = useState({});
     const { users } = useSelector((state) => state.user);
+    const { balance } = useSelector((state) => state.balance);
     const { selectedBranch } = useSelector((state) => state.merchantBranch);
     const [sale, setSale] = useState('');
     const [nameVoucher, setNameVoucher] = useState('');
-    const { userService, orderService } = useContext(ServiceContext);
+    const { userService, orderService, balanceService } =
+        useContext(ServiceContext);
     const [vouchers, setVouchers] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [balanceUser, setBalanceUser] = useState(0);
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
 
     useEffect(() => {
         setVouchers(users?.vouchers);
     }, [users]);
+
+    useEffect(() => {
+        setBalanceUser(balance.totalBalance);
+    }, [balance.totalBalance]);
 
     useEffect(() => {
         const onGetUserByPhoneNumber = async () => {
@@ -68,7 +74,24 @@ function Cart({ navigation }) {
                 setIsLoading(false);
             }
         };
+
+        const onGetBalanceUser = async () => {
+            try {
+                dispatch(
+                    fetchBalanceAction(async () => {
+                        const result = balanceService.fetchBalance(
+                            users.balanceID,
+                        );
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetching balance data: ', e);
+            }
+        };
+
         onGetUserByPhoneNumber();
+        onGetBalanceUser();
     }, [dispatch, userService]);
 
     const Schema = yup.object().shape({
@@ -292,10 +315,7 @@ function Cart({ navigation }) {
                         </Text>
                         <View style={styles.priceSection}>
                             <Text style={styles.priceMenu}>
-                                Rp.{' '}
-                                {item.isDiscounted
-                                    ? item.discountedPrice
-                                    : item.initialPrice}
+                                Rp. {item.itemPrice}
                             </Text>
                             <View style={styles.counter}>
                                 {order === items.items.length ? (
@@ -335,6 +355,10 @@ function Cart({ navigation }) {
                                         strokeWidth={2}
                                     />
                                 </TouchableOpacity>
+                                <Button
+                                    title={'hh'}
+                                    onPress={console.log(item)}
+                                />
                             </View>
                         </View>
                     </View>
@@ -450,6 +474,7 @@ function Cart({ navigation }) {
                         title={'CHECKOUT'}
                         titleStyle={styles.titleStyle}
                         onPress={handleSubmit}
+                        disabled={balanceUser <= 0}
                     />
                 </View>
             </ScrollView>
