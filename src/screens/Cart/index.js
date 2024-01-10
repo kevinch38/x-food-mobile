@@ -30,6 +30,7 @@ import { userAction } from '../../slices/userSlice';
 import { ServiceContext } from '../../context/ServiceContext';
 import { createOrderAction } from '../../slices/orderSlice';
 import { fetchBalanceAction } from '../../slices/balanceSlice';
+import Color from '../../assets/Color';
 
 function Cart({ navigation }) {
     const dispatch = useDispatch();
@@ -48,6 +49,8 @@ function Cart({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
     const [balanceUser, setBalanceUser] = useState(0);
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
+
+    const totalBalance = balanceUser <= 0 ? Color.disabled : Color.primary;
 
     useEffect(() => {
         setVouchers(users?.vouchers);
@@ -473,6 +476,7 @@ function Cart({ navigation }) {
                     <Button
                         title={'CHECKOUT'}
                         titleStyle={styles.titleStyle}
+                        buttonStyle={{ backgroundColor: totalBalance }}
                         onPress={handleSubmit}
                         disabled={balanceUser <= 0}
                     />

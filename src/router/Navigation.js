@@ -25,6 +25,8 @@ import Register from '../screens/Register';
 import VerificationCodeScreen from '../screens/VerificationCodeScreen';
 import PinCreationScreen from '../screens/PinCreationScreen';
 import ChangePin from '../screens/Pin/ChangePin';
+import CompletePaymentSpiltBill from '../screens/Payment/CompletePaymentSpiltBill';
+import SendPayment from '../screens/Notification/sendPayment';
 
 const Stack = createStackNavigator();
 
@@ -35,6 +37,7 @@ const Navigation = () => {
                 initialRouteName="InitialScreen"
                 screenOptions={{ headerShown: false }}
             >
+                <Stack.Screen name="SendPayment" component={SendPayment} />
                 <Stack.Screen name="Splash" component={Splash} />
                 <Stack.Screen name="Welcome" component={Welcome} />
                 <Stack.Screen name="Login" component={Login} />
@@ -81,6 +84,10 @@ const Navigation = () => {
                     component={MerchantConfirm}
                 />
                 <Stack.Screen name="Payment" component={Payment} />
+                <Stack.Screen
+                    name="CompleteSplitBillPayment"
+                    component={CompletePaymentSpiltBill}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     );
