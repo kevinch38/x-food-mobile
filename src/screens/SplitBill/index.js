@@ -32,7 +32,10 @@ function SplitBill({ navigation }) {
     const renderHeader = () => {
         return (
             <View style={styles.headerContainer}>
-                <TouchableOpacity style={styles.btnBack}>
+                <TouchableOpacity
+                    style={styles.btnBack}
+                    onPress={() => navigation.goBack()}
+                >
                     <Icon.ChevronLeft
                         width={24}
                         height={24}
@@ -147,6 +150,7 @@ function SplitBill({ navigation }) {
             </ScrollView>
             <View style={styles.btnContainer}>
                 <Button
+                    onPress={() => navigation.navigate('SplitBillAddPosition')}
                     title={'Next'}
                     titleStyle={styles.titleStyle}
                     buttonStyle={styles.buttonStyle}
@@ -285,14 +289,16 @@ const styles = StyleSheet.create({
         borderTopStartRadius: 24,
         borderTopEndRadius: 24,
         marginTop: -48,
-        backgroundColor: '#fff7ed',
+        backgroundColor: '#fff',
         position: 'relative',
         justifyContent: 'center',
         alignItems: 'center',
         paddingVertical: 28,
+        paddingHorizontal: 34,
     },
     buttonStyle: {
         borderRadius: 20,
+        width: '100%',
     },
     titleStyle: {
         fontSize: 16,
