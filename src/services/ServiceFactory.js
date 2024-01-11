@@ -6,6 +6,7 @@ import LoyaltyPointService from './LoyaltyPointService';
 import OrderService from './OrderService';
 import PinService from './PinService';
 import BalanceService from './BalanceService';
+import FriendService from './FriendService';
 
 const ServiceFactory = () => {
     return {
@@ -17,6 +18,7 @@ const ServiceFactory = () => {
         loyaltyPointService: LoyaltyPointService(),
         pinService: PinService(),
         balanceService: BalanceService(),
+        friendService: FriendService(),
     };
 };
 

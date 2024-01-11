@@ -40,52 +40,52 @@ const Navigation = () => {
                 initialRouteName="InitialScreen"
                 screenOptions={{ headerShown: false }}
             >
-                {/*<Stack.Screen name="Splash" component={Splash} />*/}
-                {/*<Stack.Screen name="Welcome" component={Welcome} />*/}
-                {/*<Stack.Screen name="Login" component={Login} />*/}
-                {/*<Stack.Screen*/}
-                {/*    name="VerificationCode"*/}
-                {/*    component={VerificationCodeScreen}*/}
-                {/*/>*/}
-                {/*<Stack.Screen name="Register" component={Register} />*/}
-                {/*<Stack.Screen name="Home" component={PinCreationScreen} />*/}
-                {/*<Stack.Screen name="Redeem" component={Redeem} />*/}
-                {/*<Stack.Screen name="Tabs" component={Tabs} />*/}
-                {/*<Stack.Screen name="Merchant" component={MerchantBranch} />*/}
-                {/*<Stack.Screen name={'Menu'} component={Menu} />*/}
-                {/*<Stack.Screen name={'MenuDetail'} component={Detail} />*/}
-                {/*<Stack.Screen name={'Profile'} component={Profile} />*/}
-                {/*<Stack.Screen name={'EditProfile'} component={EditProfile} />*/}
-                {/*<Stack.Screen*/}
-                {/*    name={'CompleteProfile'}*/}
-                {/*    component={CompleteProfile}*/}
-                {/*/>*/}
+                <Stack.Screen name="Splash" component={Splash} />
+                <Stack.Screen name="Welcome" component={Welcome} />
+                <Stack.Screen name="Login" component={Login} />
+                <Stack.Screen
+                    name="VerificationCode"
+                    component={VerificationCodeScreen}
+                />
+                <Stack.Screen name="Register" component={Register} />
+                <Stack.Screen name="Home" component={PinCreationScreen} />
+                <Stack.Screen name="Redeem" component={Redeem} />
+                <Stack.Screen name="Tabs" component={Tabs} />
+                <Stack.Screen name="Merchant" component={MerchantBranch} />
+                <Stack.Screen name={'Menu'} component={Menu} />
+                <Stack.Screen name={'MenuDetail'} component={Detail} />
+                <Stack.Screen name={'Profile'} component={Profile} />
+                <Stack.Screen name={'EditProfile'} component={EditProfile} />
+                <Stack.Screen
+                    name={'CompleteProfile'}
+                    component={CompleteProfile}
+                />
 
-                {/*<Stack.Screen name={'History'} component={History} />*/}
+                <Stack.Screen name={'History'} component={History} />
 
-                {/*<Stack.Screen name={'TopUp'} component={TopUp} />*/}
-                {/*<Stack.Screen*/}
-                {/*    name={'SelectPayment'}*/}
-                {/*    component={SelectPayment}*/}
-                {/*/>*/}
-                {/*<Stack.Screen*/}
-                {/*    name={'Cart'}*/}
-                {/*    component={Cart}*/}
-                {/*    options={{ presentation: 'modal' }}*/}
-                {/*/>*/}
-                {/*<Stack.Screen*/}
-                {/*    name={'Pin'}*/}
-                {/*    options={{ presentation: 'modal' }}*/}
-                {/*    component={Pin}*/}
-                {/*/>*/}
-                {/*<Stack.Screen name={'ChangePin'} component={ChangePin} />*/}
-                {/*<Stack.Screen name="EReceipt" component={EReceipt} />*/}
-                {/*<Stack.Screen name="Complete" component={Complete} />*/}
-                {/*<Stack.Screen*/}
-                {/*    name="MerchantConfirm"*/}
-                {/*    component={MerchantConfirm}*/}
-                {/*/>*/}
-                {/*<Stack.Screen name="Payment" component={Payment} />*/}
+                <Stack.Screen name={'TopUp'} component={TopUp} />
+                <Stack.Screen
+                    name={'SelectPayment'}
+                    component={SelectPayment}
+                />
+                <Stack.Screen
+                    name={'Cart'}
+                    component={Cart}
+                    options={{ presentation: 'modal' }}
+                />
+                <Stack.Screen
+                    name={'Pin'}
+                    options={{ presentation: 'modal' }}
+                    component={Pin}
+                />
+                <Stack.Screen name={'ChangePin'} component={ChangePin} />
+                <Stack.Screen name="EReceipt" component={EReceipt} />
+                <Stack.Screen name="Complete" component={Complete} />
+                <Stack.Screen
+                    name="MerchantConfirm"
+                    component={MerchantConfirm}
+                />
+                <Stack.Screen name="Payment" component={Payment} />
                 <Stack.Screen name="SplitBill" component={SplitBill} />
                 <Stack.Screen
                     name="SplitBillAddPosition"

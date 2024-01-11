@@ -5,17 +5,24 @@ import {
     StatusBar,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
     View,
 } from 'react-native';
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import * as Icon from 'react-native-feather';
 import InputText from '../../components/inputText';
 import Color from '../../assets/Color';
 import Button from '../../components/button';
+import { useDispatch, useSelector } from 'react-redux';
+import { ServiceContext } from '../../context/ServiceContext';
+import { friendAction } from '../../slices/friendSlice';
 
-function SplitBill({ navigation }) {
+function SplitBill({ navigation, route }) {
+    const dispatch = useDispatch();
+    const { friends } = useSelector((state) => state.friend);
+    const { friendService } = useContext(ServiceContext);
+    const order = route.params?.order;
+
     const avatarData = [
         { name: 'Anna', id: 1 },
         { name: 'Erika', id: 2 },
@@ -29,6 +36,26 @@ function SplitBill({ navigation }) {
         { name: 'Anna Marie', id: 4 },
         { name: 'Erika', id: 5 },
     ];
+
+    console.log(order.data.accountID, 'acoount ===');
+
+    useEffect(() => {
+        try {
+            dispatch(
+                friendAction(async () => {
+                    const result = friendService.fetchFriend(
+                        order.data.accountID,
+                    );
+                    return result;
+                }),
+            );
+        } catch (e) {
+            console.error('Error fetching friend data: ', e);
+        }
+    }, [dispatch, friendService]);
+
+    console.log(friends, '===');
+
     const renderHeader = () => {
         return (
             <View style={styles.headerContainer}>

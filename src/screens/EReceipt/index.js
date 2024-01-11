@@ -12,18 +12,16 @@ import BackButton from '../../components/backButton';
 import { theme } from '../../theme';
 import * as Progress from 'react-native-progress';
 import Button from '../../components/button';
-import {useEffect, useState} from 'react';
-import {useRoute} from "@react-navigation/native";
-import OrderService from "../../services/OrderService";
+import { useEffect, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
+import OrderService from '../../services/OrderService';
 
 function EReceipt({ navigation }) {
     const orderService = OrderService();
     const route = useRoute();
     const orderId = route.params?.orderID;
     const [order, setOrder] = useState();
-    console.log("ini order id", orderId);
-
-
+    console.log('ini order id', orderId);
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener(
@@ -34,16 +32,13 @@ function EReceipt({ navigation }) {
     }, [order]);
 
     useEffect(() => {
-        fetchOrderByID()
+        fetchOrderByID();
     }, [orderId]);
-
 
     const fetchOrderByID = async () => {
         try {
             const getOrder = await orderService.getOrderById(orderId);
-            if (orderId)
-                setOrder(getOrder);
-
+            if (orderId) setOrder(getOrder);
         } catch (error) {
             console.error('Error fetching user data1:', error);
         }
@@ -51,7 +46,6 @@ function EReceipt({ navigation }) {
     // console.log(order?.data.quantity, '========') ;
     const dataOrder = order?.data;
     // console.log(dataOrder?.orderID, "ahahahaahahahah")
-
 
     const handleToHome = () => {
         navigation.navigate('Tabs');
@@ -62,7 +56,9 @@ function EReceipt({ navigation }) {
             <View style={styles.imageController}>
                 <Image
                     style={styles.imageHeader}
-                    source={{ uri: `data:image/jpeg;base64,${dataOrder?.image}` }}
+                    source={{
+                        uri: `data:image/jpeg;base64,${dataOrder?.image}`,
+                    }}
                 />
                 <Text style={styles.title}>
                     Order Confirmed, Your Food is On The Way :)
@@ -140,7 +136,9 @@ function EReceipt({ navigation }) {
                     >
                         <Image
                             style={{ width: 130, height: 130 }}
-                            source={{ uri: `data:image/jpeg;base64,${dataOrder?.image}` }}
+                            source={{
+                                uri: `data:image/jpeg;base64,${dataOrder?.image}`,
+                            }}
                         />
                         <Text
                             style={{
@@ -152,7 +150,6 @@ function EReceipt({ navigation }) {
                             Order Completed
                         </Text>
 
-
                         {dataOrder?.orderItems?.map((order) => (
                             <View style={{ width: '100%', marginTop: '5%' }}>
                                 <View
@@ -161,20 +158,49 @@ function EReceipt({ navigation }) {
                                         justifyContent: 'space-evenly',
                                     }}
                                 >
-                                    <Text style={{ fontSize: 16, fontWeight: 400 }}>
+                                    <Text
+                                        style={{
+                                            fontSize: 16,
+                                            fontWeight: 400,
+                                        }}
+                                    >
                                         {order.itemName}
                                     </Text>
-                                    <Text style={{ fontSize: 14, fontWeight: 400 }}>
+                                    <Text
+                                        style={{
+                                            fontSize: 14,
+                                            fontWeight: 400,
+                                        }}
+                                    >
                                         x{order.quantity}
                                     </Text>
-                                    <Text style={{ fontWeight: '700', fontSize: 16 }}>
+                                    <Text
+                                        style={{
+                                            fontWeight: '700',
+                                            fontSize: 16,
+                                        }}
+                                    >
                                         Rp {order.price}
                                     </Text>
                                 </View>
                                 <View style={{ marginLeft: '9%' }}>
                                     {order.orderItemSubVarieties.length > 0 && (
-                                        <Text style={{ fontSize: 14, fontWeight: 400, marginTop: 10 }}>
-                                            [{order.orderItemSubVarieties.map((or) => or.subVariety.subVarName).join(', ')}]
+                                        <Text
+                                            style={{
+                                                fontSize: 14,
+                                                fontWeight: 400,
+                                                marginTop: 10,
+                                            }}
+                                        >
+                                            [
+                                            {order.orderItemSubVarieties
+                                                .map(
+                                                    (or) =>
+                                                        or.subVariety
+                                                            .subVarName,
+                                                )
+                                                .join(', ')}
+                                            ]
                                         </Text>
                                     )}
                                 </View>
@@ -182,16 +208,25 @@ function EReceipt({ navigation }) {
                         ))}
 
                         <View
-                            style={{ flexDirection: "row", marginTop: 20, marginLeft: '40%' }}
-
-
-
+                            style={{
+                                flexDirection: 'row',
+                                marginTop: 20,
+                                marginLeft: '40%',
+                            }}
                         >
-                            <Text style={{ fontSize: 16, fontWeight: 700, marginRight: 10 }}>Total</Text>
-                            <Text style={{ fontSize: 16, fontWeight: 700 }}>Rp {dataOrder?.orderValue}</Text>
+                            <Text
+                                style={{
+                                    fontSize: 16,
+                                    fontWeight: 700,
+                                    marginRight: 10,
+                                }}
+                            >
+                                Total
+                            </Text>
+                            <Text style={{ fontSize: 16, fontWeight: 700 }}>
+                                Rp {dataOrder?.orderValue}
+                            </Text>
                         </View>
-
-
                     </View>
                 </ImageBackground>
             </View>
@@ -209,8 +244,13 @@ function EReceipt({ navigation }) {
                     alignItems: 'center',
                 }}
             >
-                {route.params.isSplit ? ``:
+                {route.params.isSplit ? (
+                    ``
+                ) : (
                     <Button
+                        onPress={() =>
+                            navigation.navigate('SplitBill', { order })
+                        }
                         buttonStyle={{
                             width: '80%',
                             borderRadius: 20,
@@ -220,7 +260,7 @@ function EReceipt({ navigation }) {
                         title={'Split Bill'}
                         titleStyle={{ fontWeight: 'bold', fontSize: 16 }}
                     />
-                }
+                )}
 
                 <Button
                     onPress={handleToHome}
