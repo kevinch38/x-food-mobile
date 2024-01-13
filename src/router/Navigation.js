@@ -37,7 +37,6 @@ const Navigation = () => {
                 initialRouteName="InitialScreen"
                 screenOptions={{ headerShown: false }}
             >
-                <Stack.Screen name="SendPayment" component={SendPayment} />
                 <Stack.Screen name="Splash" component={Splash} />
                 <Stack.Screen name="Welcome" component={Welcome} />
                 <Stack.Screen name="Login" component={Login} />
@@ -85,9 +84,10 @@ const Navigation = () => {
                 />
                 <Stack.Screen name="Payment" component={Payment} />
                 <Stack.Screen
-                    name="CompleteSplitBillPayment"
+                    name="CompletePaymentSpiltBill"
                     component={CompletePaymentSpiltBill}
                 />
+                <Stack.Screen name="SendPayment" component={SendPayment} />
             </Stack.Navigator>
         </NavigationContainer>
     );

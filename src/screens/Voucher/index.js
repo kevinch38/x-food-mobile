@@ -25,25 +25,34 @@ const Voucher = ({ navigation }) => {
     const navigate = useNavigation();
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const userService = UserService;
-    const [userData, setUserData] = useState({ vouchers: [] });
+    const [userData, setUserData] = useState({});
 
     const dispatch = useDispatch();
     const { users } = useSelector((state) => state.user);
     const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
     const { loyaltyPointService } = useContext(ServiceContext);
+    const [refetch, setRefecth] = useState(true);
+
     const handleRedeemPress = () => {
         navigate.navigate('Redeem');
     };
 
     useEffect(() => {
-        fetchUserData(phoneNumber);
+        isRefetch();
+    }, []);
+
+    useEffect(() => {
+        if (refetch) {
+            fetchUserData(phoneNumber);
+            setRefecth(false);
+        }
     }, [phoneNumber]);
 
     const fetchUserData = async (phoneNumber) => {
         try {
             const fetchedUserData =
                 await userService().fetchUserByPhoneNumber(phoneNumber);
-            setUserData(fetchedUserData);
+            setUserData(fetchedUserData.data);
             // console.log('userData:', fetchedUserData);
         } catch (error) {
             console.error('Error fetching user data:', error);
@@ -67,8 +76,15 @@ const Voucher = ({ navigation }) => {
             }
         };
 
-        onGetLoyaltyPointAmount();
+        if (refetch) {
+            onGetLoyaltyPointAmount();
+            setRefecth(false);
+        }
     }, [dispatch, loyaltyPointService]);
+
+    const isRefetch = () => {
+        setRefecth(true);
+    };
 
     return (
         <SafeAreaView style={styles.wrapper}>

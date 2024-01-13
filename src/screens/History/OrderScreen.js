@@ -1,9 +1,9 @@
-import {View, ScrollView, BackHandler, TouchableOpacity} from "react-native";
-import OrderHistoryCard from "../../components/card/OrderHistoryCard";
-import {useSelector} from "react-redux";
-import UserService from "../../services/UserService";
-import React, {useEffect, useState} from "react";
-import HistoryService from "../../services/HistoryService";
+import { View, ScrollView, BackHandler, TouchableOpacity } from 'react-native';
+import OrderHistoryCard from '../../components/card/OrderHistoryCard';
+import { useSelector } from 'react-redux';
+import UserService from '../../services/UserService';
+import React, { useEffect, useState } from 'react';
+import HistoryService from '../../services/HistoryService';
 import { format } from 'date-fns';
 import Loading from '../../components/loading';
 
@@ -34,7 +34,6 @@ const OrderScreen = () => {
             setId(accountID);
         } catch (error) {
             console.error('Error fetching user data1:', error);
-            a;
         }
     };
 

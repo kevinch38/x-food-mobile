@@ -1,5 +1,4 @@
 import {
-    Button,
     Image,
     SafeAreaView,
     ScrollView,
@@ -11,6 +10,7 @@ import {
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import BackButton from '../../../components/backButton';
+import Button from '../../../components/button';
 import Color from '../../../assets/Color';
 import iconBag from '../../../assets/icons/bag.png';
 import { RoundedCheckbox } from 'react-native-rounded-checkbox';
@@ -112,12 +112,12 @@ const Detail = ({ navigation }) => {
 
         navigation.navigate('Cart');
     };
+    // const isDisable = tempItems <= 1 ? Color.disabled : Color.primary;
 
     return (
         <SafeAreaView style={styles.wrapper}>
             <ScrollView>
                 <BackButton onPress={handleBack} />
-                {/*<Button title={'hh'} onPress={console.log(tempItems)} />*/}
                 <Image
                     source={{ uri: base64StringImage }}
                     style={{
@@ -167,10 +167,13 @@ const Detail = ({ navigation }) => {
                             onPress={handleDecrease}
                             title="-"
                             buttonStyle={{
-                                width: 40,
-                                height: 40,
-                                backgroundColor: Color.primary,
-                                borderRadius: 40 / 2,
+                                width: 36,
+                                height: 36,
+                                backgroundColor:
+                                    tempItems.length <= 1
+                                        ? Color.disabled
+                                        : Color.primary,
+                                borderRadius: 36 / 2,
                             }}
                             titleStyle={{ fontWeight: 'bold' }}
                         />
@@ -188,10 +191,10 @@ const Detail = ({ navigation }) => {
                             onPress={handleIncrease}
                             title="+"
                             buttonStyle={{
-                                width: 40,
-                                height: 40,
+                                width: 36,
+                                height: 36,
                                 backgroundColor: Color.primary,
-                                borderRadius: 40 / 2,
+                                borderRadius: 36 / 2,
                             }}
                             titleStyle={{ fontWeight: 'bold' }}
                         />

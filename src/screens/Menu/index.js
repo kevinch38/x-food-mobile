@@ -27,9 +27,7 @@ const Menu = ({ navigation }) => {
     const { merchantBranchService } = useContext(ServiceContext);
     const route = useRoute();
     const branchId = route.params?.branchId;
-
     const cartTotal = useSelector(selectCartTotal);
-
     const [isLoading, setIsLoading] = useState(true);
 
     const handleToMenuDetail = (item) => {
@@ -136,6 +134,7 @@ const Menu = ({ navigation }) => {
                                         itemName={item.itemName}
                                         itemDescription={item.itemDescription}
                                         image={item.image}
+                                        itemStock={item.itemStock}
                                     />
                                 );
                             })}

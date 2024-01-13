@@ -3,7 +3,10 @@ import { View, Image, Text } from 'react-native';
 const VoucherCard = ({ image, title, content, expired }) => {
     return (
         <View style={{ flexDirection: 'row', width: '100%', padding: 20 }}>
-            <Image source={{ uri: `data:image/jpeg;base64,${image}` }} />
+            <Image
+                source={{ uri: `data:image/jpeg;base64,${image}` }}
+                style={{ height: 70, width: 70 }}
+            />
             <View style={{ flexDirection: 'column', marginLeft: 20 }}>
                 <Text
                     style={{

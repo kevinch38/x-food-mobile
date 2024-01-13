@@ -171,6 +171,7 @@ function Cart({ navigation }) {
                                         navigation.navigate('Pin', {
                                             accountID: result.data.accountID,
                                             orderID: result.data.orderID,
+                                            destination: 'Payment',
                                         });
                                         dispatch(emptyCart());
                                         return result;
@@ -358,10 +359,6 @@ function Cart({ navigation }) {
                                         strokeWidth={2}
                                     />
                                 </TouchableOpacity>
-                                <Button
-                                    title={'hh'}
-                                    onPress={console.log(item)}
-                                />
                             </View>
                         </View>
                     </View>
@@ -393,6 +390,10 @@ function Cart({ navigation }) {
         );
     };
 
+    const convertImage = (image) => {
+        return `uri: 'data:image/png;base64,${image}'`;
+    };
+
     const renderVoucher = () => {
         return (
             <View style={styles.dropdownContainer}>
@@ -407,9 +408,7 @@ function Cart({ navigation }) {
                     selectedTextStyle={styles.selectedTextStyle}
                     imageStyle={styles.imageStyle}
                     data={vouchers}
-                    imageField={`
-                        uri: "data:image/jpeg;base64,${'logoImage'}",
-                    `}
+                    imageField={convertImage('logoImage')}
                     labelField="promotionName"
                     valueField="voucherValue"
                     // onChange={handleDropdown}
@@ -592,8 +591,8 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     imageStyle: {
-        marginLeft: 12,
         width: 36,
+        height: 36,
     },
     subtotalContainer: {
         marginTop: 35,
