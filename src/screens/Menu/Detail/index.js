@@ -28,7 +28,6 @@ import {
 const Detail = ({ navigation }) => {
     const dispatch = useDispatch();
     const route = useRoute();
-    // const cartItems = useSelector(selectCartItems);
     const item = route.params?.item;
     const { tempItems } = useSelector((state) => state.cart);
     let defaultPrice = item.isDiscounted
@@ -38,22 +37,6 @@ const Detail = ({ navigation }) => {
     let [price, setPrice] = useState(defaultPrice);
 
     const base64StringImage = `data:image/jpeg;base64,${item.image}`;
-
-    const totalItems = useSelector((state) =>
-        selectCartItemsById(state, item.itemID),
-    );
-
-    // useEffect(() => {
-    //     if (tempItems.length === 0) {
-    //         idxRef.current = 0;
-    //     }
-    // }, [tempItems]);
-
-    // useEffect(() => {
-    //     if (tempItems.length < 1) {
-    //         navigation.navigate('MenuDetail');
-    //     }
-    // }, [tempItems.length]);
 
     useEffect(() => {
         dispatch(
@@ -112,7 +95,6 @@ const Detail = ({ navigation }) => {
 
         navigation.navigate('Cart');
     };
-    // const isDisable = tempItems <= 1 ? Color.disabled : Color.primary;
 
     return (
         <SafeAreaView style={styles.wrapper}>
