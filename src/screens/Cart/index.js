@@ -22,15 +22,15 @@ import {
     removeAll,
     removeFromCart,
     selectCartItems,
-    selectCartItemsById,
     selectCartTotal,
 } from '../../slices/cartSlice';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
 import { userAction } from '../../slices/userSlice';
 import { ServiceContext } from '../../context/ServiceContext';
-import Loading from '../../components/loading';
 import { createOrderAction } from '../../slices/orderSlice';
+import { fetchBalanceAction } from '../../slices/balanceSlice';
+import Color from '../../assets/Color';
 
 function Cart({ navigation }) {
     const dispatch = useDispatch();
@@ -39,17 +39,26 @@ function Cart({ navigation }) {
     const cartTotal = useSelector(selectCartTotal);
     const [groupedItems, setGroupedItems] = useState({});
     const { users } = useSelector((state) => state.user);
+    const { balance } = useSelector((state) => state.balance);
     const { selectedBranch } = useSelector((state) => state.merchantBranch);
     const [sale, setSale] = useState('');
     const [nameVoucher, setNameVoucher] = useState('');
-    const { userService, orderService } = useContext(ServiceContext);
+    const { userService, orderService, balanceService } =
+        useContext(ServiceContext);
     const [vouchers, setVouchers] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [balanceUser, setBalanceUser] = useState(0);
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
+
+    const totalBalance = balanceUser <= 0 ? Color.disabled : Color.primary;
 
     useEffect(() => {
         setVouchers(users?.vouchers);
     }, [users]);
+
+    useEffect(() => {
+        setBalanceUser(balance.totalBalance);
+    }, [balance.totalBalance]);
 
     useEffect(() => {
         const onGetUserByPhoneNumber = async () => {
@@ -68,7 +77,24 @@ function Cart({ navigation }) {
                 setIsLoading(false);
             }
         };
+
+        const onGetBalanceUser = async () => {
+            try {
+                dispatch(
+                    fetchBalanceAction(async () => {
+                        const result = balanceService.fetchBalance(
+                            users.balanceID,
+                        );
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetching balance data: ', e);
+            }
+        };
+
         onGetUserByPhoneNumber();
+        onGetBalanceUser();
     }, [dispatch, userService]);
 
     const Schema = yup.object().shape({
@@ -145,6 +171,7 @@ function Cart({ navigation }) {
                                         navigation.navigate('Pin', {
                                             accountID: result.data.accountID,
                                             orderID: result.data.orderID,
+                                            destination: 'Payment',
                                         });
                                         dispatch(emptyCart());
                                         return result;
@@ -292,10 +319,7 @@ function Cart({ navigation }) {
                         </Text>
                         <View style={styles.priceSection}>
                             <Text style={styles.priceMenu}>
-                                Rp.{' '}
-                                {item.isDiscounted
-                                    ? item.discountedPrice
-                                    : item.initialPrice}
+                                Rp. {item.itemPrice}
                             </Text>
                             <View style={styles.counter}>
                                 {order === items.items.length ? (
@@ -366,6 +390,10 @@ function Cart({ navigation }) {
         );
     };
 
+    const convertImage = (image) => {
+        return `uri: 'data:image/png;base64,${image}'`;
+    };
+
     const renderVoucher = () => {
         return (
             <View style={styles.dropdownContainer}>
@@ -380,9 +408,7 @@ function Cart({ navigation }) {
                     selectedTextStyle={styles.selectedTextStyle}
                     imageStyle={styles.imageStyle}
                     data={vouchers}
-                    imageField={`
-                        uri: "data:image/jpeg;base64,${'logoImage'}",
-                    `}
+                    imageField={convertImage('logoImage')}
                     labelField="promotionName"
                     valueField="voucherValue"
                     // onChange={handleDropdown}
@@ -449,7 +475,9 @@ function Cart({ navigation }) {
                     <Button
                         title={'CHECKOUT'}
                         titleStyle={styles.titleStyle}
+                        buttonStyle={{ backgroundColor: totalBalance }}
                         onPress={handleSubmit}
+                        disabled={balanceUser <= 0}
                     />
                 </View>
             </ScrollView>
@@ -563,8 +591,8 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     imageStyle: {
-        marginLeft: 12,
         width: 36,
+        height: 36,
     },
     subtotalContainer: {
         marginTop: 35,

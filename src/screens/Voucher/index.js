@@ -8,7 +8,6 @@ import {
     TouchableOpacity,
     View,
     StyleSheet,
-    Button,
     BackHandler,
 } from 'react-native';
 import VoucherCard from '../../components/card/VoucherCard';
@@ -18,30 +17,42 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import { useNavigation } from '@react-navigation/native';
 import { loyaltyPointAction } from '../../slices/loyaltyPointSlice';
-import UserService from "../../services/UserService";
+import UserService from '../../services/UserService';
+import Button from '../../components/button';
+import Color from '../../assets/Color';
 
 const Voucher = ({ navigation }) => {
     const navigate = useNavigation();
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const userService = UserService;
-    const [userData, setUserData] = useState({ vouchers: [] });
+    const [userData, setUserData] = useState({});
 
     const dispatch = useDispatch();
     const { users } = useSelector((state) => state.user);
     const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
     const { loyaltyPointService } = useContext(ServiceContext);
+    const [refetch, setRefecth] = useState(true);
+
     const handleRedeemPress = () => {
         navigate.navigate('Redeem');
     };
 
     useEffect(() => {
-        fetchUserData(phoneNumber);
+        isRefetch();
+    }, []);
+
+    useEffect(() => {
+        if (refetch) {
+            fetchUserData(phoneNumber);
+            setRefecth(false);
+        }
     }, [phoneNumber]);
 
     const fetchUserData = async (phoneNumber) => {
         try {
-            const fetchedUserData = await userService().fetchUserByPhoneNumber(phoneNumber);
-            setUserData(fetchedUserData);
+            const fetchedUserData =
+                await userService().fetchUserByPhoneNumber(phoneNumber);
+            setUserData(fetchedUserData.data);
             // console.log('userData:', fetchedUserData);
         } catch (error) {
             console.error('Error fetching user data:', error);
@@ -65,8 +76,15 @@ const Voucher = ({ navigation }) => {
             }
         };
 
-        onGetLoyaltyPointAmount();
+        if (refetch) {
+            onGetLoyaltyPointAmount();
+            setRefecth(false);
+        }
     }, [dispatch, loyaltyPointService]);
+
+    const isRefetch = () => {
+        setRefecth(true);
+    };
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -99,7 +117,7 @@ const Voucher = ({ navigation }) => {
                         marginTop: -30,
                     }}
                 >
-                    <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flexDirection: 'row', marginTop: 25 }}>
                         <Image
                             source={require('../../../assets/images/Coin.png')}
                         />
@@ -107,15 +125,20 @@ const Voucher = ({ navigation }) => {
                             {loyaltyPoints.loyaltyPointAmount}
                         </Text>
                     </View>
-                    <TouchableOpacity
-                        style={{ marginTop: 25 }}
+                    <Button
+                        buttonStyle={{
+                            width: 110,
+                            height: 30,
+                            marginTop: 25,
+                            backgroundColor:
+                                loyaltyPoints.loyaltyPointAmount <= 0
+                                    ? Color.disabled
+                                    : Color.primary,
+                        }}
+                        title={'Reedem'}
+                        disabled={loyaltyPoints.loyaltyPointAmount <= 0}
                         onPress={handleRedeemPress}
-                        activeOpacity={0.7}
-                    >
-                        <Image
-                            source={require('../../../assets/images/redeembutton.png')}
-                        />
-                    </TouchableOpacity>
+                    />
                 </View>
                 <View>
                     <Text style={{ fontSize: 18, fontWeight: '700' }}>

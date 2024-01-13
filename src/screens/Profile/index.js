@@ -26,6 +26,7 @@ import basket from '../../assets/icons/basket.png';
 import Color from '../../assets/Color';
 import camera from '../../assets/icons/camera.png';
 import axios from 'axios';
+import { fetchBalanceAction } from '../../slices/balanceSlice';
 
 function Profile({ navigation }) {
     const dispatch = useDispatch();
@@ -41,48 +42,51 @@ function Profile({ navigation }) {
     const imageUrl =
         'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
 
-    useEffect(() => {
-        const onGetLoyaltyPointAmount = () => {
-            try {
-                dispatch(
-                    loyaltyPointAction(async () => {
-                        const result =
-                            loyaltyPointService.fetchLoyaltyPointById(
-                                users.loyaltyPoint.loyaltyPointID,
+    useEffect(
+        () => {
+            const onGetLoyaltyPointAmount = () => {
+                try {
+                    dispatch(
+                        loyaltyPointAction(async () => {
+                            const result =
+                                loyaltyPointService.fetchLoyaltyPointById(
+                                    users.loyaltyPoint.loyaltyPointID,
+                                );
+                            return result;
+                        }),
+                    );
+                } catch (e) {
+                    console.error('Error fetching loyalty point data: ', e);
+                }
+            };
+
+            const onGetBalanceUser = async () => {
+                try {
+                    dispatch(
+                        fetchBalanceAction(async () => {
+                            const result = balanceService.fetchBalance(
+                                users.balanceID,
                             );
-                        return result;
-                    }),
-                );
-            } catch (e) {
-                console.error('Error fetching loyalty point data: ', e);
-            }
-        };
+                            return result;
+                        }),
+                    );
+                } catch (e) {
+                    console.error('Error fetchin balance data: ', e);
+                }
+            };
 
-        const onGetBalanceUser = async () => {
-            try {
-                dispatch(
-                    fetchBalanceAction(async () => {
-                        const result = balanceService.fetchBalance(
-                            users.balanceID,
-                        );
-                        return result;
-                    }),
-                );
-            } catch (e) {
-                console.error('Error fetchin balance data: ', e);
-            }
-        };
-
-        onGetBalanceUser();
-        onGetUserByPhoneNumber();
-        onGetLoyaltyPointAmount();
-    }, [
-        dispatch,
-        userService,
-        loyaltyPointService,
-        balanceService,
-        Object.keys(users).length,
-    ]);
+            onGetBalanceUser();
+            onGetUserByPhoneNumber();
+            onGetLoyaltyPointAmount();
+        },
+        [
+            // dispatch,
+            // userService,
+            // loyaltyPointService,
+            // balanceService,
+            // Object.keys(users).length,
+        ],
+    );
 
     const onGetUserByPhoneNumber = () => {
         try {

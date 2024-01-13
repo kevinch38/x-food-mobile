@@ -13,6 +13,16 @@ export const cartSlice = createSlice({
         addTempCartToCart: (state, { payload }) => {
             state.items.push(...payload.map((itm) => ({ ...itm })));
         },
+
+        updateItem: (state, { payload }) => {
+            console.log(payload, '==== payload cart');
+            state.tempItems.map(
+                (item) => (
+                    (item.itemVarieties = payload.itemVarieties),
+                    (item.itemPrice = payload.itemPrice)
+                ),
+            );
+        },
         addToTempCart: (state, { payload }) => {
             state.tempItems = [...state.tempItems, payload];
         },
@@ -34,10 +44,9 @@ export const cartSlice = createSlice({
                             payloadSubVarietyIDs.includes(subVarietyID),
                     );
 
-                    // Hapus item jika memiliki subVarietyID yang sama
                     if (hasDuplicateSubVarietyID) {
-                        found = true; // Set found ke true untuk menghapus satu item saja
-                        return false; // Hapus item saat iterasi ini
+                        found = true;
+                        return false;
                     }
                 }
                 return true;
@@ -147,10 +156,9 @@ export const cartSlice = createSlice({
                             payloadSubVarietyIDs.includes(subVarietyID),
                     );
 
-                    // Hapus item jika memiliki subVarietyID yang sama
                     if (hasDuplicateSubVarietyID) {
-                        found = true; // Set found ke true untuk menghapus satu item saja
-                        return false; // Hapus item saat iterasi ini
+                        found = true;
+                        return false;
                     }
                 }
                 return true;
@@ -214,6 +222,7 @@ export const {
     emptyTempCart,
     removeFromTempCart,
     addTempCartToCart,
+    updateItem,
 } = cartSlice.actions;
 export const selectCartItems = (state) => state.cart.items;
 export const selectCartItemsById = (state, id) =>

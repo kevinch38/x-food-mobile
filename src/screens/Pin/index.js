@@ -31,6 +31,9 @@ function Pin({ navigation }) {
     const { pinService, orderService } = useContext(ServiceContext);
     const accountID = route.params?.accountID;
     const orderID = route.params?.orderID;
+    const paymentID = route.params?.paymentID;
+    const destination = route.params?.destination;
+    const sale = route.params?.sale;
 
     const input1Ref = useRef();
     const input2Ref = useRef();
@@ -78,10 +81,15 @@ function Pin({ navigation }) {
                         console.log(result, '=== data');
 
                         if (result.data) {
-                            navigation.navigate('Payment', {
-                                accountID: accountID,
-                                orderID: orderID,
-                            });
+                            destination === 'Payment'
+                                ? navigation.navigate('Payment', {
+                                      accountID: accountID,
+                                      orderID: orderID,
+                                  })
+                                : navigation.navigate(
+                                      'CompletePaymentSpiltBill', {
+                                    }
+                                  );
                         } else {
                             Alert.alert(
                                 'Verifikasi gagal',

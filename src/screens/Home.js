@@ -51,6 +51,10 @@ const Home = ({ navigation }) => {
         return hasMatchingBranch;
     });
 
+    const handleNotification = () => {
+        navigation.navigate("Notification");
+    }
+
     const filteredSearchMerchants =
         search.trim() === ''
             ? filteredMerchants
@@ -151,7 +155,7 @@ const Home = ({ navigation }) => {
             <ScrollView>
                 <View style={styles.container}>
                     <View style={styles.notifBell}>
-                        <Pressable>
+                        <Pressable onPress={handleNotification}>
                             <Image
                                 style={{ height: 34, width: 34 }}
                                 source={require('../assets/icons/Bell.png')}
