@@ -1,12 +1,15 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Image, StyleSheet, Text, TouchableOpacity, View, Button, Pressable} from "react-native";
 import React, {useEffect, useState} from "react";
 import { format } from 'date-fns';
 import VoucherService from "../services/VoucherService";
 import PromotionService from "../services/PromotionService";
+import {theme} from "../theme";
 
 
 const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, points, isMaxRedeemed, promotionID, accountID, voucherEmpty,onRedeemPress}) => {
     console.log("Vouchers Left for Promotion ID", promotionID, ":", vouchersLeft);
+    console.log("voucher empty",voucherEmpty);
+    console.log("is max redeem", isMaxRedeemed)
     const formattedExpiredDate = format(new Date(expired), 'yyyy/MM/dd');
     const handleRedeem = async () => {
         try {
@@ -45,12 +48,17 @@ const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, point
                         <Text style={{marginLeft:20, fontSize:12, color:'#9796A1'}}>{items} Items</Text>
                         <Text style={{marginLeft:60, color:'#4EE476'}}>{points}</Text>
                     </View>
-                        <TouchableOpacity style={{marginTop:80, marginLeft:120, position: 'absolute'}} onPress={handleRedeemAndFetchVoucher}>
-                            {isMaxRedeemed || voucherEmpty ?
-                                <Image source={require('../assets/icons/RedeemedButton.png')}/> :
-                                <Image source={require('../assets/icons/RedeemButton.png')}/>
-                            }
-                        </TouchableOpacity>
+                    <TouchableOpacity style={{marginTop:80, marginLeft:120, position: 'absolute'}} onPress={handleRedeemAndFetchVoucher}>
+                        {isMaxRedeemed || voucherEmpty ?
+                            <View style={[styles.button, {backgroundColor: theme.grey}]}>
+                                <Text style={{textAlign:"center", color:"white"}}>Redeem</Text>
+                            </View>
+                            :
+                            <View style={[styles.button, {backgroundColor: "#F08D18"}]}>
+                                <Text style={{textAlign:"center", color:"white"}}>Redeem</Text>
+                            </View>
+                        }
+                    </TouchableOpacity>
 
                 </View>
 
@@ -78,6 +86,17 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.25,
         shadowRadius: 36.42
+
+    },
+
+    button: {
+        flex: 1,
+        padding: 10,
+        margin: 20,
+        borderRadius: 30,
+        marginLeft:40,
+        width:135,
+
 
     },
     image : {
