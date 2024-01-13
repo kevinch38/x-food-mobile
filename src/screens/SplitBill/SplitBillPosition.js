@@ -1,4 +1,5 @@
 import {
+    Alert,
     Image,
     SafeAreaView,
     ScrollView,
@@ -9,11 +10,68 @@ import {
     View,
 } from 'react-native';
 import * as Icon from 'react-native-feather';
-import Color from '../../assets/Color';
 import Button from '../../components/button';
-import React from 'react';
+import React, {useContext, useEffect, useState} from 'react';
+import {useDispatch, useSelector} from "react-redux";
+import {ServiceContext} from "../../context/ServiceContext";
+import {userAction} from "../../slices/userSlice";
+import {friendAction} from "../../slices/friendSlice";
+import {splitBillAction} from "../../slices/splitBillSlice";
 
-function SplitBillPosition({ navigation }) {
+function SplitBillPosition({navigation, route}) {
+    const dispatch = useDispatch();
+    const {splitBillService} = useContext(ServiceContext);
+    const {splitBill} = useSelector((state) => state.splitBill);
+    const [requestPayment, setRequestPayment] = useState(route.params?.request)
+
+    const handleSubmit = () => {
+
+        let request = requestPayment
+
+        request = request.map((req) => {
+            delete req.friendName
+            req.orderItems = req.orderItems?.map((r) => {
+                return r.orderItemID
+            })
+            return req
+            // console.log(req, 'req')
+            // req.orderItems?.map((r) => {
+            //     return r.orderItemID
+            // })
+        })
+
+        // request.delete(friendName)
+        console.log(request, 'request -----_')
+
+        dispatch(
+            splitBillAction(async () => {
+                try {
+                    const result = await splitBillService.saveSplitBill(request)
+                    if (result.statusCode === 201) {
+                        Alert.alert(
+                            'Success',
+                            'Successfully create payment',
+                            [
+                                {
+                                    text: 'Ok',
+                                    onPress: async () => {
+                                        navigation.navigate('SplitBillSuccess');
+                                    },
+                                },
+                            ],
+                            {cancelable: false},
+                        );
+                    } else {
+                        Alert.alert('Error', 'Failed to create payment');
+                    }
+                } catch (e) {
+                    console.error('Error request payment: ', e);
+                    Alert.alert('Error', 'Failed to request payment');
+                }
+            })
+        )
+    }
+
     const renderHeader = () => {
         return (
             <View style={styles.headerContainer}>
@@ -40,69 +98,32 @@ function SplitBillPosition({ navigation }) {
         return (
             <View style={styles.addPositionContainer}>
                 <View style={styles.cardContainer}>
-                    <View style={styles.card}>
-                        <View style={styles.avatarAddPosition}>
-                            <Image
-                                source={require('../../assets/images/avatar.png')}
-                            />
-                            <View style={styles.nameAddPosition}>
-                                <Text style={styles.titleAddPosition}>
-                                    Add Position to
-                                </Text>
-                                <Text style={styles.name}>Anna</Text>
+                    {requestPayment?.map((request) => (
+                        request.orderItems?.map((r) => (
+                            <View style={styles.card}>
+                                <View style={styles.avatarAddPosition}>
+                                    <Image
+                                        source={require('../../assets/images/avatar.png')}
+                                    />
+                                    <View style={styles.nameAddPosition}>
+                                        <Text style={styles.titleAddPosition}>
+                                            Add Position to
+                                        </Text>
+                                        <Text style={styles.name}>{request.friendName}</Text>
+                                    </View>
+                                </View>
+
+                                <View>
+                                    <Text style={styles.item}>{r.itemName}</Text>
+                                    <View style={styles.priceContainer}>
+                                        <Text style={styles.price}>Rp 55,000</Text>
+                                        <Text style={styles.price}>1x</Text>
+                                        <Text style={styles.priceTotal}>Rp 55,000</Text>
+                                    </View>
+                                </View>
                             </View>
-                        </View>
-                        <View>
-                            <Text style={styles.item}>Mushroom Signature</Text>
-                            <View style={styles.priceContainer}>
-                                <Text style={styles.price}>Rp 55,000</Text>
-                                <Text style={styles.price}>1x</Text>
-                                <Text style={styles.priceTotal}>Rp 55,000</Text>
-                            </View>
-                        </View>
-                    </View>
-                    <View style={styles.card}>
-                        <View style={styles.avatarAddPosition}>
-                            <Image
-                                source={require('../../assets/images/avatar.png')}
-                            />
-                            <View style={styles.nameAddPosition}>
-                                <Text style={styles.titleAddPosition}>
-                                    Add Position to
-                                </Text>
-                                <Text style={styles.name}>Erika</Text>
-                            </View>
-                        </View>
-                        <View>
-                            <Text style={styles.item}>Mushroom Signature</Text>
-                            <View style={styles.priceContainer}>
-                                <Text style={styles.price}>Rp 55,000</Text>
-                                <Text style={styles.price}>1x</Text>
-                                <Text style={styles.priceTotal}>Rp 55,000</Text>
-                            </View>
-                        </View>
-                    </View>
-                    <View style={styles.card}>
-                        <View style={styles.avatarAddPosition}>
-                            <Image
-                                source={require('../../assets/images/avatar.png')}
-                            />
-                            <View style={styles.nameAddPosition}>
-                                <Text style={styles.titleAddPosition}>
-                                    Add Position to
-                                </Text>
-                                <Text style={styles.name}>Erika</Text>
-                            </View>
-                        </View>
-                        <View>
-                            <Text style={styles.item}>Mushroom Signature</Text>
-                            <View style={styles.priceContainer}>
-                                <Text style={styles.price}>Rp 55,000</Text>
-                                <Text style={styles.price}>1x</Text>
-                                <Text style={styles.priceTotal}>Rp 55,000</Text>
-                            </View>
-                        </View>
-                    </View>
+                        ))
+                    ))}
                 </View>
             </View>
         );
@@ -119,7 +140,8 @@ function SplitBillPosition({ navigation }) {
             </ScrollView>
             <View style={styles.btnContainer}>
                 <Button
-                    onPress={() => navigation.navigate('SplitBillSuccess')}
+                    onPress={() => handleSubmit()}
+                    // onPress={() => navigation.navigate('SplitBillSuccess')}
                     title={'Request Payment'}
                     titleStyle={styles.titleStyle}
                     buttonStyle={styles.buttonStyle}
@@ -128,6 +150,7 @@ function SplitBillPosition({ navigation }) {
         </SafeAreaView>
     );
 }
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,

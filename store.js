@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
+import {configureStore} from '@reduxjs/toolkit';
 import userSlice from './src/slices/userSlice';
 import uiSlice from './src/slices/uiSlice';
 import pinReducer from './src/slices/pinSlice';
@@ -8,10 +8,11 @@ import citySlice from './src/slices/citySlice';
 import merchantBranchSlice from './src/slices/merchantBranch';
 import loyaltyPointSlice from './src/slices/loyaltyPointSlice';
 import authSlice from './src/slices/authSlice';
-import { cartSlice } from './src/slices/cartSlice';
+import {cartSlice} from './src/slices/cartSlice';
 import orderSlice from './src/slices/orderSlice';
 import balanceSlice from './src/slices/balanceSlice';
 import friendSlice from './src/slices/friendSlice';
+import splitBillSlice from "./src/slices/splitBillSlice";
 
 const setupStore = () =>
     configureStore({
@@ -28,6 +29,7 @@ const setupStore = () =>
             order: orderSlice.reducer,
             balance: balanceSlice.reducer,
             friend: friendSlice.reducer,
+            splitBill: splitBillSlice.reducer,
         },
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware().concat(asyncMiddlewareAction),

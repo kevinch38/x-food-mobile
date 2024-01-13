@@ -1,4 +1,5 @@
 import axios from 'axios';
+import token from './Token';
 
 const PinService = () => {
     const getPin = async (id) => {
@@ -12,8 +13,7 @@ const PinService = () => {
             user,
             {
                 headers: {
-                    Authorization:
-                        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJYIEZvb2QiLCJzdWIiOiJmZjgwODA4MThjZjIzNGFhMDE4Y2YyMzVkYWY2MDAwZSIsImV4cCI6MTcwNDg4NzU5MywiaWF0IjoxNzA0ODc2NzkzLCJyb2xlIjoiUk9MRV9VU0VSIn0.G240xE3BKrEIxjjjnH5xie_tWfzSXh7O_tkoy7Y2-Vg',
+                    Authorization: token,
                 },
             },
         );

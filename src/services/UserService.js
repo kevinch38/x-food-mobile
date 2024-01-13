@@ -1,4 +1,5 @@
 import axios from 'axios';
+import token from './Token';
 
 const UserService = () => {
     const register = async (phoneNumber) => {
@@ -25,6 +26,11 @@ const UserService = () => {
     const fetchUserById = async (id) => {
         const { data } = await axios.get(
             `http://10.0.2.2:8087/api/users/${id}`,
+            {
+                headers: {
+                    Authorization: token,
+                },
+            },
         );
         return data;
     };
@@ -32,6 +38,11 @@ const UserService = () => {
     const fetchUserByPhoneNumber = async (phoneNumber) => {
         const { data } = await axios.get(
             `http://10.0.2.2:8087/api/users/${phoneNumber}`,
+            {
+                headers: {
+                    Authorization: token,
+                },
+            },
         );
         return data;
     };
@@ -43,8 +54,7 @@ const UserService = () => {
                 user,
                 {
                     headers: {
-                        Authorization:
-                            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJYIEZvb2QiLCJzdWIiOiJmZjgwODA4MThjZjIzNGFhMDE4Y2YyMzVkYWY2MDAwZSIsImV4cCI6MTcwNDg4NzU5MywiaWF0IjoxNzA0ODc2NzkzLCJyb2xlIjoiUk9MRV9VU0VSIn0.G240xE3BKrEIxjjjnH5xie_tWfzSXh7O_tkoy7Y2-Vg',
+                        Authorization: token,
                     },
                 },
             );
@@ -57,6 +67,11 @@ const UserService = () => {
     const fetchPinByPinID = async (pinID) => {
         const { data } = await axios.get(
             `http://10.0.2.2:8087/api/pins/${pinID}`,
+            {
+                headers: {
+                    Authorization: token,
+                },
+            },
         );
         return data;
     };

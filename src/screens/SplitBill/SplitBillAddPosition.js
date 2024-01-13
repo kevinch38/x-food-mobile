@@ -9,11 +9,99 @@ import {
     View,
 } from 'react-native';
 import Button from '../../components/button';
-import React from 'react';
+import React, {useState} from 'react';
 import * as Icon from 'react-native-feather';
 import Color from '../../assets/Color';
+import {useDispatch} from "react-redux";
+import {addToSplitBill, removeFromSplitBill} from "../../slices/splitBillSlice";
 
-function SplitBillAddPosition({ navigation }) {
+function SplitBillAddPosition({navigation, route}) {
+    const friends = route.params?.avatarData;
+    const order = route.params?.order;
+    const orderItems = route.params?.order.data.orderItems;
+    const [selectedFriend, setSelectedFriend] = useState({
+        friendName: friends[0].accountFirstName2,
+        friendID: friends[0].accountID2,
+        friendImage: friends[0].imageAccount2,
+        // orderID: order.data.orderID,
+        // item:
+        //     orderItems.map((orderItem) => (
+        //         orderItem.orderItemID
+        //     ))
+    })
+    // console.log(order)
+
+    // const request = friends.map((f) => ({
+    //         friendAccountID: f.accountID2,
+    //         // orderItems: orderItems.map((orderItem) => orderItem.orderItemID)
+    //         orderItems: []
+    //     }
+    // ))
+    const [request, setRequest] = useState(friends.map((f) => ({
+            accountID: f.accountID1,
+            paymentAmount: 0.00,
+            friendAccountID: f.accountID2,
+            friendName: f.accountFirstName2,
+            orderID: order.data.orderID,
+            orderItems: []
+            // orderItems: orderItems.map((orderItem) => orderItem.orderItemID)
+        }
+    )))
+
+    console.log(request[0].orderItems, 'request ---')
+
+    // console.log(friends, '===')
+    // request.map((r) => {
+    //     console.log(r, '_____')
+    // })
+
+    const [selectedQuantities, setSelectedQuantities] = useState({});
+
+    const handleIncrease = (item) => {
+        console.log(item, 'item ###')
+        // const b= request.find((a)=> {
+        //    return  a.friendAccountID === selectedFriend.friendID
+        // })
+        const friendID = selectedFriend.friendID;
+        setSelectedQuantities((prevQuantities) => ({
+            ...prevQuantities,
+            [`${friendID}_${item.orderItemID}`]: (prevQuantities[`${friendID}_${item.orderItemID}`] || 0) + 1,
+        }));
+        const tempRequest = request.find((a) => {
+            return a.friendAccountID === selectedFriend.friendID
+        })
+        tempRequest.orderItems.push({itemName: item.itemName, orderItemID: item.orderItemID})
+        // console.log(tempRequest)
+        // setRequest([...request, request.find((a) => {
+        //     return a.friendAccountID === selectedFriend.friendID
+        // }).orderItems.push({itemName: item.itemName, orderItemID: item.orderItemID})])
+        // console.log(b, '####')
+        // console.log(request, '____')
+    }
+    const handleDecrease = (item) => {
+        // request.find((a) => {
+        //     return a.friendAccountID === selectedFriend.friendID
+        // }).orderItems.unshift(item.orderItemID)
+        // console.log(b, '####')
+        // console.log(request, '____')
+        // setRequest([...request, request.find((a) => {
+        //     return a.friendAccountID === selectedFriend.friendID
+        // }).orderItems.splice(request.find((b) => {
+        //     return b.friendAccountID === selectedFriend.friendID
+        // }).orderItems.findIndex(item.orderItemID),request.find((b) => {
+        //     return b.friendAccountID === selectedFriend.friendID
+        // }).orderItems.findIndex(item.orderItemID))])
+        const friendID = selectedFriend.friendID;
+        if (selectedQuantities[`${friendID}_${item.orderItemID}`] <= 0) return
+        setSelectedQuantities((prevQuantities) => ({
+            ...prevQuantities,
+            [`${friendID}_${item.orderItemID}`]: (prevQuantities[`${friendID}_${item.orderItemID}`] - 1 || 0),
+        }));
+        const temp = request.find((a) => {
+            return a.friendAccountID === selectedFriend.friendID
+        })
+        setRequest([...request, temp.orderItems.splice(temp.orderItems.indexOf({orderItemID: item.orderItemID}), 1)])
+    }
     const renderHeader = () => {
         return (
             <View style={styles.headerContainer}>
@@ -56,61 +144,40 @@ function SplitBillAddPosition({ navigation }) {
                             <Text style={styles.titleAddPosition}>
                                 Add Position to
                             </Text>
-                            <Text style={styles.name}>Anna</Text>
+                            <Text style={styles.name}>{selectedFriend.friendName}</Text>
                         </View>
                     </View>
-                    <View style={styles.itemContainer}>
-                        <Text style={styles.item}>Mushroom Signature</Text>
-                        <View style={styles.priceContainer}>
-                            <Text style={styles.price}>Rp 55,000</Text>
-                            <Text style={styles.price}>1x</Text>
-                            <View style={styles.counterContainer}>
-                                <TouchableOpacity style={styles.btnCounter}>
-                                    <Icon.Minus
-                                        width={16}
-                                        height={16}
-                                        strokeWidth={3}
-                                        color={'#fff'}
-                                    />
-                                </TouchableOpacity>
-                                <Text style={styles.amount}>0</Text>
-                                <TouchableOpacity style={styles.btnCounter}>
-                                    <Icon.Plus
-                                        width={16}
-                                        height={16}
-                                        strokeWidth={3}
-                                        color={'#fff'}
-                                    />
-                                </TouchableOpacity>
+                    {orderItems.map((item) => (
+                            <View style={styles.itemContainer}>
+                                <Text style={styles.item}>{item.itemName}</Text>
+                                <View style={styles.priceContainer}>
+                                    <Text style={styles.price}>Rp. {item.price.toLocaleString()}</Text>
+                                    <Text style={styles.price}>{item.quantity}x</Text>
+                                    <View style={styles.counterContainer}>
+                                        <TouchableOpacity style={styles.btnCounter} onPress={() => handleDecrease(item)}>
+                                            <Icon.Minus
+                                                width={16}
+                                                height={16}
+                                                strokeWidth={3}
+                                                color={'#fff'}
+                                            />
+                                        </TouchableOpacity>
+                                        {/*<Text style={styles.amount}>{item.itemName}</Text>*/}
+                                        <Text
+                                            style={styles.amount}>{selectedQuantities[`${selectedFriend.friendID}_${item.orderItemID}`] || 0}</Text>
+                                        <TouchableOpacity style={styles.btnCounter} onPress={() => handleIncrease(item)}>
+                                            <Icon.Plus
+                                                width={16}
+                                                height={16}
+                                                strokeWidth={3}
+                                                color={'#fff'}
+                                            />
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
                             </View>
-                        </View>
-                    </View>
-                    <View style={styles.itemContainer}>
-                        <Text style={styles.item}>Chicken Hawaiian</Text>
-                        <View style={styles.priceContainer}>
-                            <Text style={styles.price}>Rp 50,000</Text>
-                            <Text style={styles.price}>0x</Text>
-                            <View style={styles.counterContainer}>
-                                <TouchableOpacity style={styles.btnCounter}>
-                                    <Icon.Minus
-                                        width={16}
-                                        height={16}
-                                        strokeWidth={3}
-                                        color={'#fff'}
-                                    />
-                                </TouchableOpacity>
-                                <Text style={styles.amount}>0</Text>
-                                <TouchableOpacity style={styles.btnCounter}>
-                                    <Icon.Plus
-                                        width={16}
-                                        height={16}
-                                        strokeWidth={3}
-                                        color={'#fff'}
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </View>
+                        )
+                    )}
                 </View>
             </View>
         );
@@ -118,20 +185,23 @@ function SplitBillAddPosition({ navigation }) {
     const renderChoiceAvatar = () => {
         return (
             <View style={styles.choiceAvatarContainer}>
-                <TouchableOpacity style={styles.btnChoiceAvatar}>
-                    <Image
-                        source={require('../../assets/images/avatar.png')}
-                        style={styles.imageChoiceAvatar}
-                    />
-                    <Text style={styles.nameChoiceAvatar}>Erika</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.btnChoiceAvatar}>
-                    <Image
-                        source={require('../../assets/images/avatar.png')}
-                        style={styles.imageChoiceAvatar}
-                    />
-                    <Text style={styles.nameChoiceAvatar}>Erika</Text>
-                </TouchableOpacity>
+
+                {friends.length > 1 && friends.map((friend) => friend.accountID2 !== selectedFriend.friendID && (
+                        <TouchableOpacity style={styles.btnChoiceAvatar} key={friend.friendID}
+                                          onPress={() => setSelectedFriend({
+                                              ...selectedFriend,
+                                              friendName: friend.accountFirstName2,
+                                              friendID: friend.accountID2,
+                                              friendImage: friend.imageAccount2
+                                          })}>
+                            <Image
+                                source={require('../../assets/images/avatar.png')}
+                                style={styles.imageChoiceAvatar}
+                            />
+                            <Text style={styles.nameChoiceAvatar}>{friend.accountFirstName2}</Text>
+                        </TouchableOpacity>
+                    )
+                )}
             </View>
         );
     };
@@ -148,7 +218,10 @@ function SplitBillAddPosition({ navigation }) {
             {renderChoiceAvatar()}
             <View style={styles.btnContainer}>
                 <Button
-                    onPress={() => navigation.navigate('SplitBillPosition')}
+                    onPress={() => navigation.navigate('SplitBillPosition', {request})}
+                    // onPress={() => {
+                    //     console.log(request, 'button request')
+                    // }}
                     title={'Next'}
                     titleStyle={styles.titleStyle}
                     buttonStyle={styles.buttonStyle}

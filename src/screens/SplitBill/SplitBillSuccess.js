@@ -76,7 +76,7 @@ function SplitBillSuccess({ navigation }) {
             </ScrollView>
             <View style={styles.btnContainer}>
                 <Button
-                    onPress={() => navigation.navigate('SplitBillAddPosition')}
+                    onPress={() => navigation.navigate('Home')}
                     title={'Done'}
                     titleStyle={styles.titleStyle}
                     buttonStyle={styles.buttonStyle}

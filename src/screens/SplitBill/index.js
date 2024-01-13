@@ -8,7 +8,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import * as Icon from 'react-native-feather';
 import InputText from '../../components/inputText';
 import Color from '../../assets/Color';
@@ -16,28 +16,29 @@ import Button from '../../components/button';
 import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import { friendAction } from '../../slices/friendSlice';
+import { RoundedCheckbox } from 'react-native-rounded-checkbox';
 
 function SplitBill({ navigation, route }) {
     const dispatch = useDispatch();
     const { friends } = useSelector((state) => state.friend);
     const { friendService } = useContext(ServiceContext);
     const order = route.params?.order;
+    const [avatarData, setAvatarData] = useState([]);
 
-    const avatarData = [
-        { name: 'Anna', id: 1 },
-        { name: 'Erika', id: 2 },
-        { name: 'Eve', id: 3 },
-    ];
-
-    const contactData = [
-        { name: 'Hayley Williams', id: 1 },
-        { name: 'Amy Lee', id: 2 },
-        { name: 'John Doe', id: 3 },
-        { name: 'Anna Marie', id: 4 },
-        { name: 'Erika', id: 5 },
-    ];
-
-    console.log(order.data.accountID, 'acoount ===');
+    const handleCheck = (contact) => {
+        let check = avatarData.find(
+            (data) => data.friendID === contact.friendID,
+        );
+        if (check) {
+            setAvatarData((prevAvatarData) =>
+                prevAvatarData.filter(
+                    (data) => data.friendID !== contact.friendID,
+                ),
+            );
+        } else {
+            setAvatarData([...avatarData, contact]);
+        }
+    };
 
     useEffect(() => {
         try {
@@ -53,8 +54,6 @@ function SplitBill({ navigation, route }) {
             console.error('Error fetching friend data: ', e);
         }
     }, [dispatch, friendService]);
-
-    console.log(friends, '===');
 
     const renderHeader = () => {
         return (
@@ -89,15 +88,9 @@ function SplitBill({ navigation, route }) {
                                 source={require('../../assets/images/avatar.png')}
                                 style={styles.imageAvatar}
                             />
-                            <TouchableOpacity style={styles.btnClose}>
-                                <Icon.X
-                                    width={16}
-                                    height={16}
-                                    strokeWidth={2}
-                                    color={'#A7A7A7'}
-                                />
-                            </TouchableOpacity>
-                            <Text style={styles.nameAvatar}>{avatar.name}</Text>
+                            <Text style={styles.nameAvatar}>
+                                {avatar.accountFirstName2}
+                            </Text>
                         </View>
                     ))}
                 </View>
@@ -128,36 +121,31 @@ function SplitBill({ navigation, route }) {
     const renderContact = () => {
         return (
             <View style={styles.contactContainer}>
-                <View style={styles.contact}>
-                    <View style={styles.nameContact}>
-                        <Image
-                            source={require('../../assets/images/avatar.png')}
-                        />
-                        <Text style={styles.name}>Arlan</Text>
-                    </View>
-                    <TouchableOpacity style={styles.btnCheckContact}>
-                        <Icon.Check
-                            width={16}
-                            height={16}
-                            strokeWidth={3}
-                            color={'#fff'}
-                        />
-                    </TouchableOpacity>
-                </View>
-                {contactData.map((contact) => (
+                {friends.map((contact) => (
                     <View style={styles.contact} key={contact.id}>
                         <View style={styles.nameContact}>
                             <Image
                                 source={require('../../assets/images/avatar.png')}
                             />
-                            <Text style={styles.name}>{contact.name}</Text>
+                            <Text style={styles.name}>
+                                {contact.accountFirstName2}{' '}
+                                {contact.accountLastName2}
+                            </Text>
                         </View>
-                        <TouchableOpacity
-                            style={[
-                                styles.btnCheckContact,
-                                { backgroundColor: Color.gray },
-                            ]}
-                        ></TouchableOpacity>
+
+                        <RoundedCheckbox
+                            text={
+                                <Icon.Check
+                                    width={20}
+                                    height={20}
+                                    strokeWidth={3}
+                                    color={'#fff'}
+                                />
+                            }
+                            checkedColor={Color.primary}
+                            uncheckedColor={Color.gray}
+                            onPress={() => handleCheck(contact)}
+                        />
                     </View>
                 ))}
             </View>
@@ -177,7 +165,7 @@ function SplitBill({ navigation, route }) {
             </ScrollView>
             <View style={styles.btnContainer}>
                 <Button
-                    onPress={() => navigation.navigate('SplitBillAddPosition')}
+                    onPress={() => navigation.navigate('SplitBillAddPosition',{avatarData, order})}
                     title={'Next'}
                     titleStyle={styles.titleStyle}
                     buttonStyle={styles.buttonStyle}
@@ -303,14 +291,6 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: '600',
         marginLeft: 24,
-    },
-    btnCheckContact: {
-        backgroundColor: Color.primary,
-        width: 32,
-        height: 32,
-        borderRadius: 32,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     btnContainer: {
         borderTopStartRadius: 24,

@@ -10,7 +10,6 @@ const friendSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder.addCase(friendAction.fulfilled, (state, { payload }) => {
-            console.log(payload, 'payloadslice');
             if (payload) {
                 state.friends = payload.data;
             }

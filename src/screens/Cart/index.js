@@ -265,7 +265,7 @@ function Cart({ navigation }) {
                         style={styles.imageCart}
                     />
                     <View style={styles.menuContainer}>
-                        <View style={styles.menuSection}>
+                        <View style={styles.menuSection}>1
                             <Text style={styles.titleMenu}>
                                 {item.itemName}
                             </Text>

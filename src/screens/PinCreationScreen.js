@@ -88,7 +88,6 @@ const PinCreationScreen = ({ navigation }) => {
             const currentPinID = pinID || '';
 
             const pinData = await userService.fetchPinByPinID(currentPinID);
-            console.log('ini adalah pin data =============', pinData.data.pin);
 
             if (pinData.data.pin !== '') {
                 setPinIDExists(true);
@@ -119,9 +118,6 @@ const PinCreationScreen = ({ navigation }) => {
             console.error('API Error:', error);
         }
     };
-
-    console.log('modalVisible:', modalVisible);
-    console.log('pinIDExists:', pinIDExists);
 
     return (
         <View style={styles.centeredView}>
