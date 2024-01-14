@@ -28,8 +28,9 @@ export default function Register({ navigation }) {
     const Schema = yup.object().shape({
         firstName: yup
             .string()
-            .matches('^[a-zA-Z0-9.]*$', 'Invalid Firstname')
+            .matches(/^[a-zA-Z0-9. ]*$/, 'Invalid Firstname')
             .required('First Name Required'),
+        lastName: yup.string().matches(/^[a-zA-Z0-9. ]*$/, 'Invalid Lastname'),
         accountEmail: yup
             .string()
             .email('Email not valid')
@@ -131,6 +132,8 @@ export default function Register({ navigation }) {
         setFocusedInput(input);
     };
 
+    const isDisabled = !isValid || !dirty ? Color.disabled : Color.primary;
+
     return (
         <SafeAreaView style={styles.wrapper}>
             <View>
@@ -210,6 +213,11 @@ export default function Register({ navigation }) {
                             value={values.lastName}
                             maxLength={30}
                         />
+                        {touched.lastName && errors.lastName && (
+                            <Text style={styles.errorText}>
+                                {errors.lastName}
+                            </Text>
+                        )}
                     </View>
                     <View>
                         <Text style={styles.labelStyle}>Email</Text>
@@ -263,7 +271,7 @@ export default function Register({ navigation }) {
                         )}
                     </View>
                     <TouchableOpacity
-                        style={styles.button}
+                        style={[styles.button, { backgroundColor: isDisabled }]}
                         onPress={handleSubmit}
                         disabled={!isValid || !dirty}
                     >
@@ -299,9 +307,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     button: {
-        borderRadius: 20,
-        backgroundColor: Color.primary,
-        padding: 10,
+        borderRadius: 25,
+        padding: 15,
         width: 350,
     },
     buttonBack: {

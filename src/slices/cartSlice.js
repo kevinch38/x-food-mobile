@@ -17,6 +17,7 @@ export const cartSlice = createSlice({
         updateItem: (state, { payload }) => {
             state.tempItems.map(
                 (item) => (
+                    (item.mergeID = payload.mergeID),
                     (item.itemVarieties = payload.itemVarieties),
                     (item.itemPrice = payload.itemPrice)
                 ),
@@ -55,32 +56,46 @@ export const cartSlice = createSlice({
             }
         },
 
+        // removeFromCart: (state, { payload }) => {
+        //     const { itemID, itemVarieties } = payload;
+        //
+        //     let found = false;
+        //     const updatedItems = state.items.filter((item) => {
+        //         if (!found && item.itemID === itemID && item.itemVarieties) {
+        //             const subVarietyIDs = item.itemVarieties.map(
+        //                 (variety) => variety.subVarietyID,
+        //             );
+        //             const payloadSubVarietyIDs = itemVarieties.map(
+        //                 (variety) => variety.subVarietyID,
+        //             );
+        //             const hasDuplicateSubVarietyID = subVarietyIDs.some(
+        //                 (subVarietyID) =>
+        //                     payloadSubVarietyIDs.includes(subVarietyID),
+        //             );
+        //
+        //             if (hasDuplicateSubVarietyID) {
+        //                 found = true;
+        //                 return false;
+        //             }
+        //         }
+        //         return true;
+        //     });
+        //
+        //     state.items = updatedItems;
+        // },
+
         removeFromCart: (state, { payload }) => {
-            const { itemID, itemVarieties } = payload;
+            console.log(payload.mergeID, 'cart Slice');
 
-            let found = false;
-            const updatedItems = state.items.filter((item) => {
-                if (!found && item.itemID === itemID && item.itemVarieties) {
-                    const subVarietyIDs = item.itemVarieties.map(
-                        (variety) => variety.subVarietyID,
-                    );
-                    const payloadSubVarietyIDs = itemVarieties.map(
-                        (variety) => variety.subVarietyID,
-                    );
-                    const hasDuplicateSubVarietyID = subVarietyIDs.some(
-                        (subVarietyID) =>
-                            payloadSubVarietyIDs.includes(subVarietyID),
-                    );
+            // Temukan index item dengan mergeID yang sesuai
+            const indexToRemove = state.items.findIndex(
+                (item) => item.mergeID === payload.mergeID,
+            );
 
-                    if (hasDuplicateSubVarietyID) {
-                        found = true;
-                        return false;
-                    }
-                }
-                return true;
-            });
-
-            state.items = updatedItems;
+            // Hapus satu item dari array jika ditemukan
+            if (indexToRemove !== -1) {
+                state.items.splice(indexToRemove, 1);
+            }
         },
 
         emptyCart: (state) => {

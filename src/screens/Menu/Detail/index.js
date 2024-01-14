@@ -34,17 +34,19 @@ const Detail = ({ navigation }) => {
         : item.initialPrice;
     const [itemVariety, setItemVariety] = useState([]);
     let [price, setPrice] = useState(defaultPrice);
+    let [mergeID, setMergeID] = useState(item.itemID);
 
     const base64StringImage = `data:image/jpeg;base64,${item.image}`;
 
     useEffect(() => {
         dispatch(
             updateItem({
+                mergeID: mergeID,
                 itemVarieties: itemVariety,
                 itemPrice: price,
             }),
         );
-    }, [itemVariety, price]);
+    }, [itemVariety, price, mergeID]);
 
     useEffect(() => {
         if (tempItems <= 0) {
@@ -52,16 +54,20 @@ const Detail = ({ navigation }) => {
         }
     }, []);
     const handleIncrease = () => {
-        if (tempItems.length > 0 && hasRequiredVarieties) {
+        if (
+            tempItems.length > 0 &&
+            hasRequiredVarieties &&
+            itemVariety.length === 0
+        ) {
             alert('Variety is Required');
         } else {
-            const cartItem = {
+            const tempCartItem = {
                 ...item,
-                // idx: (idxRef.current += 1),
+                mergeID: mergeID,
                 itemPrice: price,
                 itemVarieties: itemVariety.length > 0 ? itemVariety : [],
             };
-            dispatch(addToTempCart(cartItem));
+            dispatch(addToTempCart(tempCartItem));
         }
     };
     const handleDecrease = () => {
@@ -83,11 +89,21 @@ const Detail = ({ navigation }) => {
         if (checked) {
             const updatedItemVarieties = [...itemVariety, subVariety];
             setItemVariety(updatedItemVarieties);
+            const updateMergeID = updatedItemVarieties
+                .map((sv) => `${item.itemID}_${sv.subVarietyID}`)
+                .join('.');
+            setMergeID(updateMergeID);
+            console.log(updateMergeID, 'update mergeId');
         } else {
             const updatedItemsVariety = itemVariety.filter(
                 (itemVariety) => itemVariety !== subVariety,
             );
             setItemVariety(updatedItemsVariety);
+            const filteredMergeID = updatedItemsVariety
+                .map((sv) => `${item.itemID}_${sv.subVarietyID}`)
+                .join('.');
+            setMergeID(filteredMergeID);
+            console.log(filteredMergeID, 'update mergeId');
         }
         console.log(itemVariety, '==== updateItemVarieties');
     };
@@ -102,6 +118,8 @@ const Detail = ({ navigation }) => {
     const hasRequiredVarieties = item.itemVarieties.some(
         (v) => v.variety.isRequired,
     );
+
+    console.log(tempItems, 'temp item detail');
 
     return (
         <SafeAreaView style={styles.wrapper}>

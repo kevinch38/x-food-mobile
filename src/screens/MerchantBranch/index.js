@@ -1,26 +1,18 @@
 import {
-    View,
+    Image,
     SafeAreaView,
     ScrollView,
-    Image,
-    StyleSheet,
     StatusBar,
+    StyleSheet,
     Text,
-    ActivityIndicator,
-    TouchableOpacity,
-    Pressable,
-    Button,
+    View,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import BackButton from '../../components/backButton';
-import Logo from '../../assets/images/mechant-logo.png';
-import Verified from '../../assets/images/verified.png';
-import BgMerchantBranch from '../../assets/images/bg-merchant-page.png';
 import { useRoute } from '@react-navigation/native';
 import { selectedMerchantAction } from '../../slices/merchantSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
-import { merchantBranchAction } from '../../slices/merchantBranch';
 import CardBranch from '../../components/card/CardBranch';
 import Loading from '../../components/loading';
 
@@ -160,7 +152,7 @@ const Merchant = ({ navigation }) => {
                                     onPress={() => handleToMenu(b.branchID)}
                                     branchName={b.branchName}
                                     image={b.image}
-                                    branchAddress={b.branchAddress}
+                                    branchAddress={b.address}
                                 />
                             );
                         })}

@@ -51,7 +51,7 @@ function Cart({ navigation }) {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
 
     const totalBalance =
-        balanceUser <= 0 || cartItems.length === 0
+        balanceUser <= 0 || cartItems.length === 0 || !isValid || !dirty
             ? Color.disabled
             : Color.primary;
 
@@ -62,6 +62,38 @@ function Cart({ navigation }) {
     useEffect(() => {
         setBalanceUser(balance.totalBalance);
     }, [balance.totalBalance]);
+
+    const groupCartItems = (cartItems) => {
+        const groupedItems = cartItems.reduce((group, item) => {
+            const key = item.mergeID;
+            if (!group[key]) {
+                group[key] = [];
+            }
+            group[key].push(item);
+            return group;
+        }, {});
+        const groupsWithMergeId = Object.entries(groupedItems).map(
+            ([mergeId, items]) => ({
+                mergeId,
+                items,
+            }),
+        );
+
+        return groupsWithMergeId;
+    };
+
+    useEffect(() => {
+        const groupedCartItems = groupCartItems(cartItems);
+        console.log('Grup Cart Items:', groupedCartItems);
+
+        groupedCartItems.forEach((group) => {
+            console.log(
+                `Panjang grup dengan mergeId ${group.mergeId}: ${group.items.length}`,
+            );
+        });
+
+        setGroupedItems(groupedCartItems);
+    }, [cartItems]);
 
     useEffect(() => {
         const onGetUserByPhoneNumber = async () => {
@@ -104,7 +136,18 @@ function Cart({ navigation }) {
         tableNumber: yup.number().required('No Table Required'),
     });
 
-    const { values, errors, touched, handleSubmit } = useFormik({
+    const {
+        values,
+        errors,
+        touched,
+        dirty,
+        isValid,
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        setFieldValue,
+        setValues,
+    } = useFormik({
         initialValues: {
             accountID: null,
             orderValue: 0,
@@ -202,61 +245,25 @@ function Cart({ navigation }) {
     };
 
     const handleDecrease = (item) => {
-        dispatch(
-            removeFromCart({
-                itemID: item.itemID,
-                itemVarieties: item.itemVarieties,
-            }),
-        );
+        dispatch(removeFromCart(item));
     };
 
-    useEffect(() => {
-        const groupedItems = cartItems.reduce((group, item) => {
-            const variety = Array.isArray(item.itemVarieties)
-                ? item.itemVarieties
-                      .map((variety) => variety.subVarietyID)
-                      .join('-')
-                : 'No Variety';
-            const key = item.itemID + '-' + variety;
-            if (group[key]) {
-                group[key].push(item);
-            } else {
-                group[key] = [item];
-            }
-            return group;
-        }, {});
-
-        const mergedGroupedItems = Object.values(groupedItems).reduce(
-            (finalGroup, itemsArray) => {
-                const firstItem = itemsArray[0];
-                const matchingItems = finalGroup.find(
-                    (groupedItem) =>
-                        groupedItem.itemID === firstItem.itemID &&
-                        groupedItem.itemVarieties.join('-') ===
-                            firstItem.itemVarieties
-                                .map((variety) => variety.subVarietyID)
-                                .join('-'),
-                );
-
-                if (matchingItems) {
-                    matchingItems.items.push(...itemsArray);
-                } else {
-                    finalGroup.push({
-                        itemID: firstItem.itemID,
-                        itemVarieties: firstItem.itemVarieties.map(
-                            (variety) => variety.subVarietyID,
-                        ),
-                        items: itemsArray,
-                    });
-                }
-
-                return finalGroup;
-            },
-            [],
-        );
-
-        setGroupedItems(mergedGroupedItems);
-    }, [cartItems]);
+    // useEffect(() => {
+    //     const groupedItems = cartItems.reduce((group, item) => {
+    //         const key = item.mergeID;
+    //
+    //         if (group[key]) {
+    //             group[key].push(item);
+    //         } else {
+    //             group[key] = [item];
+    //         }
+    //         return group;
+    //     }, {});
+    //
+    //     const mergedGroupedItems = Object.values(groupedItems);
+    //
+    //     setGroupedItems(mergedGroupedItems);
+    // }, [cartItems]);
 
     const handleBack = () => {
         navigation.navigate('Menu');
@@ -285,11 +292,96 @@ function Cart({ navigation }) {
         );
     };
 
+    // const renderCart = () => {
+    //     return Object.entries(groupedItems).map(([mergeID, items]) => {
+    //         const item = items[0];
+    //         return (
+    //             <View style={styles.sectionContainer} key={mergeID}>
+    //                 <Image
+    //                     source={{ uri: `data:image/jpeg;base64,${item.image}` }}
+    //                     style={styles.imageCart}
+    //                 />
+    //                 <View style={styles.menuContainer}>
+    //                     <View style={styles.menuSection}>
+    //                         <Text style={styles.titleMenu}>
+    //                             {item.itemName}
+    //                         </Text>
+    //                         <TouchableOpacity onPress={() => handleClose(item)}>
+    //                             <Icon.X
+    //                                 width={17}
+    //                                 height={17}
+    //                                 stroke={'red'}
+    //                                 strokeWidth={3}
+    //                             />
+    //                         </TouchableOpacity>
+    //                     </View>
+    //                     <Text style={styles.toppings}>
+    //                         {item.itemVarieties.length !== 0
+    //                             ? item.itemVarieties
+    //                                   .map((variety) =>
+    //                                       findVarietyName(
+    //                                           item.itemVarieties,
+    //                                           variety.subVarietyID,
+    //                                       ),
+    //                                   )
+    //                                   .join(' , ')
+    //                             : 'No Varieties'}
+    //                     </Text>
+    //                     <View style={styles.priceSection}>
+    //                         <Text style={styles.priceMenu}>
+    //                             Rp. {item.itemPrice.toLocaleString()}
+    //                         </Text>
+    //                         <View style={styles.counter}>
+    //                             {order === items.items.length ? (
+    //                                 <TouchableOpacity disabled>
+    //                                     <Icon.MinusCircle
+    //                                         width={28}
+    //                                         height={28}
+    //                                         stroke={theme.grey}
+    //                                         strokeWidth={1}
+    //                                     />
+    //                                 </TouchableOpacity>
+    //                             ) : (
+    //                                 <TouchableOpacity
+    //                                     onPress={() =>
+    //                                         handleDecrease(items.items[0])
+    //                                     }
+    //                                 >
+    //                                     <Icon.MinusCircle
+    //                                         width={28}
+    //                                         height={28}
+    //                                         stroke={theme.primary}
+    //                                         strokeWidth={2}
+    //                                     />
+    //                                 </TouchableOpacity>
+    //                             )}
+    //                             <Text style={styles.numCounter}>
+    //                                 {items.items.length}
+    //                             </Text>
+    //                             <TouchableOpacity
+    //                                 onPress={() => handleIncrease(item)}
+    //                             >
+    //                                 <Icon.PlusCircle
+    //                                     width={30}
+    //                                     height={30}
+    //                                     fill={theme.primary}
+    //                                     stroke="#fff"
+    //                                     strokeWidth={2}
+    //                                 />
+    //                             </TouchableOpacity>
+    //                         </View>
+    //                     </View>
+    //                 </View>
+    //             </View>
+    //         );
+    //     });
+    // };
+
     const renderCart = () => {
-        return Object.entries(groupedItems).map(([key, items]) => {
-            const item = items.items[0];
+        return Object.entries(groupedItems).map(([mergeID, group]) => {
+            const item = group.items[0];
             return (
-                <View style={styles.sectionContainer} key={key}>
+                <View style={styles.sectionContainer} key={mergeID}>
                     <Image
                         source={{ uri: `data:image/jpeg;base64,${item.image}` }}
                         style={styles.imageCart}
@@ -325,7 +417,7 @@ function Cart({ navigation }) {
                                 Rp. {item.itemPrice.toLocaleString()}
                             </Text>
                             <View style={styles.counter}>
-                                {order === items.items.length ? (
+                                {order === group.items.length ? (
                                     <TouchableOpacity disabled>
                                         <Icon.MinusCircle
                                             width={28}
@@ -336,9 +428,7 @@ function Cart({ navigation }) {
                                     </TouchableOpacity>
                                 ) : (
                                     <TouchableOpacity
-                                        onPress={() =>
-                                            handleDecrease(items.items[0])
-                                        }
+                                        onPress={() => handleDecrease(item)}
                                     >
                                         <Icon.MinusCircle
                                             width={28}
@@ -349,7 +439,7 @@ function Cart({ navigation }) {
                                     </TouchableOpacity>
                                 )}
                                 <Text style={styles.numCounter}>
-                                    {items.items.length}
+                                    {group.items.length}
                                 </Text>
                                 <TouchableOpacity
                                     onPress={() => handleIncrease(item)}
@@ -379,10 +469,15 @@ function Cart({ navigation }) {
                     icon={require('../../assets/icons/chair.png')}
                     keyboardType={'numeric'}
                     placeholder={'1                                     '}
+                    onFocus={() => handleInputFocus('tableNumber')}
+                    onChangeText={handleChange('tableNumber')}
+                    onBlur={handleBlur('tableNumber')}
                     value={values.tableNumber}
                 />
                 {touched.tableNumber && errors.tableNumber && (
-                    <Text style={styles.errorText}>{errors.tableNumber}</Text>
+                    <Text style={styles.errorTextAgg}>
+                        {errors.tableNumber}
+                    </Text>
                 )}
                 <InputText
                     label={'Note'}
@@ -467,6 +562,9 @@ function Cart({ navigation }) {
         );
     };
 
+    // console.log(groupedItems, 'grouped items =======');
+    // console.log(cartItems, 'cart items =======');
+
     return (
         <SafeAreaView style={styles.container}>
             {/*<Button title={'tt'} onPress={console.log(groupedItems)} />*/}
@@ -484,7 +582,12 @@ function Cart({ navigation }) {
                         titleStyle={styles.titleStyle}
                         buttonStyle={{ backgroundColor: totalBalance }}
                         onPress={handleSubmit}
-                        disabled={balanceUser <= 0 || cartItems.length === 0}
+                        disabled={
+                            balanceUser <= 0 ||
+                            cartItems.length === 0 ||
+                            !isValid ||
+                            !dirty
+                        }
                     />
                 </View>
             </ScrollView>
