@@ -23,19 +23,21 @@ import waImage from '../../assets/icons/wa.png';
 import igImage from '../../assets/icons/ig.png';
 import lnImage from '../../assets/icons/ln.png';
 import closeIcon from '../../assets/icons/close.png';
+import { useSelector } from 'react-redux';
 
 const AddFriend = ({ navigation }) => {
+    const phoneNumberRedux = useSelector((state) => state.ui.phoneNumber);
     const { userService, friendService } = useContext(ServiceContext);
     const [user, setUser] = useState();
     const [image, setImage] = useState();
     const [isAddFriend, setIsAddFriend] = useState(false);
     const [friendPhoneNumber, setFriendPhoneNumber] = useState();
     const [modalVisible, setModalVisible] = useState(false);
-    const [bottomAnim] = useState(new Animated.Value(-100));
-    const [visible, setVisible] = useState(false);
     const [friendId, setFriendId] = useState();
     const [userId, setUserId] = useState();
     const [isMessage, setIsMessage] = useState(false);
+    const [isInvitationSuccess, setIsInvitationSuccess] = useState(false);
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
     const schema = Yup.object({
         phoneNumber: Yup.string().test(
@@ -87,18 +89,22 @@ const AddFriend = ({ navigation }) => {
 
     const handleModalClose = () => {
         setModalVisible(!modalVisible);
+        setIsInvitationSuccess(true);
+        setTimeout(() => {
+            setIsInvitationSuccess(false);
+        }, 2000);
     };
 
     const handleAddFriend = async () => {
         try {
-            const user = await userService.fetchUserByPhoneNumber('+628435354353');
+            const user =
+                await userService.fetchUserByPhoneNumber(phoneNumberRedux);
             setUserId(user.data.accountID);
             setIsAddFriend(true);
             const result = await friendService.addFriend({ userId, friendId });
-            console.log(result.status);
             return result;
         } catch (error) {
-            console.error('Error adding friend:', error);
+            console.log(error);
             setIsMessage(true);
         }
     };
@@ -141,10 +147,18 @@ const AddFriend = ({ navigation }) => {
                         </View>
 
                         <View style={styles.socialIcons}>
-                            <Image source={waImage} style={styles.icon} />
-                            <Image source={igImage} style={styles.icon} />
-                            <Image source={lnImage} style={styles.icon} />
-                            <Image source={fbImage} style={styles.icon} />
+                            <TouchableOpacity onPress={handleModalClose}>
+                                <Image source={waImage} style={styles.icon} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={handleModalClose}>
+                                <Image source={igImage} style={styles.icon} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={handleModalClose}>
+                                <Image source={lnImage} style={styles.icon} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={handleModalClose}>
+                                <Image source={fbImage} style={styles.icon} />
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </View>
@@ -152,7 +166,7 @@ const AddFriend = ({ navigation }) => {
 
             <View style={styles.content}>
                 <View>
-                    <Text style={styles.heading}>FriendSearch</Text>
+                    <Text style={styles.heading}>Friend Search</Text>
                     <Text style={styles.subHeading}>
                         Enter friend's phone number
                     </Text>
@@ -219,8 +233,10 @@ const AddFriend = ({ navigation }) => {
 
                             {isAddFriend ? (
                                 <Text style={styles.addedText}>
-                                {isMessage? 'Friend already exists' : 'Added to your Friend List'}
-                            </Text>
+                                    {isMessage
+                                        ? 'Friend already exists'
+                                        : 'Added to your Friend List'}
+                                </Text>
                             ) : (
                                 <TouchableOpacity
                                     style={styles.button}
@@ -235,6 +251,10 @@ const AddFriend = ({ navigation }) => {
                     )}
                 </View>
             </View>
+
+            {isInvitationSuccess && (
+                <Text style={styles.successMessage}>Successfully invited</Text>
+            )}
         </SafeAreaView>
     );
 };
@@ -385,6 +405,12 @@ const styles = StyleSheet.create({
     addedText: {
         color: Color.primary,
         marginTop: '2%',
+    },
+    successMessage: {
+        color: 'green',
+        fontWeight: 'bold',
+        marginTop: '90%',
+        textAlign: 'center',
     },
 });
 

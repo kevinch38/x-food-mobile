@@ -12,7 +12,6 @@ import { useNavigation } from '@react-navigation/native';
 import Color from '../assets/Color';
 import BackButton from '../components/backButton';
 import UserService from '../services/UserService';
-import axios from 'axios'; // Import UserService
 import { useSelector } from 'react-redux';
 import axiosInstance from '../api/axiosInstance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
