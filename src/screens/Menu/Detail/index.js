@@ -21,7 +21,6 @@ import {
     addToTempCart,
     emptyTempCart,
     removeFromTempCart,
-    selectCartItemsById,
     updateItem,
 } from '../../../slices/cartSlice';
 
@@ -53,13 +52,17 @@ const Detail = ({ navigation }) => {
         }
     }, []);
     const handleIncrease = () => {
-        const cartItem = {
-            ...item,
-            // idx: (idxRef.current += 1),
-            itemPrice: price,
-            itemVarieties: itemVariety.length > 0 ? itemVariety : [],
-        };
-        dispatch(addToTempCart(cartItem));
+        if (tempItems.length > 0 && hasRequiredVarieties) {
+            alert('Variety is Required');
+        } else {
+            const cartItem = {
+                ...item,
+                // idx: (idxRef.current += 1),
+                itemPrice: price,
+                itemVarieties: itemVariety.length > 0 ? itemVariety : [],
+            };
+            dispatch(addToTempCart(cartItem));
+        }
     };
     const handleDecrease = () => {
         dispatch(
@@ -95,6 +98,10 @@ const Detail = ({ navigation }) => {
 
         navigation.navigate('Cart');
     };
+
+    const hasRequiredVarieties = item.itemVarieties.some(
+        (v) => v.variety.isRequired,
+    );
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -139,8 +146,8 @@ const Detail = ({ navigation }) => {
                         {/*Rp. {price * qty}*/}
                         Rp.{' '}
                         {item.isDiscounted
-                            ? item.discountedPrice
-                            : item.initialPrice}
+                            ? item.discountedPrice.toLocaleString()
+                            : item.initialPrice.toLocaleString()}
                     </Text>
 
                     <View style={{ display: 'flex', flexDirection: 'row' }}>
@@ -196,57 +203,149 @@ const Detail = ({ navigation }) => {
                                     marginTop: '2%',
                                 }}
                             >
-                                {v.variety.varietySubVarieties.map((s, idx) => {
-                                    return (
-                                        <View
-                                            key={idx}
-                                            style={styles.lineVariety}
-                                        >
-                                            <View
-                                                style={
-                                                    styles.wrapperNameVariaety
-                                                }
-                                            >
-                                                <Text
-                                                    style={
-                                                        styles.textNameVariety
-                                                    }
-                                                >
-                                                    {s.subVariety.subVarName}
-                                                </Text>
-                                            </View>
-                                            <View style={styles.wrapperPrice}>
-                                                <Text style={styles.textPrice}>
-                                                    + Rp{' '}
-                                                    {s.subVariety.subVarPrice}
-                                                </Text>
-                                            </View>
-                                            <View
-                                                style={styles.roundedCheckBox}
-                                            >
-                                                <RoundedCheckbox
-                                                    text={''}
-                                                    checkedColor={Color.primary}
-                                                    uncheckedColor="#fff"
-                                                    outerStyle={
-                                                        styles.styleCheckBox
-                                                    }
-                                                    innerStyle={
-                                                        styles.styleCheckBox
-                                                    }
-                                                    onPress={(checked) =>
-                                                        handleVariety(
-                                                            checked,
-                                                            s.subVariety
-                                                                .subVarPrice,
-                                                            s.subVariety,
-                                                        )
-                                                    }
-                                                />
-                                            </View>
-                                        </View>
-                                    );
-                                })}
+                                {v.variety.isRequired
+                                    ? v.variety.varietySubVarieties.map(
+                                          (s, idx) => {
+                                              return (
+                                                  <View
+                                                      key={idx}
+                                                      style={styles.lineVariety}
+                                                  >
+                                                      <View
+                                                          style={
+                                                              styles.wrapperNameVariaety
+                                                          }
+                                                      >
+                                                          <Text
+                                                              style={
+                                                                  styles.textNameVariety
+                                                              }
+                                                          >
+                                                              {
+                                                                  s.subVariety
+                                                                      .subVarName
+                                                              }
+                                                          </Text>
+                                                      </View>
+                                                      <View
+                                                          style={
+                                                              styles.wrapperPrice
+                                                          }
+                                                      >
+                                                          <Text
+                                                              style={
+                                                                  styles.textPrice
+                                                              }
+                                                          >
+                                                              + Rp{' '}
+                                                              {s.subVariety.subVarPrice.toLocaleString()}
+                                                          </Text>
+                                                      </View>
+                                                      <View
+                                                          style={
+                                                              styles.roundedCheckBox
+                                                          }
+                                                      >
+                                                          <RoundedCheckbox
+                                                              text={''}
+                                                              checkedColor={
+                                                                  Color.primary
+                                                              }
+                                                              uncheckedColor="#fff"
+                                                              outerStyle={
+                                                                  styles.styleCheckBox
+                                                              }
+                                                              innerStyle={
+                                                                  styles.styleCheckBox
+                                                              }
+                                                              onPress={(
+                                                                  checked,
+                                                              ) =>
+                                                                  handleVariety(
+                                                                      checked,
+                                                                      s
+                                                                          .subVariety
+                                                                          .subVarPrice,
+                                                                      s.subVariety,
+                                                                  )
+                                                              }
+                                                          />
+                                                      </View>
+                                                  </View>
+                                              );
+                                          },
+                                      )
+                                    : v.variety.varietySubVarieties.map(
+                                          (s, idx) => {
+                                              return (
+                                                  <View
+                                                      key={idx}
+                                                      style={styles.lineVariety}
+                                                  >
+                                                      <View
+                                                          style={
+                                                              styles.wrapperNameVariaety
+                                                          }
+                                                      >
+                                                          <Text
+                                                              style={
+                                                                  styles.textNameVariety
+                                                              }
+                                                          >
+                                                              {
+                                                                  s.subVariety
+                                                                      .subVarName
+                                                              }
+                                                          </Text>
+                                                      </View>
+                                                      <View
+                                                          style={
+                                                              styles.wrapperPrice
+                                                          }
+                                                      >
+                                                          <Text
+                                                              style={
+                                                                  styles.textPrice
+                                                              }
+                                                          >
+                                                              + Rp{' '}
+                                                              {s.subVariety.subVarPrice.toLocaleString()}
+                                                          </Text>
+                                                      </View>
+                                                      <View
+                                                          style={
+                                                              styles.roundedCheckBox
+                                                          }
+                                                      >
+                                                          <RoundedCheckbox
+                                                              text={''}
+                                                              checkedColor={
+                                                                  Color.primary
+                                                              }
+                                                              uncheckedColor="#fff"
+                                                              outerStyle={
+                                                                  styles.styleCheckBox
+                                                              }
+                                                              innerStyle={
+                                                                  styles.styleCheckBox
+                                                              }
+                                                              onPress={(
+                                                                  checked,
+                                                              ) =>
+                                                                  handleVariety(
+                                                                      checked,
+                                                                      s
+                                                                          .subVariety
+                                                                          .subVarPrice,
+                                                                      s.subVariety,
+                                                                  )
+                                                              }
+                                                          />
+                                                      </View>
+                                                  </View>
+                                              );
+                                          },
+                                      )}
                             </View>
                         </View>
                     );

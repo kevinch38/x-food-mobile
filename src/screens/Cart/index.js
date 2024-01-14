@@ -50,7 +50,10 @@ function Cart({ navigation }) {
     const [balanceUser, setBalanceUser] = useState(0);
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
 
-    const totalBalance = balanceUser <= 0 ? Color.disabled : Color.primary;
+    const totalBalance =
+        balanceUser <= 0 || cartItems.length === 0
+            ? Color.disabled
+            : Color.primary;
 
     useEffect(() => {
         setVouchers(users?.vouchers);
@@ -306,7 +309,7 @@ function Cart({ navigation }) {
                             </TouchableOpacity>
                         </View>
                         <Text style={styles.toppings}>
-                            {item.itemVarieties
+                            {item.itemVarieties.length !== 0
                                 ? item.itemVarieties
                                       .map((variety) =>
                                           findVarietyName(
@@ -319,7 +322,7 @@ function Cart({ navigation }) {
                         </Text>
                         <View style={styles.priceSection}>
                             <Text style={styles.priceMenu}>
-                                Rp. {item.itemPrice}
+                                Rp. {item.itemPrice.toLocaleString()}
                             </Text>
                             <View style={styles.counter}>
                                 {order === items.items.length ? (
@@ -430,12 +433,16 @@ function Cart({ navigation }) {
             <View style={styles.subtotalContainer}>
                 <View style={styles.subtotalStyle}>
                     <Text style={styles.textSubtotal}>Subtotal</Text>
-                    <Text style={styles.textSubtotal}>Rp. {cartTotal}</Text>
+                    <Text style={styles.textSubtotal}>
+                        Rp. {cartTotal.toLocaleString()}
+                    </Text>
                 </View>
                 {sale ? (
                     <View style={styles.subtotalStyle}>
                         <Text style={styles.textSubtotal}>Voucher</Text>
-                        <Text style={styles.textSale}>Rp.- {sale}</Text>
+                        <Text style={styles.textSale}>
+                            Rp.- {sale.toLocaleString()}
+                        </Text>
                     </View>
                 ) : (
                     <View style={{ display: 'none' }} />
@@ -453,7 +460,7 @@ function Cart({ navigation }) {
                             ? 0
                             : sale
                               ? cartTotal - sale
-                              : cartTotal}
+                              : cartTotal.toLocaleString()}
                     </Text>
                 </View>
             </View>
@@ -477,7 +484,7 @@ function Cart({ navigation }) {
                         titleStyle={styles.titleStyle}
                         buttonStyle={{ backgroundColor: totalBalance }}
                         onPress={handleSubmit}
-                        disabled={balanceUser <= 0}
+                        disabled={balanceUser <= 0 || cartItems.length === 0}
                     />
                 </View>
             </ScrollView>

@@ -15,7 +15,6 @@ export const cartSlice = createSlice({
         },
 
         updateItem: (state, { payload }) => {
-            console.log(payload, '==== payload cart');
             state.tempItems.map(
                 (item) => (
                     (item.itemVarieties = payload.itemVarieties),
@@ -30,114 +29,31 @@ export const cartSlice = createSlice({
         removeFromTempCart: (state, { payload }) => {
             const { itemID, itemVarieties } = payload;
 
-            let found = false;
-            const updatedTempItems = state.tempItems.filter((item) => {
-                if (!found && item.itemID === itemID && item.itemVarieties) {
-                    const subVarietyIDs = item.itemVarieties.map(
-                        (variety) => variety.subVarietyID,
-                    );
-                    const payloadSubVarietyIDs = itemVarieties.map(
-                        (variety) => variety.subVarietyID,
-                    );
-                    const hasDuplicateSubVarietyID = subVarietyIDs.some(
-                        (subVarietyID) =>
-                            payloadSubVarietyIDs.includes(subVarietyID),
-                    );
+            const foundIndex = state.tempItems.findIndex(
+                (item) => item.itemID === itemID,
+            );
 
-                    if (hasDuplicateSubVarietyID) {
-                        found = true;
-                        return false;
+            if (foundIndex !== -1) {
+                const updatedItem = state.tempItems[foundIndex];
+
+                if (!itemVarieties || itemVarieties.length === 0) {
+                    state.tempItems.splice(foundIndex, 1);
+                } else {
+                    updatedItem.itemVarieties =
+                        updatedItem.itemVarieties.filter(
+                            (variety) =>
+                                !itemVarieties.some(
+                                    (v) =>
+                                        v.subVarietyID === variety.subVarietyID,
+                                ),
+                        );
+
+                    if (updatedItem.itemVarieties.length === 0) {
+                        state.tempItems.splice(foundIndex, 1);
                     }
                 }
-                return true;
-            });
-
-            state.tempItems = updatedTempItems;
+            }
         },
-
-        // removeFromTempCart: (state, { payload }) => {
-        //     const { itemID, itemVarieties } = payload;
-        //
-        //     const updatedTempItems = state.tempItems.filter((item) => {
-        //         if (item.itemID === itemID && item.itemVarieties) {
-        //             const subVarietyIDs = item.itemVarieties.map(
-        //                 (variety) => variety.subVarietyID,
-        //             );
-        //             const payloadSubVarietyIDs = itemVarieties.map(
-        //                 (variety) => variety.subVarietyID,
-        //             );
-        //
-        //             // Check if all subVarietyIDs match
-        //             const hasAllSubVarietyID = payloadSubVarietyIDs.every(
-        //                 (subVarietyID) => subVarietyIDs.includes(subVarietyID),
-        //             );
-        //
-        //             if (hasAllSubVarietyID) {
-        //                 return false; // Remove if all subVarietyIDs match
-        //             } else {
-        //                 // Remove one subVarietyID at a time if not all subVarietyIDs match
-        //                 const remainingSubVarietyIDs = subVarietyIDs.filter(
-        //                     (subVarietyID) =>
-        //                         !payloadSubVarietyIDs.includes(subVarietyID),
-        //                 );
-        //
-        //                 if (
-        //                     remainingSubVarietyIDs.length < subVarietyIDs.length
-        //                 ) {
-        //                     // Update the itemVarieties to keep the remaining ones
-        //                     item.itemVarieties = remainingSubVarietyIDs.map(
-        //                         (subVarietyID) => ({
-        //                             subVarietyID,
-        //                         }),
-        //                     );
-        //                     return true;
-        //                 }
-        //             }
-        //         }
-        //         return true;
-        //     });
-        //
-        //     state.tempItems = updatedTempItems;
-        // },
-
-        // removeFromCart: (state, { payload }) => {
-        //     const { itemID, itemVarieties } = payload;
-        //
-        //     const updatedItems = state.items.filter((item) => {
-        //         // Cek apakah itemID sama
-        //         const isSameItemID = item.itemID === itemID;
-        //
-        //         // Jika itemID sama, lanjutkan dengan pemeriksaan subVarietyID
-        //         if (isSameItemID) {
-        //             // Ambil subVarietyID dari item yang ingin dihapus
-        //             const payloadSubVarietyIDs = itemVarieties.map(
-        //                 (variety) => variety.subVarietyID,
-        //             );
-        //
-        //             // Ambil subVarietyID dari item dalam keranjang
-        //             const subVarietyIDs = item.itemVarieties.map(
-        //                 (variety) => variety.subVarietyID,
-        //             );
-        //
-        //             // Cek apakah semua subVarietyID di item yang ingin dihapus ada di dalam item di keranjang
-        //             const allPayloadIDsExist = payloadSubVarietyIDs.every(
-        //                 (payloadID) => subVarietyIDs.includes(payloadID),
-        //             );
-        //
-        //             // Jika semua subVarietyID ada di item di keranjang, hapus item ini
-        //             if (
-        //                 allPayloadIDsExist &&
-        //                 payloadSubVarietyIDs.length === subVarietyIDs.length
-        //             ) {
-        //                 return false;
-        //             }
-        //         }
-        //
-        //         return true;
-        //     });
-        //
-        //     state.items = updatedItems;
-        // },
 
         removeFromCart: (state, { payload }) => {
             const { itemID, itemVarieties } = payload;
@@ -166,6 +82,7 @@ export const cartSlice = createSlice({
 
             state.items = updatedItems;
         },
+
         emptyCart: (state) => {
             state.items = [];
         },
@@ -176,27 +93,21 @@ export const cartSlice = createSlice({
             const { itemID, itemVarieties } = payload;
 
             const updatedItems = state.items.filter((item) => {
-                // Cek apakah itemID sama
                 const isSameItemID = item.itemID === itemID;
 
-                // Jika itemID sama, lanjutkan dengan pemeriksaan subVarietyID
                 if (isSameItemID) {
-                    // Ambil subVarietyID dari item yang ingin dihapus
                     const payloadSubVarietyIDs = itemVarieties.map(
                         (variety) => variety.subVarietyID,
                     );
 
-                    // Ambil subVarietyID dari item dalam keranjang
                     const subVarietyIDs = item.itemVarieties.map(
                         (variety) => variety.subVarietyID,
                     );
 
-                    // Cek apakah semua subVarietyID di item yang ingin dihapus ada di dalam item di keranjang
                     const allPayloadIDsExist = payloadSubVarietyIDs.every(
                         (payloadID) => subVarietyIDs.includes(payloadID),
                     );
 
-                    // Jika semua subVarietyID ada di item di keranjang, hapus item ini
                     if (
                         allPayloadIDsExist &&
                         payloadSubVarietyIDs.length === subVarietyIDs.length
