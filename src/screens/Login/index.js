@@ -27,8 +27,8 @@ export default function Login({ navigation }) {
 
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
-    const phoneNumberRedux = useSelector((state) => state.ui.phoneNumber);
     const [isRegistered, setIsRegistered] = useState(false);
+    const phoneNumberRedux = useSelector((state) => state.ui.phoneNumber);
     
     const {
         values: { phoneNumber },
@@ -43,21 +43,19 @@ export default function Login({ navigation }) {
         onSubmit: async (values) => {
             try {
                 const formatPhoneNumber = `${values.phoneNumber.substr(3)}`;
-
                 const userResponse = await userService.fetchUserByPhoneNumber(
                     values.phoneNumber,
                 );
-
+                await AsyncStorage.setItem('phoneNumber', values.phoneNumber);
+                const phoneNumberStorage = await AsyncStorage.getItem('phoneNumber');
                 const user = userResponse.data;
-
                 if (user && user.otpID !== null) {
                     setIsRegistered(true);
                 } else {
                     setIsRegistered(false);
                     await userService.register(formatPhoneNumber);
                 }
-
-                dispatch(setPhoneNumber(values.phoneNumber));
+                dispatch(setPhoneNumber(phoneNumberStorage));
                 navigation.navigate('VerificationCode', { isRegistered });
             } catch (error) {
                 console.warn('Error during form submission:', error);

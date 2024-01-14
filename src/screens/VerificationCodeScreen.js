@@ -17,7 +17,6 @@ import axiosInstance from '../api/axiosInstance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const VerificationCodeScreen = () => {
-    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
     const [focusedInput, setFocusedInput] = useState(null);
     const [isValidCode, setIsValidCode] = useState(true);
@@ -25,6 +24,7 @@ const VerificationCodeScreen = () => {
     const [firstName, setFirstName] = useState('');
     const navigation = useNavigation();
     const userService = UserService();
+    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
 
     useEffect(() => {
         fetchOtpID(phoneNumber);

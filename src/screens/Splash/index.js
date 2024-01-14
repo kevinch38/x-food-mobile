@@ -1,19 +1,24 @@
 import { CommonActions } from '@react-navigation/native';
 import React, { useContext, useEffect } from 'react';
 import { StyleSheet, View, Image, Text } from 'react-native';
+import { useDispatch } from 'react-redux';
 import color from '../../assets/Color';
 import image from '../../assets/images/logo-splash.png';
 import { ServiceContext } from '../../context/ServiceContext';
+import { setPhoneNumber } from '../../slices/uiSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Splash({ navigation }) {
     const { authService } = useContext(ServiceContext);
+    const dispatch = useDispatch();
 
     const checkTokenAndNavigate = async () => {
       try {
           const token = await authService.getTokenFromStorage();
+          const storedPhoneNumber = await AsyncStorage.getItem("phoneNumber");
+          if(storedPhoneNumber) dispatch(setPhoneNumber(storedPhoneNumber));
           if (token) {
-              setTimeout(() => {
+              setTimeout(() => {    
                   navigation.replace('Tabs');
               }, 3000);
           } else {

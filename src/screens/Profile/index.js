@@ -203,6 +203,7 @@ function Profile({ navigation }) {
                     text: 'Log out',
                     onPress: async () => {
                         await authService.logout();
+                        await AsyncStorage.removeItem('phoneNumber');
                         navigation.replace('Login');
                     },
                 },
