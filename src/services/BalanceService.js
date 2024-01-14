@@ -1,8 +1,9 @@
 import axios from 'axios';
+import axiosInstance from '../api/axiosInstance';
 
 const BalanceService = () => {
     const fetchBalance = async (id) => {
-        const { data } = await axios.get(
+        const { data } = await axiosInstance.get(
             `http://10.0.2.2:8087/api/balances/${id}`,
             id,
         );

@@ -15,6 +15,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
 import { setPhoneNumber } from '../../slices/uiSlice';
 import { ServiceContext } from '../../context/ServiceContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Login({ navigation }) {
     const schema = Yup.object({
@@ -28,7 +29,7 @@ export default function Login({ navigation }) {
     const { userService } = useContext(ServiceContext);
     const phoneNumberRedux = useSelector((state) => state.ui.phoneNumber);
     const [isRegistered, setIsRegistered] = useState(false);
-
+    
     const {
         values: { phoneNumber },
         handleBlur,

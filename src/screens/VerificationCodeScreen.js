@@ -8,12 +8,13 @@ import {
     Pressable,
     TouchableOpacity,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import Color from '../assets/Color';
 import BackButton from '../components/backButton';
 import UserService from '../services/UserService';
 import axios from 'axios'; // Import UserService
 import { useSelector } from 'react-redux';
+import axiosInstance from '../api/axiosInstance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const VerificationCodeScreen = () => {
@@ -24,7 +25,6 @@ const VerificationCodeScreen = () => {
     const [otpID, setOtpID] = useState(null);
     const [firstName, setFirstName] = useState('');
     const navigation = useNavigation();
-    const route = useRoute();
     const userService = UserService();
 
     useEffect(() => {
@@ -66,45 +66,29 @@ const VerificationCodeScreen = () => {
 
             if (isCodeComplete) {
                 if (otpID) {
-                    const response = await axios.post(
+                    const response = await axiosInstance.post(
                         'http://10.0.2.2:8087/api/otp',
                         {
                             otpID: otpID,
                             enteredOtp: enteredCode,
                         },
                     );
+                    const data = response.data;
 
-                    if (response.data.statusCode === 200) {
-                        await AsyncStorage.setItem(
-                            'token',
-                            response.data.token,
-                        );
-                        console.log(
-                            '==================================================================',
-                        );
-                        const token = await AsyncStorage.getItem('token');
-                        console.log(token);
-                        console.log(
-                            '==================================================================',
-                        );
-                        const data = response.data;
+                    if (data.statusCode == 200) {
+                        await AsyncStorage.setItem('token', data.data.token);
+                    }
 
-                        if (data.data && firstName === '') {
-                            setIsValidCode(true);
-                            console.log(
-                                'Code is valid. Navigating to Register.',
-                            );
-                            navigation.navigate('Register');
-                        } else if (data.data && firstName !== '') {
-                            setIsValidCode(true);
-                            navigation.navigate('Tabs');
-                        } else {
-                            setIsValidCode(false);
-                            console.log('Code is invalid.');
-                        }
+                    if (data.data && firstName === '') {
+                        setIsValidCode(true);
+                        console.log('Code is valid. Navigating to Register.');
+                        navigation.navigate('Register');
+                    } else if (data.data && firstName !== '') {
+                        setIsValidCode(true);
+                        navigation.navigate('Tabs');
                     } else {
-                        // Tindakan ketika status code bukan 200 (OK)
-                        console.error('Error in response:', response.data);
+                        setIsValidCode(false);
+                        console.log('Code is invalid.');
                     }
                 } else {
                     console.error('otpID is null');

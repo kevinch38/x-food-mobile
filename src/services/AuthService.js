@@ -1,26 +1,11 @@
-import axios from 'axios';
-import { AsyncStorage } from 'react-native';
+import axiosInstance from '../api/axiosInstance';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AuthService = () => {
     const TOKEN_KEY = 'token';
 
-    const login = async (user) => {
-        const { data } = await axiosInstance.post(
-            'http://10.0.2.2:8087/api/auth/login',
-            user,
-        );
-        return data;
-    };
-
     const logout = () => {
         AsyncStorage.removeItem(TOKEN_KEY);
-    };
-
-    const getUserInfo = async () => {
-        const { data } = await axiosInstance.get(
-            'http://10.0.2.2:8087/api/users/me',
-        );
-        return data;
     };
 
     const getTokenFromStorage = () => {
@@ -28,9 +13,7 @@ const AuthService = () => {
     };
 
     return {
-        login,
         logout,
-        getUserInfo,
         getTokenFromStorage,
     };
 };

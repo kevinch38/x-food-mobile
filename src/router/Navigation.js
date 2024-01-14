@@ -25,6 +25,7 @@ import Register from '../screens/Register'
 import VerificationCodeScreen from '../screens/VerificationCodeScreen'
 import PinCreationScreen from '../screens/PinCreationScreen';
 import ChangePin from '../screens/Pin/ChangePin';
+import AddFriend from '../screens/AddFriend';
 
 
 const Stack = createStackNavigator();
@@ -82,6 +83,7 @@ const Navigation = () => {
                     component={MerchantConfirm}
                 />
                 <Stack.Screen name="Payment" component={Payment} />
+                {/* <Stack.Screen name="AddFriend" component={AddFriend} /> */}
             </Stack.Navigator>
         </NavigationContainer>
     );
