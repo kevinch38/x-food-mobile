@@ -1,13 +1,9 @@
 import axios from 'axios';
-import token from './Token';
+import axiosInstance from '../api/axiosInstance';
 
 const CityService = () => {
     const fetchCities = async () => {
-        const { data } = await axios.get('http://10.0.2.2:8087/api/cities', {
-            headers: {
-                Authorization: token,
-            },
-        });
+        const { data } = await axiosInstance.get('http://10.0.2.2:8087/api/cities');
         return data;
     };
 

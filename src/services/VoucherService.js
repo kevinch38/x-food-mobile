@@ -1,9 +1,10 @@
 import axios from "axios";
+import axiosInstance from "../api/axiosInstance";
 
 const VoucherService = () => {
     const getVoucherByAccountIDAndPromoID = async (accountID, promoID) => {
         try {
-            const response = await axios.get(`http://10.0.2.2:8087/api/vouchers?promotionID=${promoID}&accountID=${accountID}`);
+            const response = await axiosInstance.get(`http://10.0.2.2:8087/api/vouchers?promotionID=${promoID}&accountID=${accountID}`);
             return response.data;
         } catch (error) {
             console.error("Error fetching order data:", error);
@@ -14,7 +15,7 @@ const VoucherService = () => {
 
     const createVoucher = async (promotionID, accountID) => {
         try {
-            const response = await axios.post(`http://10.0.2.2:8087/api/vouchers`, {
+            const response = await axiosInstance.post(`http://10.0.2.2:8087/api/vouchers`, {
                 promotionID : promotionID,
                 accountID : accountID,
             });

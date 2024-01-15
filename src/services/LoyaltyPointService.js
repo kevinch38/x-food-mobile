@@ -1,15 +1,10 @@
 import axios from 'axios';
-import token from './Token';
+import axiosInstance from '../api/axiosInstance';
 
 const LoyaltyPointService = () => {
     const fetchLoyaltyPointById = async (loyaltyPointID) => {
-        const { data } = await axios.get(
+        const { data } = await axiosInstance.get(
             `http://10.0.2.2:8087/api/loyalty-points/${loyaltyPointID}`,
-            {
-                headers: {
-                    Authorization: token,
-                },
-            },
         );
         return data;
     };

@@ -8,23 +8,23 @@ import {
     Pressable,
     TouchableOpacity,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import Color from '../assets/Color';
 import BackButton from '../components/backButton';
 import UserService from '../services/UserService';
-import axios from 'axios'; // Import UserService
 import { useSelector } from 'react-redux';
+import axiosInstance from '../api/axiosInstance';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const VerificationCodeScreen = () => {
-    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
     const [focusedInput, setFocusedInput] = useState(null);
     const [isValidCode, setIsValidCode] = useState(true);
     const [otpID, setOtpID] = useState(null);
     const [firstName, setFirstName] = useState('');
     const navigation = useNavigation();
-    const route = useRoute();
     const userService = UserService();
+    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
 
     useEffect(() => {
         fetchOtpID(phoneNumber);
@@ -65,21 +65,24 @@ const VerificationCodeScreen = () => {
 
             if (isCodeComplete) {
                 if (otpID) {
-                    const response = await axios.post(
+                    const response = await axiosInstance.post(
                         'http://10.0.2.2:8087/api/otp',
                         {
                             otpID: otpID,
                             enteredOtp: enteredCode,
                         },
                     );
-
                     const data = response.data;
 
-                    if (data.data.check && firstName === '') {
+                    if (data.statusCode == 200) {
+                        await AsyncStorage.setItem('token', data.data.token);
+                    }
+
+                    if (data.data && firstName === '') {
                         setIsValidCode(true);
                         console.log('Code is valid. Navigating to Register.');
                         navigation.navigate('Register');
-                    } else if (data.data.check && firstName !== '') {
+                    } else if (data.data && firstName !== '') {
                         setIsValidCode(true);
                         navigation.navigate('Tabs');
                     } else {
@@ -219,7 +222,7 @@ const style = StyleSheet.create({
 
     buttonImage: {
         position: 'absolute',
-        top: 30,
+        top: 20,
     },
 });
 

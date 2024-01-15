@@ -1,27 +1,17 @@
 import axios from 'axios';
-import token from './Token';
+import axiosInstance from '../api/axiosInstance';
 
 const MerchantBranchService = () => {
     const fetchMerchantBranchs = async (id) => {
-        const { data } = await axios.get(
+        const { data } = await axiosInstance.get(
             `http://10.0.2.2:8087/api/merchants/branches?merchantId=${id}`,
-            {
-                headers: {
-                    Authorization: token,
-                },
-            },
         );
         return data;
     };
 
     const fetchMerchantBranchById = async (id) => {
-        const { data } = await axios.get(
+        const { data } = await axiosInstance.get(
             `http://10.0.2.2:8087/api/merchants/branches/${id}`,
-            {
-                headers: {
-                    Authorization: token,
-                },
-            },
         );
         return data;
     };

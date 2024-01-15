@@ -1,16 +1,11 @@
 import axios from 'axios';
-import token from './Token';
+import axiosInstance from '../api/axiosInstance';
 
 const BalanceService = () => {
     const fetchBalance = async (id) => {
-        const { data } = await axios.get(
+        const { data } = await axiosInstance.get(
             `http://10.0.2.2:8087/api/balances/${id}`,
             id,
-            {
-                headers: {
-                    Authorization: token,
-                },
-            },
         );
         return data;
     };

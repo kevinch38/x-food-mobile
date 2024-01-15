@@ -15,6 +15,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
 import { setPhoneNumber } from '../../slices/uiSlice';
 import { ServiceContext } from '../../context/ServiceContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Login({ navigation }) {
     const schema = Yup.object({
@@ -26,9 +27,9 @@ export default function Login({ navigation }) {
 
     const dispatch = useDispatch();
     const { userService } = useContext(ServiceContext);
-    const phoneNumberRedux = useSelector((state) => state.ui.phoneNumber);
     const [isRegistered, setIsRegistered] = useState(false);
-
+    const phoneNumberRedux = useSelector((state) => state.ui.phoneNumber);
+    
     const {
         values: { phoneNumber },
         handleBlur,
@@ -41,26 +42,20 @@ export default function Login({ navigation }) {
         },
         onSubmit: async (values) => {
             try {
-                console.log(values.phoneNumber);
                 const formatPhoneNumber = `${values.phoneNumber.substr(3)}`;
-                console.log(formatPhoneNumber);
-
                 const userResponse = await userService.fetchUserByPhoneNumber(
                     values.phoneNumber,
                 );
-
+                await AsyncStorage.setItem('phoneNumber', values.phoneNumber);
+                const phoneNumberStorage = await AsyncStorage.getItem('phoneNumber');
                 const user = userResponse.data;
-
                 if (user && user.otpID !== null) {
                     setIsRegistered(true);
                 } else {
                     setIsRegistered(false);
-                    console.log('ini masuk');
                     await userService.register(formatPhoneNumber);
-                    console.log('User tidak ditemukan, berhasil didaftarkan');
                 }
-
-                dispatch(setPhoneNumber(values.phoneNumber));
+                dispatch(setPhoneNumber(phoneNumberStorage));
                 navigation.navigate('VerificationCode', { isRegistered });
             } catch (error) {
                 console.warn('Error during form submission:', error);

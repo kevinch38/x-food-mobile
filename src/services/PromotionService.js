@@ -1,16 +1,11 @@
-import axios from 'axios';
-import token from './Token';
+import axios from "axios";
+import axiosInstance from "../api/axiosInstance";
 
 const PromotionService = () => {
     const getPromotions = async () => {
         try {
-            const { data } = await axios.get(
+            const { data } = await axiosInstance.get(
                 `http://10.0.2.2:8087/api/promotions`,
-                {
-                    headers: {
-                        Authorization: token,
-                    },
-                },
             );
             return data;
         } catch (error) {
@@ -22,22 +17,19 @@ const PromotionService = () => {
         try {
             const { data } = await axios.get(
                 `http://10.0.2.2:8087/api/promotions/${id}`,
-                {
-                    headers: {
-                        Authorization: token,
-                    },
-                },
             );
             return data;
-        } catch (error) {
+        }catch (error) {
             throw error;
         }
-    };
+    }
 
     return {
         getPromotions,
-        getPromotionById,
-    };
-};
+        getPromotionById
+    }
+}
 
-export default PromotionService;
+export default PromotionService
+
+

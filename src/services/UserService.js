@@ -1,5 +1,5 @@
 import axios from 'axios';
-import token from './Token';
+import axiosInstance from '../api/axiosInstance';
 
 const UserService = () => {
     const register = async (phoneNumber) => {
@@ -8,7 +8,7 @@ const UserService = () => {
                 phoneNumber: phoneNumber,
             };
 
-            const data = await axios.post(
+            const data = await axiosInstance.post(
                 'http://10.0.2.2:8087/api/users/register',
                 newUserRequest,
                 {
@@ -24,39 +24,24 @@ const UserService = () => {
     };
 
     const fetchUserById = async (id) => {
-        const { data } = await axios.get(
+        const { data } = await axiosInstance.get(
             `http://10.0.2.2:8087/api/users/${id}`,
-            {
-                headers: {
-                    Authorization: token,
-                },
-            },
         );
         return data;
     };
 
     const fetchUserByPhoneNumber = async (phoneNumber) => {
-        const { data } = await axios.get(
+        const { data } = await axiosInstance.get(
             `http://10.0.2.2:8087/api/users/${phoneNumber}`,
-            {
-                headers: {
-                    Authorization: token,
-                },
-            },
         );
         return data;
     };
 
     const updateUser = async (user) => {
         try {
-            const { data } = await axios.put(
+            const { data } = await axiosInstance.put(
                 `http://10.0.2.2:8087/api/users`,
                 user,
-                {
-                    headers: {
-                        Authorization: token,
-                    },
-                },
             );
             return data;
         } catch (error) {
@@ -65,13 +50,8 @@ const UserService = () => {
     };
 
     const fetchPinByPinID = async (pinID) => {
-        const { data } = await axios.get(
+        const { data } = await axiosInstance.get(
             `http://10.0.2.2:8087/api/pins/${pinID}`,
-            {
-                headers: {
-                    Authorization: token,
-                },
-            },
         );
         return data;
     };

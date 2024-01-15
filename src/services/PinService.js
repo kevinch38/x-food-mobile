@@ -1,16 +1,9 @@
 import axios from 'axios';
-import token from './Token';
+import axiosInstance from '../api/axiosInstance';
 
 const PinService = () => {
     const getPin = async (id) => {
-        const { data } = await axios.get(
-            `http://10.0.2.2:8087/api/pins/${id}`,
-            {
-                headers: {
-                    Authorization: token,
-                },
-            },
-        );
+        const { data } = await axiosInstance.get(`http://10.0.2.2:8087/api/pins/${id}`);
         return data;
     };
 
@@ -18,11 +11,6 @@ const PinService = () => {
         const { data } = await axios.post(
             `http://10.0.2.2:8087/api/pins`,
             user,
-            {
-                headers: {
-                    Authorization: token,
-                },
-            },
         );
         return data;
     };
