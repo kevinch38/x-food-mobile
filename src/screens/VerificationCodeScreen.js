@@ -75,8 +75,6 @@ const VerificationCodeScreen = () => {
 
                     const data = response.data;
 
-                    // console.log('Check OTP response:', data);
-                    console.log(firstName);
                     if (data.data.check && firstName === '') {
                         setIsValidCode(true);
                         console.log('Code is valid. Navigating to Register.');

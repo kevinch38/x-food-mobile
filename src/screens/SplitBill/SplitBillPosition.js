@@ -11,42 +11,34 @@ import {
 } from 'react-native';
 import * as Icon from 'react-native-feather';
 import Button from '../../components/button';
-import React, {useContext, useEffect, useState} from 'react';
-import {useDispatch, useSelector} from "react-redux";
-import {ServiceContext} from "../../context/ServiceContext";
-import {userAction} from "../../slices/userSlice";
-import {friendAction} from "../../slices/friendSlice";
-import {splitBillAction} from "../../slices/splitBillSlice";
+import React, { useContext, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { ServiceContext } from '../../context/ServiceContext';
+import { splitBillAction } from '../../slices/splitBillSlice';
 
-function SplitBillPosition({navigation, route}) {
+function SplitBillPosition({ navigation, route }) {
     const dispatch = useDispatch();
-    const {splitBillService} = useContext(ServiceContext);
-    const {splitBill} = useSelector((state) => state.splitBill);
-    const [requestPayment, setRequestPayment] = useState(route.params?.request)
+    const { splitBillService } = useContext(ServiceContext);
+    const [requestPayment, setRequestPayment] = useState(
+        route.params?.requestPayment,
+    );
 
     const handleSubmit = () => {
-
-        let request = requestPayment
+        let request = JSON.parse(JSON.stringify(requestPayment));
 
         request = request.map((req) => {
-            delete req.friendName
-            req.orderItems = req.orderItems?.map((r) => {
-                return r.orderItemID
-            })
-            return req
-            // console.log(req, 'req')
-            // req.orderItems?.map((r) => {
-            //     return r.orderItemID
-            // })
-        })
+            delete req.friendName;
+            delete req.imageFriend;
 
-        // request.delete(friendName)
-        console.log(request, 'request -----_')
+            req.orderItems = req.orderItems?.map((r) => r.orderItemID);
+            return req;
+        });
 
         dispatch(
             splitBillAction(async () => {
                 try {
-                    const result = await splitBillService.saveSplitBill(request)
+                    const result =
+                        await splitBillService.saveSplitBill(request);
                     if (result.statusCode === 201) {
                         Alert.alert(
                             'Success',
@@ -55,11 +47,14 @@ function SplitBillPosition({navigation, route}) {
                                 {
                                     text: 'Ok',
                                     onPress: async () => {
-                                        navigation.navigate('SplitBillSuccess');
+                                        navigation.navigate(
+                                            'SplitBillSuccess',
+                                            { requestPayment },
+                                        );
                                     },
                                 },
                             ],
-                            {cancelable: false},
+                            { cancelable: false },
                         );
                     } else {
                         Alert.alert('Error', 'Failed to create payment');
@@ -68,10 +63,9 @@ function SplitBillPosition({navigation, route}) {
                     console.error('Error request payment: ', e);
                     Alert.alert('Error', 'Failed to request payment');
                 }
-            })
-        )
-    }
-
+            }),
+        );
+    };
     const renderHeader = () => {
         return (
             <View style={styles.headerContainer}>
@@ -98,9 +92,12 @@ function SplitBillPosition({navigation, route}) {
         return (
             <View style={styles.addPositionContainer}>
                 <View style={styles.cardContainer}>
-                    {requestPayment?.map((request) => (
+                    {requestPayment?.map((request) =>
                         request.orderItems?.map((r) => (
-                            <View style={styles.card}>
+                            <View
+                                style={styles.card}
+                                key={request.friendAccountID}
+                            >
                                 <View style={styles.avatarAddPosition}>
                                     <Image
                                         source={require('../../assets/images/avatar.png')}
@@ -109,21 +106,29 @@ function SplitBillPosition({navigation, route}) {
                                         <Text style={styles.titleAddPosition}>
                                             Add Position to
                                         </Text>
-                                        <Text style={styles.name}>{request.friendName}</Text>
+                                        <Text style={styles.name}>
+                                            {request.friendName}
+                                        </Text>
                                     </View>
                                 </View>
 
                                 <View>
-                                    <Text style={styles.item}>{r.itemName}</Text>
+                                    <Text style={styles.item}>
+                                        {r.itemName}
+                                    </Text>
                                     <View style={styles.priceContainer}>
-                                        <Text style={styles.price}>Rp 55,000</Text>
+                                        <Text style={styles.price}>
+                                            Rp 55,000
+                                        </Text>
                                         <Text style={styles.price}>1x</Text>
-                                        <Text style={styles.priceTotal}>Rp 55,000</Text>
+                                        <Text style={styles.priceTotal}>
+                                            Rp 55,000
+                                        </Text>
                                     </View>
                                 </View>
                             </View>
-                        ))
-                    ))}
+                        )),
+                    )}
                 </View>
             </View>
         );
@@ -141,7 +146,6 @@ function SplitBillPosition({navigation, route}) {
             <View style={styles.btnContainer}>
                 <Button
                     onPress={() => handleSubmit()}
-                    // onPress={() => navigation.navigate('SplitBillSuccess')}
                     title={'Request Payment'}
                     titleStyle={styles.titleStyle}
                     buttonStyle={styles.buttonStyle}

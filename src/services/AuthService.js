@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { AsyncStorage } from 'react-native';
+import token from './Token';
 
 const AuthService = () => {
     const TOKEN_KEY = 'token';
@@ -8,6 +9,11 @@ const AuthService = () => {
         const { data } = await axiosInstance.post(
             'http://10.0.2.2:8087/api/auth/login',
             user,
+            {
+                headers: {
+                    Authorization: token,
+                },
+            },
         );
         if (data.token) {
             await AsyncStorage.setItem(TOKEN_KEY, data.token);
@@ -22,6 +28,11 @@ const AuthService = () => {
     const getUserInfo = async () => {
         const { data } = await axiosInstance.get(
             'http://10.0.2.2:8087/api/users/me',
+            {
+                headers: {
+                    Authorization: token,
+                },
+            },
         );
         return data;
     };
@@ -42,6 +53,11 @@ const AuthService = () => {
         try {
             const { data } = await axios.get(
                 `http://10.0.2.2:8087/api/users/${phoneNumber}`,
+                {
+                    headers: {
+                        Authorization: token,
+                    },
+                },
             );
             return data;
         } catch (error) {

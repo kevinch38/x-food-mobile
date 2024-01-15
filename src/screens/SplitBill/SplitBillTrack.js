@@ -9,16 +9,26 @@ import {
     View,
 } from 'react-native';
 import * as Icon from 'react-native-feather';
-import Button from '../../components/button';
-import React from 'react';
+import React, { useState } from 'react';
 
-function SplitBillTrack({ navigation }) {
+function SplitBillTrack({ navigation, route }) {
+    const [requestPayment, setRequestPayment] = useState(
+        route.params?.requestPayment,
+    );
+
+    const imageUrl =
+        'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
+
     const renderHeader = () => {
         return (
             <View style={styles.headerContainer}>
                 <TouchableOpacity
                     style={styles.btnBack}
-                    onPress={() => navigation.goBack()}
+                    onPress={() =>
+                        navigation.navigate('SplitBillAddPosition', {
+                            requestPayment,
+                        })
+                    }
                 >
                     <Icon.ChevronLeft
                         width={24}
@@ -39,69 +49,59 @@ function SplitBillTrack({ navigation }) {
         return (
             <View style={styles.trackContainer}>
                 <View style={styles.cardContainer}>
-                    <View style={styles.card}>
-                        <View style={styles.avatarContainer}>
-                            <View style={styles.avatarTrack}>
-                                <Image
-                                    source={require('../../assets/images/avatar.png')}
-                                />
-                                <View style={styles.nameTrack}>
-                                    <Text style={styles.titleTrack}>
-                                        Requested to
+                    {requestPayment?.map((request) =>
+                        request.orderItems?.map((r) => (
+                            <View style={styles.card}>
+                                <View style={styles.avatarContainer}>
+                                    <View style={styles.avatarTrack}>
+                                        {request.imageFriend ? (
+                                            <Image
+                                                source={{
+                                                    uri: `data:image/jpeg;base64,${request.imageFriend}`,
+                                                }}
+                                                style={styles.avatar}
+                                            />
+                                        ) : (
+                                            <Image
+                                                source={{
+                                                    uri: imageUrl,
+                                                }}
+                                                style={styles.avatar}
+                                            />
+                                        )}
+                                        <View style={styles.nameTrack}>
+                                            <Text style={styles.titleTrack}>
+                                                Requested to
+                                            </Text>
+                                            <Text style={styles.name}>
+                                                {request.friendName}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                    <View>
+                                        <Text style={styles.now}>Now</Text>
+                                        <Text style={[styles.statusNow]}>
+                                            Waiting for{'\n'} Payment
+                                        </Text>
+                                    </View>
+                                </View>
+                                <View>
+                                    <Text style={styles.item}>
+                                        {r.itemName}
                                     </Text>
-                                    <Text style={styles.name}>Anna</Text>
+                                    <View style={styles.priceContainer}>
+                                        <Text style={styles.price}>
+                                            {request.paymentAmount}
+                                        </Text>
+                                        <Text style={styles.price}>1x</Text>
+                                        <Text style={styles.priceTotal}>
+                                            Rp 55,000
+                                        </Text>
+                                    </View>
                                 </View>
                             </View>
-                            <View>
-                                <Text style={styles.now}>Now</Text>
-                                <Text style={[styles.statusNow]}>
-                                    Waiting for{'\n'} Payment
-                                </Text>
-                            </View>
-                        </View>
-                        <View>
-                            <Text style={styles.item}>Mushroom Signature</Text>
-                            <View style={styles.priceContainer}>
-                                <Text style={styles.price}>Rp 55,000</Text>
-                                <Text style={styles.price}>1x</Text>
-                                <Text style={styles.priceTotal}>Rp 55,000</Text>
-                            </View>
-                        </View>
-                    </View>
-                    <View style={styles.card}>
-                        <View style={styles.avatarContainer}>
-                            <View style={styles.avatarTrack}>
-                                <Image
-                                    source={require('../../assets/images/avatar.png')}
-                                />
-                                <View style={styles.nameTrack}>
-                                    <Text style={styles.titleTrack}>
-                                        Requested to
-                                    </Text>
-                                    <Text style={styles.name}>Anna</Text>
-                                </View>
-                            </View>
-                            <View>
-                                <Text style={styles.now}>Now</Text>
-                                <Text
-                                    style={[
-                                        styles.statusNow,
-                                        { color: '#5FBD00' },
-                                    ]}
-                                >
-                                    Received
-                                </Text>
-                            </View>
-                        </View>
-                        <View>
-                            <Text style={styles.item}>Mushroom Signature</Text>
-                            <View style={styles.priceContainer}>
-                                <Text style={styles.price}>Rp 55,000</Text>
-                                <Text style={styles.price}>1x</Text>
-                                <Text style={styles.priceTotal}>Rp 55,000</Text>
-                            </View>
-                        </View>
-                    </View>
+                        )),
+                    )}
                 </View>
             </View>
         );
@@ -181,6 +181,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 26,
+    },
+    avatar: {
+        width: 64,
+        height: 64,
+        borderRadius: 64,
     },
     nameTrack: {
         marginLeft: 12,

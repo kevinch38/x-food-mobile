@@ -3,7 +3,14 @@ import token from './Token';
 
 const PinService = () => {
     const getPin = async (id) => {
-        const { data } = await axios.get(`http://10.0.2.2:8087/api/pins/${id}`);
+        const { data } = await axios.get(
+            `http://10.0.2.2:8087/api/pins/${id}`,
+            {
+                headers: {
+                    Authorization: token,
+                },
+            },
+        );
         return data;
     };
 

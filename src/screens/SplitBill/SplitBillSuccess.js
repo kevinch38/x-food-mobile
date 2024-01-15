@@ -9,14 +9,23 @@ import {
 } from 'react-native';
 import Color from '../../assets/Color';
 import Button from '../../components/button';
-import React from 'react';
+import React, { useState } from 'react';
 
-function SplitBillSuccess({ navigation }) {
+function SplitBillSuccess({ navigation, route }) {
+    const [requestPayment, setRequestPayment] = useState(
+        route.params?.requestPayment,
+    );
+
+    const imageUrl =
+        'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
+
+    const orderID = requestPayment[0].orderID;
+
     const renderStruct = () => {
         return (
             <View>
                 <View style={styles.struckContainer}>
-                    <Text style={styles.ticketStruck}>Order ID #237</Text>
+                    <Text style={styles.ticketStruck}>Order ID #{orderID}</Text>
                     <Text style={styles.dateStruck}>April 8th, 2022</Text>
                     <View style={styles.logoContainer}>
                         <Image
@@ -25,30 +34,52 @@ function SplitBillSuccess({ navigation }) {
                         />
                         <Text style={styles.statusOrder}>Order Completed</Text>
                     </View>
-                    <View style={styles.itemOrderContainer}>
-                        <View style={styles.itemOrder}>
-                            <Text style={styles.item}>Mushroom Signature</Text>
-                            <Text style={styles.priceTotal}>Rp 55,000</Text>
-                        </View>
-                        <View style={styles.priceContainer}>
-                            <Text style={styles.price}>Rp 55,000</Text>
-                            <Text style={styles.price}>1x</Text>
-                        </View>
-                        <View style={styles.avatarContainer}>
-                            <Image
-                                source={require('../../assets/images/avatar.png')}
-                                style={styles.avatar}
-                            />
-                            <Image
-                                source={require('../../assets/images/avatar.png')}
-                                style={styles.avatar}
-                            />
-                        </View>
-                    </View>
+                    {requestPayment?.map((request, index) =>
+                        request.orderItems?.map((r) => (
+                            <View style={styles.itemOrderContainer} key={index}>
+                                <View style={styles.itemOrder}>
+                                    <Text style={styles.item}>
+                                        {r.itemName}
+                                    </Text>
+                                    <Text style={styles.priceTotal}>
+                                        Rp.{' '}
+                                        {request.paymentAmount.toLocaleString()}
+                                    </Text>
+                                </View>
+                                <View style={styles.priceContainer}>
+                                    <Text style={styles.price}>
+                                        Rp{' '}
+                                        {request.paymentAmount.toLocaleString()}
+                                    </Text>
+                                    <Text style={styles.price}>1x</Text>
+                                </View>
+                                <View style={styles.avatarContainer}>
+                                    {request.imageFriend ? (
+                                        <Image
+                                            source={{
+                                                uri: `data:image/jpeg;base64,${request.imageFriend}`,
+                                            }}
+                                            style={styles.avatar}
+                                        />
+                                    ) : (
+                                        <Image
+                                            source={{
+                                                uri: imageUrl,
+                                            }}
+                                            style={styles.avatar}
+                                        />
+                                    )}
+                                </View>
+                            </View>
+                        )),
+                    )}
+
                     <View style={styles.btnTrack}>
                         <Button
                             onPress={() =>
-                                navigation.navigate('SplitBillTrack')
+                                navigation.navigate('SplitBillTrack', {
+                                    requestPayment,
+                                })
                             }
                             title={'Track'}
                             buttonStyle={styles.trackButtonStyle}
@@ -76,7 +107,7 @@ function SplitBillSuccess({ navigation }) {
             </ScrollView>
             <View style={styles.btnContainer}>
                 <Button
-                    onPress={() => navigation.navigate('Home')}
+                    onPress={() => navigation.navigate('Tabs')}
                     title={'Done'}
                     titleStyle={styles.titleStyle}
                     buttonStyle={styles.buttonStyle}
@@ -152,6 +183,7 @@ const styles = StyleSheet.create({
     avatar: {
         width: 28,
         height: 28,
+        borderRadius: 28,
         marginRight: 8,
     },
     btnTrack: {
@@ -176,7 +208,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-        top: 250,
+        top: '50%',
     },
     circle: {
         width: 24,
@@ -185,10 +217,10 @@ const styles = StyleSheet.create({
         backgroundColor: Color.primary,
     },
     leftCircle: {
-        marginLeft: 4,
+        marginLeft: 3,
     },
     rightCircle: {
-        marginRight: 4,
+        marginRight: 3,
     },
     btnContainer: {
         marginTop: -48,

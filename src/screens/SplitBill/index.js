@@ -83,7 +83,7 @@ function SplitBill({ navigation, route }) {
                 <Text style={styles.titleSendTo}>Send to</Text>
                 <View style={styles.avatarSendToContainer}>
                     {avatarData.map((avatar) => (
-                        <View style={styles.avatarSendTo} key={avatar.id}>
+                        <View style={styles.avatarSendTo} key={avatar.friendID}>
                             <Image
                                 source={require('../../assets/images/avatar.png')}
                                 style={styles.imageAvatar}
@@ -165,7 +165,12 @@ function SplitBill({ navigation, route }) {
             </ScrollView>
             <View style={styles.btnContainer}>
                 <Button
-                    onPress={() => navigation.navigate('SplitBillAddPosition',{avatarData, order})}
+                    onPress={() =>
+                        navigation.navigate('SplitBillAddPosition', {
+                            avatarData,
+                            order,
+                        })
+                    }
                     title={'Next'}
                     titleStyle={styles.titleStyle}
                     buttonStyle={styles.buttonStyle}
