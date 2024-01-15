@@ -29,6 +29,7 @@ import CompletePaymentSpiltBill from '../screens/Payment/CompletePaymentSpiltBil
 import SendPayment from '../screens/Notification/sendPayment';
 import Notification from '../screens/Notification/index';
 
+import AddFriend from '../screens/AddFriend';
 
 
 const Stack = createStackNavigator();
@@ -93,6 +94,7 @@ const Navigation = () => {
                 <Stack.Screen name="SendPayment" component={SendPayment} />
                 <Stack.Screen name="Notification" component={Notification} />
 
+                {/* <Stack.Screen name="AddFriend" component={AddFriend} /> */}
             </Stack.Navigator>
         </NavigationContainer>
     );

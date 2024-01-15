@@ -82,7 +82,9 @@ const CardMenu = ({
                                 textAlignVertical: 'center',
                             }}
                         >
-                            {isDiscount ? discountedPrice : initialPrice}
+                            {isDiscount
+                                ? discountedPrice.toLocaleString()
+                                : initialPrice.toLocaleString()}
                         </Text>
                     </View>
 

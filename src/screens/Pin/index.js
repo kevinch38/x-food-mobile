@@ -78,7 +78,6 @@ function Pin({ navigation }) {
                             pin: verificationCode,
                         });
 
-                        console.log(result, '=== data');
 
                         if (result.data) {
                             destination === 'Payment'

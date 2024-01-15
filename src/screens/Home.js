@@ -28,7 +28,7 @@ const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
     const { cities } = useSelector((state) => state.city);
-    const { users } = useSelector((state) => state.user);
+    const  users  = useSelector((state) => state.user);
     const { phoneNumber } = useSelector((state) => state.ui);
     const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
     const { balance } = useSelector((state) => state.balance);
@@ -107,7 +107,7 @@ const Home = ({ navigation }) => {
                 dispatch(
                     fetchBalanceAction(async () => {
                         const result = balanceService.fetchBalance(
-                            users.balanceID,
+                            users.balance.balanceID,
                         );
                         return result;
                     }),
@@ -116,6 +116,8 @@ const Home = ({ navigation }) => {
                 console.error('Error fetchin balance data: ', e);
             }
         };
+
+        console.log("ini users===>", users);
 
         const onGetLoyaltyPointAmount = () => {
             try {

@@ -7,6 +7,7 @@ import {
     StyleSheet,
     Text,
     View,
+    ScrollView
 } from 'react-native';
 import BackButton from '../../components/backButton';
 import { theme } from '../../theme';
@@ -55,15 +56,61 @@ function EReceipt({ navigation }) {
         }
     };
     const dataOrder = order?.data;
-        const getDiscount = () => {
-                let countDiscount = (1 - (sale / dataOrder?.orderValue));
-                dataOrder?.orderItems.forEach((o) => {
-                    setDiscounts((prevState) => ({
-                        ...prevState,
-                        [o.orderID]: countDiscount * o?.price
-                    }));
-                });
-        }
+    const getDiscount = () => {
+        let countDiscount = 1 - sale / dataOrder?.orderValue;
+        dataOrder?.orderItems.forEach((o) => {
+            setDiscounts((prevState) => ({
+                ...prevState,
+                [o.orderID]: countDiscount * o?.price,
+            }));
+        });
+    };
+
+    console.log("data order ====>", dataOrder);
+
+    const orderItemsAssign = Object.values(
+        (dataOrder?.orderItems || []).reduce((groupedItems, order) => {
+            const key = order?.itemName;
+
+            if (!groupedItems[key]) {
+                groupedItems[key] = {
+                    orderItemID: order?.orderItemID,
+                    orderID: order?.orderID,
+                    itemName: order?.itemName,
+                    price: discounts[order?.orderID],
+                    orderItemSubVarieties: [],
+                    createdAt: order?.createdAt,
+                    updatedAt: order?.updatedAt,
+                    quantity: 1,
+                };
+            } else {
+                groupedItems[key].quantity += 1;
+            }
+
+            return groupedItems;
+        }, {})
+    );
+
+    const dataAssigned = {
+        orderID: dataOrder?.orderID,
+        accountID: dataOrder?.accountID,
+        orderValue: dataOrder?.orderValue,
+        orderStatus: dataOrder?.orderStatus,
+        branchID: dataOrder?.branchID,
+        merchantName: dataOrder?.merchantName,
+        image: dataOrder?.image,
+        isSplit: dataOrder?.isSplit,
+        pointAmount: dataOrder?.pointAmount,
+        orderItems: orderItemsAssign.map((item) => ({
+            ...item,
+            quantity: item.quantity ,
+            newPrice : item.quantity * item.price
+        })),
+        createdAt: dataOrder?.createdAt,
+        updatedAt: dataOrder?.updatedAt,
+    };
+
+    console.log("data assign", dataAssigned);
 
 
     const handleToHome = () => {
@@ -87,8 +134,6 @@ function EReceipt({ navigation }) {
             </View>
         );
     };
-
-    // console.log("ini =============>", route.params.orderItems[0]);
 
     const renderContent = () => {
         return (
@@ -132,7 +177,7 @@ function EReceipt({ navigation }) {
                                 fontSize: 16,
                             }}
                         >
-                            Order ID {dataOrder?.orderID}
+                            Order ID {dataAssigned?.orderID}
                         </Text>
                         <Text
                             style={{
@@ -140,7 +185,7 @@ function EReceipt({ navigation }) {
                                 fontSize: 14,
                             }}
                         >
-                            {dataOrder?.date}
+                            {dataAssigned?.date}
                         </Text>
                     </View>
                     <View
@@ -153,7 +198,7 @@ function EReceipt({ navigation }) {
                     >
                         <Image
                             style={{ width: 130, height: 130 }}
-                            source={{ uri: `data:image/jpeg;base64,${dataOrder?.image}` }}
+                            source={{ uri: `data:image/jpeg;base64,${dataAssigned?.image}` }}
                         />
                         <Text
                             style={{
@@ -163,12 +208,10 @@ function EReceipt({ navigation }) {
                             }}
                         >
                             Order Completed
-                            {/*{dataOrder?.orderValue}*/}
-                            {/*{sale}*/}
                         </Text>
 
-
-                        {dataOrder?.orderItems.map((order, index) => (
+                    <ScrollView>
+                        {dataAssigned?.orderItems.map((order, index) => (
                             <View key={index} style={{ width: '100%', marginTop: '5%' }}>
                                 <View
                                     style={{
@@ -179,11 +222,11 @@ function EReceipt({ navigation }) {
                                     <Text style={{ fontSize: 16, fontWeight: 400 }}>
                                         {order.itemName}
                                     </Text>
-                                    <Text style={{ fontSize: 14, fontWeight: 400 }}>
-                                        {/*x {disini seharusnya saya simpan quantity orderItemsnya}*/}
+                                    <Text style={{ fontSize: 14, fontWeight: 400, marginLeft:10 }}>
+                                        x{order.quantity}
                                     </Text>
-                                    <Text style={{ fontWeight: '700', fontSize: 16 }}>
-                                        Rp. {discounts[order.orderID]}
+                                    <Text style={{ fontWeight: '700', fontSize: 16, marginLeft:10 }}>
+                                        Rp. {order.newPrice}
                                     </Text>
                                 </View>
                                 <View style={{ marginLeft: '9%' }}>
@@ -195,43 +238,10 @@ function EReceipt({ navigation }) {
                                 </View>
                             </View>
                         ))}
+                    </ScrollView>
 
-                        {/*{Object.keys(groupedItems).map((orderID, index) => {*/}
-                        {/*    const group = groupedItems[orderID];*/}
-                        {/*    const item = group.items[0]; // Ambil salah satu item sebagai representasi kelompok*/}
-                        {/*    return (*/}
-                        {/*        <View key={index} style={{ width: '100%', marginTop: '5%' }}>*/}
-                        {/*            <View*/}
-                        {/*                style={{*/}
-                        {/*                    flexDirection: 'row',*/}
-                        {/*                    justifyContent: 'space-evenly',*/}
-                        {/*                }}*/}
-                        {/*            >*/}
-                        {/*                <Text style={{ fontSize: 16, fontWeight: 400 }}>*/}
-                        {/*                    {item.itemName}*/}
-                        {/*                </Text>*/}
-                        {/*                <Text style={{ fontSize: 14, fontWeight: 400 }}>*/}
-                        {/*                    x {group.quantity}*/}
-                        {/*                </Text>*/}
-                        {/*                <Text style={{ fontWeight: '700', fontSize: 16 }}>*/}
-                        {/*                    Rp. {group.totalDiscountedPrice}*/}
-                        {/*                </Text>*/}
-                        {/*            </View>*/}
-                        {/*            <View style={{ marginLeft: '9%' }}>*/}
-                        {/*                {item.orderItemSubVarieties.length > 0 && (*/}
-                        {/*                    <Text style={{ fontSize: 14, fontWeight: 400, marginTop: 10 }}>*/}
-                        {/*                        [{item.orderItemSubVarieties.map((or) => or.subVariety.subVarName).join(', ')}]*/}
-                        {/*                    </Text>*/}
-                        {/*                )}*/}
-                        {/*            </View>*/}
-                        {/*        </View>*/}
-                        {/*    );*/}
-                        {/*})}*/}
                         <View
                             style={{ flexDirection: "row", marginTop: 20, marginLeft: '40%' }}
-
-
-
                         >
                             <Text style={{ fontSize: 16, fontWeight: 700, marginRight: 10 }}>Total</Text>
                             <Text style={{ fontSize: 16, fontWeight: 700 }}>Rp {dataOrder?.orderValue}</Text>
@@ -267,6 +277,7 @@ function EReceipt({ navigation }) {
                         }}
                         title={'Split Bill'}
                         titleStyle={{ fontWeight: 'bold', fontSize: 16 }}
+                        onPress={() => navigation.navigate('SplitBill')}
                     />
                 }
 
