@@ -22,7 +22,7 @@ import {
     removeAll,
     removeFromCart,
     selectCartItems,
-    selectCartTotal,
+    selectCartTotal, setPiece,
 } from '../../slices/cartSlice';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
@@ -418,6 +418,7 @@ function Cart({ navigation }) {
                     value={sale}
                     onChange={(item) => {
                         setSale(item.voucherValue);
+                        dispatch(setPiece(item.voucherValue));
                         setNameVoucher(item.label);
                     }}
                 />

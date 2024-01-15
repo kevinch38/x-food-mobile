@@ -5,10 +5,15 @@ export const cartSlice = createSlice({
     initialState: {
         items: [],
         tempItems: [],
+        sale : 0
     },
     reducers: {
         addToCart: (state, { payload }) => {
             state.items = [...state.items, payload];
+        },
+
+        setPiece: (state, { payload }) => {
+            state.sale = payload;
         },
         addTempCartToCart: (state, { payload }) => {
             state.items.push(...payload.map((itm) => ({ ...itm })));
@@ -223,6 +228,7 @@ export const {
     removeFromTempCart,
     addTempCartToCart,
     updateItem,
+    setPiece
 } = cartSlice.actions;
 export const selectCartItems = (state) => state.cart.items;
 export const selectCartItemsById = (state, id) =>

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import BackButton from '../../components/backButton';
 import { theme } from '../../theme';
+import { useSelector } from 'react-redux';
 import * as Progress from 'react-native-progress';
 import Button from '../../components/button';
 import {useEffect, useState} from 'react';
@@ -19,8 +20,10 @@ import OrderService from "../../services/OrderService";
 function EReceipt({ navigation }) {
     const orderService = OrderService();
     const route = useRoute();
-    const orderId = route.params?.orderID;
+    const orderId = route.params.orderID;
     const [order, setOrder] = useState();
+    const sale = useSelector((state) => state.cart.sale);
+    const [discounts, setDiscounts] = useState({});
     console.log("ini order id", orderId);
 
 
@@ -33,24 +36,34 @@ function EReceipt({ navigation }) {
         return () => backHandler.remove();
     }, [order]);
 
-    useEffect(() => {
-        fetchOrderByID()
-    }, [orderId]);
+    useEffect( () => {
+         fetchOrderByID()
+    }, []);
 
+    useEffect(() => {
+        if (order && (sale !== 0 || sale !== null || sale !== "")) {
+            getDiscount();
+        }
+    }, [order,sale])
 
     const fetchOrderByID = async () => {
         try {
             const getOrder = await orderService.getOrderById(orderId);
-            if (orderId)
-                setOrder(getOrder);
-
+            setOrder(getOrder);
         } catch (error) {
             console.error('Error fetching user data1:', error);
         }
     };
-    // console.log(order?.data.quantity, '========') ;
     const dataOrder = order?.data;
-    // console.log(dataOrder?.orderID, "ahahahaahahahah")
+        const getDiscount = () => {
+                let countDiscount = (1 - (sale / dataOrder?.orderValue));
+                dataOrder?.orderItems.forEach((o) => {
+                    setDiscounts((prevState) => ({
+                        ...prevState,
+                        [o.orderID]: countDiscount * o?.price
+                    }));
+                });
+        }
 
 
     const handleToHome = () => {
@@ -150,11 +163,13 @@ function EReceipt({ navigation }) {
                             }}
                         >
                             Order Completed
+                            {/*{dataOrder?.orderValue}*/}
+                            {/*{sale}*/}
                         </Text>
 
 
-                        {dataOrder?.orderItems?.map((order) => (
-                            <View style={{ width: '100%', marginTop: '5%' }}>
+                        {dataOrder?.orderItems.map((order, index) => (
+                            <View key={index} style={{ width: '100%', marginTop: '5%' }}>
                                 <View
                                     style={{
                                         flexDirection: 'row',
@@ -165,10 +180,10 @@ function EReceipt({ navigation }) {
                                         {order.itemName}
                                     </Text>
                                     <Text style={{ fontSize: 14, fontWeight: 400 }}>
-                                        x{order.quantity}
+                                        {/*x {disini seharusnya saya simpan quantity orderItemsnya}*/}
                                     </Text>
                                     <Text style={{ fontWeight: '700', fontSize: 16 }}>
-                                        Rp {order.price}
+                                        Rp. {discounts[order.orderID]}
                                     </Text>
                                 </View>
                                 <View style={{ marginLeft: '9%' }}>
@@ -181,6 +196,37 @@ function EReceipt({ navigation }) {
                             </View>
                         ))}
 
+                        {/*{Object.keys(groupedItems).map((orderID, index) => {*/}
+                        {/*    const group = groupedItems[orderID];*/}
+                        {/*    const item = group.items[0]; // Ambil salah satu item sebagai representasi kelompok*/}
+                        {/*    return (*/}
+                        {/*        <View key={index} style={{ width: '100%', marginTop: '5%' }}>*/}
+                        {/*            <View*/}
+                        {/*                style={{*/}
+                        {/*                    flexDirection: 'row',*/}
+                        {/*                    justifyContent: 'space-evenly',*/}
+                        {/*                }}*/}
+                        {/*            >*/}
+                        {/*                <Text style={{ fontSize: 16, fontWeight: 400 }}>*/}
+                        {/*                    {item.itemName}*/}
+                        {/*                </Text>*/}
+                        {/*                <Text style={{ fontSize: 14, fontWeight: 400 }}>*/}
+                        {/*                    x {group.quantity}*/}
+                        {/*                </Text>*/}
+                        {/*                <Text style={{ fontWeight: '700', fontSize: 16 }}>*/}
+                        {/*                    Rp. {group.totalDiscountedPrice}*/}
+                        {/*                </Text>*/}
+                        {/*            </View>*/}
+                        {/*            <View style={{ marginLeft: '9%' }}>*/}
+                        {/*                {item.orderItemSubVarieties.length > 0 && (*/}
+                        {/*                    <Text style={{ fontSize: 14, fontWeight: 400, marginTop: 10 }}>*/}
+                        {/*                        [{item.orderItemSubVarieties.map((or) => or.subVariety.subVarName).join(', ')}]*/}
+                        {/*                    </Text>*/}
+                        {/*                )}*/}
+                        {/*            </View>*/}
+                        {/*        </View>*/}
+                        {/*    );*/}
+                        {/*})}*/}
                         <View
                             style={{ flexDirection: "row", marginTop: 20, marginLeft: '40%' }}
 
@@ -197,6 +243,8 @@ function EReceipt({ navigation }) {
             </View>
         );
     };
+
+
 
     const renderFooter = () => {
         return (
