@@ -106,21 +106,26 @@ const Menu = ({ navigation }) => {
                                 {branch.address}
                             </Text>
                         </View>
+                        {/*<View*/}
+                        {/*    style={{*/}
+                        {/*        width: '90%',*/}
+                        {/*        marginHorizontal: '5%',*/}
+                        {/*    }}*/}
+                        {/*>*/}
+                        {/*    <Text*/}
+                        {/*        style={{*/}
+                        {/*            fontWeight: '900',*/}
+                        {/*            fontSize: 30,*/}
+                        {/*            textAlign: 'right',*/}
+                        {/*        }}*/}
+                        {/*    >*/}
+                        {/*        Menu*/}
+                        {/*    </Text>*/}
+                        {/*</View>*/}
+
                         <View
-                            style={{
-                                width: '100%',
-                                marginHorizontal: '5%',
-                            }}
-                        >
-                            <Text
-                                style={{
-                                    fontWeight: '900',
-                                    fontSize: 30,
-                                }}
-                            >
-                                Menu
-                            </Text>
-                        </View>
+                            style={{ width: '100%', marginVertical: '10%' }}
+                        ></View>
                         {Array.isArray(branch.items) &&
                             branch.items.length > 0 &&
                             branch.items.map((item, idx) => {

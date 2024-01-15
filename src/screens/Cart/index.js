@@ -31,6 +31,7 @@ import { ServiceContext } from '../../context/ServiceContext';
 import { createOrderAction } from '../../slices/orderSlice';
 import { fetchBalanceAction } from '../../slices/balanceSlice';
 import Color from '../../assets/Color';
+import ErrorText from '../../components/errorText';
 
 function Cart({ navigation }) {
     const dispatch = useDispatch();
@@ -50,8 +51,8 @@ function Cart({ navigation }) {
     const [balanceUser, setBalanceUser] = useState(0);
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
 
-    const totalBalance =
-        balanceUser <= 0 || cartItems.length === 0 || !isValid || !dirty
+    const validationButton =
+        balanceUser <= 0 || cartItems.length === 0 || isValid || dirty
             ? Color.disabled
             : Color.primary;
 
@@ -62,6 +63,9 @@ function Cart({ navigation }) {
     useEffect(() => {
         setBalanceUser(balance.totalBalance);
     }, [balance.totalBalance]);
+
+    console.log(cartItems, 'cart items');
+    console.log(groupedItems, 'group item');
 
     const groupCartItems = (cartItems) => {
         const groupedItems = cartItems.reduce((group, item) => {
@@ -84,13 +88,6 @@ function Cart({ navigation }) {
 
     useEffect(() => {
         const groupedCartItems = groupCartItems(cartItems);
-        console.log('Grup Cart Items:', groupedCartItems);
-
-        groupedCartItems.forEach((group) => {
-            console.log(
-                `Panjang grup dengan mergeId ${group.mergeId}: ${group.items.length}`,
-            );
-        });
 
         setGroupedItems(groupedCartItems);
     }, [cartItems]);
@@ -133,11 +130,16 @@ function Cart({ navigation }) {
     }, [dispatch, userService]);
 
     const Schema = yup.object().shape({
-        tableNumber: yup.number().required('No Table Required'),
+        tableNumber: yup
+            .number()
+            .required('Table Number is required')
+            .integer('Table Number must be an integer')
+            .positive('Table Number must be a positive number'),
+        orderNote: yup.string().matches(/^[a-zA-Z0-9. ]*$/, 'Invalid Notes'),
     });
 
     const {
-        values,
+        values: { tableNumber, orderNote },
         errors,
         touched,
         dirty,
@@ -162,57 +164,50 @@ function Cart({ navigation }) {
                     try {
                         const groupedOrderItem = cartItems.reduce(
                             (grouped, item) => {
-                                const key =
-                                    item.itemID +
-                                    JSON.stringify(
-                                        item.itemVarieties
-                                            .map(
-                                                (variety) =>
-                                                    variety.subVarietyID,
-                                            )
-                                            .sort(),
-                                    );
+                                const key = item.mergeID;
                                 if (!grouped[key]) {
                                     grouped[key] = {
                                         itemID: item.itemID,
-                                        subVarieties: item.itemVarieties.map(
-                                            (variety) => ({
-                                                subVarietyID:
-                                                    variety.subVarietyID,
-                                            }),
-                                        ),
                                         quantity: 0,
+                                        subVarieties: new Set(),
                                     };
                                 }
+
+                                item.itemVarieties.forEach((variety) => {
+                                    grouped[key].subVarieties.add(
+                                        variety.subVarietyID,
+                                    );
+                                });
+
                                 grouped[key].quantity += 1;
                                 return grouped;
                             },
                             {},
                         );
 
-                        const result = Object.values(groupedOrderItem);
+                        const result = Object.values(groupedOrderItem).map(
+                            (item) => ({
+                                itemID: item.itemID,
+                                quantity: item.quantity,
+                                subVarieties: Array.from(item.subVarieties),
+                            }),
+                        );
 
                         const orderItems = {
                             accountID: users.accountID,
                             orderValue: cartTotal - sale,
-                            notes: values.orderNote,
-                            tableNumber: values.tableNumber,
+                            notes: orderNote,
+                            tableNumber: tableNumber,
                             branchID: selectedBranch.branchID,
                             orderItems: result,
                         };
                         dispatch(
                             createOrderAction(async () => {
-                                //         const result =
-                                //             await orderService.orderItem(orderItems);
-                                //         console.log(result, 'ini result');
-                                //     }),
-                                // );
                                 try {
                                     const result =
                                         await orderService.orderItem(
                                             orderItems,
                                         );
-                                    console.log(result, 'ini result');
                                     if (result.statusCode === 201) {
                                         navigation.navigate('Pin', {
                                             accountID: result.data.accountID,
@@ -248,23 +243,6 @@ function Cart({ navigation }) {
         dispatch(removeFromCart(item));
     };
 
-    // useEffect(() => {
-    //     const groupedItems = cartItems.reduce((group, item) => {
-    //         const key = item.mergeID;
-    //
-    //         if (group[key]) {
-    //             group[key].push(item);
-    //         } else {
-    //             group[key] = [item];
-    //         }
-    //         return group;
-    //     }, {});
-    //
-    //     const mergedGroupedItems = Object.values(groupedItems);
-    //
-    //     setGroupedItems(mergedGroupedItems);
-    // }, [cartItems]);
-
     const handleBack = () => {
         navigation.navigate('Menu');
     };
@@ -291,91 +269,6 @@ function Cart({ navigation }) {
             </View>
         );
     };
-
-    // const renderCart = () => {
-    //     return Object.entries(groupedItems).map(([mergeID, items]) => {
-    //         const item = items[0];
-    //         return (
-    //             <View style={styles.sectionContainer} key={mergeID}>
-    //                 <Image
-    //                     source={{ uri: `data:image/jpeg;base64,${item.image}` }}
-    //                     style={styles.imageCart}
-    //                 />
-    //                 <View style={styles.menuContainer}>
-    //                     <View style={styles.menuSection}>
-    //                         <Text style={styles.titleMenu}>
-    //                             {item.itemName}
-    //                         </Text>
-    //                         <TouchableOpacity onPress={() => handleClose(item)}>
-    //                             <Icon.X
-    //                                 width={17}
-    //                                 height={17}
-    //                                 stroke={'red'}
-    //                                 strokeWidth={3}
-    //                             />
-    //                         </TouchableOpacity>
-    //                     </View>
-    //                     <Text style={styles.toppings}>
-    //                         {item.itemVarieties.length !== 0
-    //                             ? item.itemVarieties
-    //                                   .map((variety) =>
-    //                                       findVarietyName(
-    //                                           item.itemVarieties,
-    //                                           variety.subVarietyID,
-    //                                       ),
-    //                                   )
-    //                                   .join(' , ')
-    //                             : 'No Varieties'}
-    //                     </Text>
-    //                     <View style={styles.priceSection}>
-    //                         <Text style={styles.priceMenu}>
-    //                             Rp. {item.itemPrice.toLocaleString()}
-    //                         </Text>
-    //                         <View style={styles.counter}>
-    //                             {order === items.items.length ? (
-    //                                 <TouchableOpacity disabled>
-    //                                     <Icon.MinusCircle
-    //                                         width={28}
-    //                                         height={28}
-    //                                         stroke={theme.grey}
-    //                                         strokeWidth={1}
-    //                                     />
-    //                                 </TouchableOpacity>
-    //                             ) : (
-    //                                 <TouchableOpacity
-    //                                     onPress={() =>
-    //                                         handleDecrease(items.items[0])
-    //                                     }
-    //                                 >
-    //                                     <Icon.MinusCircle
-    //                                         width={28}
-    //                                         height={28}
-    //                                         stroke={theme.primary}
-    //                                         strokeWidth={2}
-    //                                     />
-    //                                 </TouchableOpacity>
-    //                             )}
-    //                             <Text style={styles.numCounter}>
-    //                                 {items.items.length}
-    //                             </Text>
-    //                             <TouchableOpacity
-    //                                 onPress={() => handleIncrease(item)}
-    //                             >
-    //                                 <Icon.PlusCircle
-    //                                     width={30}
-    //                                     height={30}
-    //                                     fill={theme.primary}
-    //                                     stroke="#fff"
-    //                                     strokeWidth={2}
-    //                                 />
-    //                             </TouchableOpacity>
-    //                         </View>
-    //                     </View>
-    //                 </View>
-    //             </View>
-    //         );
-    //     });
-    // };
 
     const renderCart = () => {
         return Object.entries(groupedItems).map(([mergeID, group]) => {
@@ -469,21 +362,21 @@ function Cart({ navigation }) {
                     icon={require('../../assets/icons/chair.png')}
                     keyboardType={'numeric'}
                     placeholder={'1                                     '}
-                    onFocus={() => handleInputFocus('tableNumber')}
                     onChangeText={handleChange('tableNumber')}
-                    onBlur={handleBlur('tableNumber')}
-                    value={values.tableNumber}
+                    value={tableNumber}
                 />
                 {touched.tableNumber && errors.tableNumber && (
-                    <Text style={styles.errorTextAgg}>
-                        {errors.tableNumber}
-                    </Text>
+                    <ErrorText message={errors.tableNumber} />
                 )}
                 <InputText
                     label={'Note'}
                     placeholder={'example: extra spicy'}
-                    value={values.orderNote}
+                    onChangeText={handleChange('orderNote')}
+                    value={orderNote}
                 />
+                {touched.orderNote && errors.orderNote && (
+                    <ErrorText message={errors.orderNote} />
+                )}
             </View>
         );
     };
@@ -495,11 +388,6 @@ function Cart({ navigation }) {
     const renderVoucher = () => {
         return (
             <View style={styles.dropdownContainer}>
-                {/*<Image*/}
-                {/*    source={{*/}
-                {/*        uri: `data:image/png;base64,${vouchers[0].logoImage}`,*/}
-                {/*    }}*/}
-                {/*/>*/}
                 <SelectCountry
                     style={styles.dropdown}
                     placeholderStyle={styles.placeholderStyle}
@@ -509,7 +397,6 @@ function Cart({ navigation }) {
                     imageField={convertImage('logoImage')}
                     labelField="promotionName"
                     valueField="voucherValue"
-                    // onChange={handleDropdown}
                     maxHeight={300}
                     searchPlaceholder="Search..."
                     placeholder={'Select Voucher'}
@@ -562,12 +449,8 @@ function Cart({ navigation }) {
         );
     };
 
-    // console.log(groupedItems, 'grouped items =======');
-    // console.log(cartItems, 'cart items =======');
-
     return (
         <SafeAreaView style={styles.container}>
-            {/*<Button title={'tt'} onPress={console.log(groupedItems)} />*/}
             <ScrollView>
                 {renderHeader()}
                 <View style={styles.sectionWrapper}>
@@ -580,8 +463,10 @@ function Cart({ navigation }) {
                     <Button
                         title={'CHECKOUT'}
                         titleStyle={styles.titleStyle}
-                        buttonStyle={{ backgroundColor: totalBalance }}
-                        onPress={handleSubmit}
+                        buttonStyle={{ backgroundColor: validationButton }}
+                        onPress={() => {
+                            handleSubmit();
+                        }}
                         disabled={
                             balanceUser <= 0 ||
                             cartItems.length === 0 ||
