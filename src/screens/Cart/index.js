@@ -64,8 +64,6 @@ function Cart({ navigation }) {
         setBalanceUser(balance.totalBalance);
     }, [balance.totalBalance]);
 
-    console.log(cartItems, 'cart items');
-    console.log(groupedItems, 'group item');
 
     const groupCartItems = (cartItems) => {
         const groupedItems = cartItems.reduce((group, item) => {
@@ -115,7 +113,7 @@ function Cart({ navigation }) {
                 dispatch(
                     fetchBalanceAction(async () => {
                         const result = balanceService.fetchBalance(
-                            users.balanceID,
+                            users.balance.balanceID,
                         );
                         return result;
                     }),

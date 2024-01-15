@@ -1,8 +1,9 @@
 import axios from 'axios';
+import axiosInstance from '../api/axiosInstance';
 
 const OrderService = () => {
     const orderItem = async (order) => {
-        const { data } = await axios.post(
+        const { data } = await axiosInstance.post(
             'http://10.0.2.2:8087/api/orders',
             order,
         );
@@ -11,7 +12,7 @@ const OrderService = () => {
     };
 
     const completedOrder = async (order) => {
-        const { data } = await axios.put(
+        const { data } = await axiosInstance.put(
             'http://10.0.2.2:8087/api/orders',
             order,
         );

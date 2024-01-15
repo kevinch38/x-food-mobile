@@ -63,7 +63,6 @@ export default function Register({ navigation }) {
             aggrement: false,
         },
         onSubmit: async (formValues) => {
-            console.log(formValues, 'form values');
             try {
                 if (!formValues) return;
 

@@ -14,6 +14,8 @@ import BackButton from '../components/backButton';
 import UserService from '../services/UserService';
 import axios from 'axios'; // Import UserService
 import { useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '../api/axiosInstance';
 
 const VerificationCodeScreen = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
@@ -66,7 +68,7 @@ const VerificationCodeScreen = () => {
 
             if (isCodeComplete) {
                 if (otpID) {
-                    const response = await axios.post(
+                    const response = await axiosInstance.post(
                         'http://10.0.2.2:8087/api/otp',
                         {
                             otpID: otpID,
@@ -76,13 +78,20 @@ const VerificationCodeScreen = () => {
 
                     const data = response.data;
 
+                    console.log(data , 'in data')
+
+
+                    if (data.statusCode == 200) {
+                        await AsyncStorage.setItem('token', data.data.token);
+                    }
+
                     // console.log('Check OTP response:', data);
                     console.log(firstName);
-                    if (data.data && firstName === '') {
+                    if (data.data.check && firstName === '') {
                         setIsValidCode(true);
                         console.log('Code is valid. Navigating to Register.');
                         navigation.navigate('Register');
-                    } else if (data.data && firstName !== '') {
+                    } else if (data.data.check && firstName !== '') {
                         setIsValidCode(true);
                         navigation.navigate('Tabs');
                     } else {

@@ -103,7 +103,7 @@ const Home = ({ navigation }) => {
                 dispatch(
                     fetchBalanceAction(async () => {
                         const result = balanceService.fetchBalance(
-                            users.balanceID,
+                            users.balance.balanceID,
                         );
                         return result;
                     }),
@@ -215,7 +215,7 @@ const Home = ({ navigation }) => {
                             style={{ width: 33, height: 19 }}
                             source={require('../assets/images/card.png')}
                         />
-                        <Text>Rp. {balance.totalBalance}</Text>
+                        <Text>Rp. {balance.totalBalance.toLocaleString()}</Text>
                         <Pressable onPress={handleTopUp}>
                             <Text style={{ color: '#5681A5' }}>TOP UP</Text>
                         </Pressable>

@@ -201,6 +201,7 @@ function EReceipt({ navigation }) {
                     }}
                     title={'Split Bill'}
                     titleStyle={{ fontWeight: 'bold', fontSize: 16 }}
+                    onPress={() => navigation.navigate('SplitBill')}
                 />
                 <Button
                     onPress={handleToHome}

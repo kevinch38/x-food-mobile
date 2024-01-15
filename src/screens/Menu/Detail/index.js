@@ -93,7 +93,6 @@ const Detail = ({ navigation }) => {
                 .map((sv) => `${item.itemID}_${sv.subVarietyID}`)
                 .join('.');
             setMergeID(updateMergeID);
-            console.log(updateMergeID, 'update mergeId');
         } else {
             const updatedItemsVariety = itemVariety.filter(
                 (itemVariety) => itemVariety !== subVariety,
@@ -103,9 +102,7 @@ const Detail = ({ navigation }) => {
                 .map((sv) => `${item.itemID}_${sv.subVarietyID}`)
                 .join('.');
             setMergeID(filteredMergeID);
-            console.log(filteredMergeID, 'update mergeId');
         }
-        console.log(itemVariety, '==== updateItemVarieties');
     };
 
     const handleAddToCart = () => {
@@ -119,7 +116,6 @@ const Detail = ({ navigation }) => {
         (v) => v.variety.isRequired,
     );
 
-    console.log(tempItems, 'temp item detail');
 
     return (
         <SafeAreaView style={styles.wrapper}>
