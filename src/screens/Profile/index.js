@@ -382,7 +382,7 @@ function Profile({ navigation }) {
                     <View>
                         <Text style={styles.name}>Balance</Text>
                         <Text style={styles.textSecond}>
-                            Rp {balance.totalBalance.toLocaleString()}
+                            Rp {balance.totalBalance}
                         </Text>
                     </View>
                     <TouchableOpacity

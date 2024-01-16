@@ -7,7 +7,6 @@ const OrderService = () => {
             'http://10.0.2.2:8087/api/orders',
             order,
         );
-        console.log(data, 'ini service');
         return data;
     };
 

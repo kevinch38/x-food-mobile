@@ -1,27 +1,42 @@
-import {View, ScrollView, TouchableOpacity} from "react-native";
-import HistoryCard from "../../components/HistoryCard";
-import React, {useEffect, useState} from "react";
-import UserService from "../../services/UserService";
-import HistoryService from "../../services/HistoryService";
-import {useSelector} from "react-redux";
-import {format} from "date-fns";
+import {
+    Image,
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import BackButton from '../../components/backButton';
+import Account from '../../components/account';
+import Avatar from '../../assets/images/avatar-2.png';
+import Avatar2 from '../../assets/images/avatar-1.png';
+import PaymentReceipt from '../../components/paymentReceipt';
+import { useSelector } from 'react-redux';
+import UserService from '../../services/UserService';
+import HistoryService from '../../services/HistoryService';
+import { useEffect, useState } from 'react';
+import HistoryCard from '../../components/HistoryCard';
+import { format } from 'date-fns';
 
-const PaymentScreen = () => {
+function Notification({ navigation }) {
+    const users = useSelector((state) => state.user.users);
+
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const userService = UserService();
     const historyService = HistoryService();
-    const [id, setId] = useState("");
+    const [id, setId] = useState('');
     const [payments, setPayments] = useState([]);
     const [paymentStatus, setPaymentStatus] = useState({});
     const [paymentContet, setPaymentContent] = useState({});
 
     const fetchUserData = async (phoneNumber) => {
         try {
-            const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
+            const userData =
+                await userService.fetchUserByPhoneNumber(phoneNumber);
             const accountID = userData.data.accountID;
             setId(accountID);
-            console.log(id);
-
         } catch (error) {
             console.error('Error fetching user data1:', error);
         }
@@ -32,12 +47,11 @@ const PaymentScreen = () => {
             const historyPayment =
                 await historyService.getAllPaymentHistoryByAccountId(id);
             setPayments(historyPayment.data);
-            // console.log("=========================>",historyPayment.data);
+            console.log('=========================>', historyPayment.data);
         } catch (error) {
             console.error('Error fetching user data2:', error);
         }
     };
-
 
     const getAllHistoriesWithStatus = async () => {
         // console.log("+++++++++++++++++++++++++>",payments);
@@ -106,42 +120,100 @@ const PaymentScreen = () => {
                 [payment.paymentID]: content,
             }));
         });
-    }
+    };
 
     useEffect(() => {
-        fetchUserData(phoneNumber)
+        fetchUserData(phoneNumber);
     }, [phoneNumber]);
 
     useEffect(() => {
-        if (id !== "") {
-            getAllOrderHistories()
+        if (id !== '') {
+            getAllOrderHistories();
         }
     }, [id]);
 
     useEffect(() => {
-        if (id !== ""){
-            getAllHistoriesWithStatus()
+        if (id !== '') {
+            getAllHistoriesWithStatus();
         }
     }, [id, payments]);
 
+    const handleToPin = (destination) => {
+        navigation.navigate('Pin', destination);
+    };
 
-    return(
-        <View style={{margin:20}}>
+    const renderHeader = () => {
+        return (
+            <View
+                style={{
+                    width: '100%',
+                    height: '10%',
+                    justifyContent: 'center',
+                    marginTop: '2%',
+                }}
+            >
+                <BackButton />
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        width: '100%',
+                        height: '100%',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Text style={{ fontWeight: '500', fontSize: 18 }}>
+                        Notification
+                    </Text>
+                </View>
+                <Account image={users.profilePhoto} />
+            </View>
+        );
+    };
+
+    return (
+        <SafeAreaView style={styles.wrapper}>
+            {renderHeader()}
+
             <ScrollView>
                 {payments.map((payment, index) => (
-                    <TouchableOpacity  key={index}>
+                    <TouchableOpacity key={index}>
                         <HistoryCard
-                            date={format(new Date(payment.createdAt), "dd MMM, HH:mm")}
+                            date={format(
+                                new Date(payment.createdAt),
+                                'dd MMM, HH:mm',
+                            )}
                             title={paymentStatus[payment.paymentID]}
                             content={paymentContet[payment.paymentID]}
                             amount={payment.paymentAmount}
+                            image={payment.friend.imageAccount2}
                         />
                     </TouchableOpacity>
-
                 ))}
             </ScrollView>
-        </View>
-    )
+
+            {/* <ScrollView>
+                <PaymentReceipt
+                    title={'You Receive A Split Bill From'}
+                    name={'Eve'}
+                    image={Avatar}
+                    titleButton={'Pay'}
+                    totalAmount={'55,000'}
+                    onPress={() => handleToPin('CompletePaymentSpiltBill')}
+                />
+            </ScrollView> */}
+        </SafeAreaView>
+    );
 }
 
-export default PaymentScreen
+const styles = StyleSheet.create({
+    wrapper: {
+        flex: 1,
+        paddingTop: StatusBar.currentHeight,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+});
+
+export default Notification;

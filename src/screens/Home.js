@@ -7,7 +7,7 @@ import {
     Image,
     Pressable,
     ScrollView,
-    Button,
+    TouchableOpacity,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Card from '../components/card/Card';
@@ -28,7 +28,7 @@ const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
     const { cities } = useSelector((state) => state.city);
-    const { users } = useSelector((state) => state.user);
+    const users = useSelector((state) => state.user, users);
     const { phoneNumber } = useSelector((state) => state.ui);
     const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
     const { balance } = useSelector((state) => state.balance);
@@ -39,7 +39,7 @@ const Home = ({ navigation }) => {
         userService,
         balanceService,
     } = useContext(ServiceContext);
-    const [cityId, setCityId] = useState('8a8ae40b8cd4debc018cd4dec9c70113');
+    const [cityId, setCityId] = useState('8a8ae40b8d0d54bd018d0d54cdc80114');
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
 
@@ -151,12 +151,14 @@ const Home = ({ navigation }) => {
             <ScrollView>
                 <View style={styles.container}>
                     <View style={styles.notifBell}>
-                        <Pressable>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('Notification')}
+                        >
                             <Image
                                 style={{ height: 34, width: 34 }}
                                 source={require('../assets/icons/Bell.png')}
                             />
-                        </Pressable>
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.topArea}>
                         <View style={styles.dropdownArea}>
@@ -215,7 +217,7 @@ const Home = ({ navigation }) => {
                             style={{ width: 33, height: 19 }}
                             source={require('../assets/images/card.png')}
                         />
-                        <Text>Rp. {balance.totalBalance.toLocaleString()}</Text>
+                        <Text>Rp. {balance.totalBalance}</Text>
                         <Pressable onPress={handleTopUp}>
                             <Text style={{ color: '#5681A5' }}>TOP UP</Text>
                         </Pressable>

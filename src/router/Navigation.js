@@ -28,6 +28,7 @@ import ChangePin from '../screens/Pin/ChangePin';
 import CompletePaymentSpiltBill from '../screens/Payment/CompletePaymentSpiltBill';
 import SendPayment from '../screens/Notification/sendPayment';
 import AddFriend from '../screens/AddFriend';
+import Notification from '../screens/Notification';
 
 
 const Stack = createStackNavigator();
@@ -90,6 +91,8 @@ const Navigation = () => {
                     component={CompletePaymentSpiltBill}
                 />
                 <Stack.Screen name="SendPayment" component={SendPayment} />
+                <Stack.Screen name="Notification" component={Notification} />
+
                 {/* <Stack.Screen name="AddFriend" component={AddFriend} /> */}
             </Stack.Navigator>
         </NavigationContainer>

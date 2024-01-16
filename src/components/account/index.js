@@ -3,7 +3,10 @@ import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 const Account = ({ onPress, image }) => {
     return (
         <TouchableOpacity style={styles.wrapper} onPress={onPress}>
-            <Image source={image} style={styles.imageStyle} />
+            <Image
+                source={{ uri: `data:image/jpeg;base64,${image}` }}
+                style={styles.imageStyle}
+            />
         </TouchableOpacity>
     );
 };

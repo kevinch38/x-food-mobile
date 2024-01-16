@@ -20,6 +20,15 @@ function CompletePaymentSpiltBill({ navigation, route }) {
     const { userService } = useContext(ServiceContext);
     const [splitBill, setSplitBill] = useState({});
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            navigation.navigate('Tabs');
+        }, 5000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+
     useEffect(async () => {
         try {
             dispatch(

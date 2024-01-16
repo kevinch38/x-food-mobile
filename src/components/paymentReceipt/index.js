@@ -10,6 +10,7 @@ function PaymentReceipt({
     totalAmount,
     titleButton,
     order,
+    onPress,
 }) {
     return (
         <View
@@ -78,6 +79,7 @@ function PaymentReceipt({
                     Rp. {totalAmount}
                 </Text>
                 <Button
+                    onPress={onPress}
                     buttonStyle={{
                         backgroundColor: '#FFE500',
                         height: 85,
