@@ -31,8 +31,6 @@ const PaymentScreen = () => {
         try {
             const historyPayment = await historyService.getAllPaymentHistoryByAccountId(id);
             setPayments(historyPayment.data);
-            console.log("=========================>",historyPayment.data);
-
         } catch (error) {
             console.error('Error fetching user data2:', error);
         }
