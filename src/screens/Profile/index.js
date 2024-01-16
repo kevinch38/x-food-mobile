@@ -29,6 +29,7 @@ import axios from 'axios';
 import { fetchBalanceAction } from '../../slices/balanceSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../../api/axiosInstance';
+import { formatIDRCurrency } from '../../utils/utils';
 
 function Profile({ navigation }) {
     const dispatch = useDispatch();
@@ -382,7 +383,7 @@ function Profile({ navigation }) {
                     <View>
                         <Text style={styles.name}>Balance</Text>
                         <Text style={styles.textSecond}>
-                            Rp {balance.totalBalance}
+                            {formatIDRCurrency(balance.totalBalance)}
                         </Text>
                     </View>
                     <TouchableOpacity

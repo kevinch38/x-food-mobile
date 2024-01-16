@@ -23,6 +23,7 @@ import { Icon } from '@rneui/themed';
 import { loyaltyPointAction } from '../slices/loyaltyPointSlice';
 import { userAction } from '../slices/userSlice';
 import { fetchBalanceAction } from '../slices/balanceSlice';
+import { formatIDRCurrency } from '../utils/utils';
 
 const Home = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -52,8 +53,8 @@ const Home = ({ navigation }) => {
     });
 
     const handleNotification = () => {
-        navigation.navigate("Notification");
-    }
+        navigation.navigate('Notification');
+    };
 
     const filteredSearchMerchants =
         search.trim() === ''
@@ -117,7 +118,7 @@ const Home = ({ navigation }) => {
             }
         };
 
-        console.log("ini users===>", users);
+        console.log('ini users===>', users);
 
         const onGetLoyaltyPointAmount = () => {
             try {
@@ -223,7 +224,7 @@ const Home = ({ navigation }) => {
                             style={{ width: 33, height: 19 }}
                             source={require('../assets/images/card.png')}
                         />
-                        <Text>Rp. {balance.totalBalance}</Text>
+                        <Text>{formatIDRCurrency(balance.totalBalance)}</Text>
                         <Pressable onPress={handleTopUp}>
                             <Text style={{ color: '#5681A5' }}>TOP UP</Text>
                         </Pressable>
