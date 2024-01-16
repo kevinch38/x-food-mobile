@@ -17,15 +17,23 @@ import Payment from '../screens/Payment';
 import MerchantConfirm from '../screens/MerchantConfirm';
 import Complete from '../screens/Complete';
 import EReceipt from '../screens/EReceipt';
-import Redeem from "../screens/Voucher/Redeem";
-import Welcome from "../screens/Welcome"
-import Splash from '../screens/Splash'
-import Login from '../screens/Login'
-import Register from '../screens/Register'
-import VerificationCodeScreen from '../screens/VerificationCodeScreen'
+import Redeem from '../screens/Voucher/Redeem';
+import Welcome from '../screens/Welcome';
+import Splash from '../screens/Splash';
+import Login from '../screens/Login';
+import Register from '../screens/Register';
+import VerificationCodeScreen from '../screens/VerificationCodeScreen';
 import PinCreationScreen from '../screens/PinCreationScreen';
 import ChangePin from '../screens/Pin/ChangePin';
-
+import CompletePaymentSpiltBill from '../screens/Payment/CompletePaymentSpiltBill';
+import SendPayment from '../screens/Notification/sendPayment';
+import Notification from '../screens/Notification/index';
+import AddFriend from '../screens/AddFriend';
+import SplitBill from '../screens/SplitBill';
+import SplitBillAddPosition from '../screens/SplitBill/SplitBillAddPosition';
+import SplitBillPosition from '../screens/SplitBill/SplitBillPosition';
+import SplitBillSuccess from '../screens/SplitBill/SplitBillSuccess';
+import SplitBillTrack from '../screens/SplitBill/SplitBillTrack';
 
 const Stack = createStackNavigator();
 
@@ -82,6 +90,30 @@ const Navigation = () => {
                     component={MerchantConfirm}
                 />
                 <Stack.Screen name="Payment" component={Payment} />
+                <Stack.Screen
+                    name="CompletePaymentSpiltBill"
+                    component={CompletePaymentSpiltBill}
+                />
+                <Stack.Screen name="SendPayment" component={SendPayment} />
+                <Stack.Screen name="Notification" component={Notification} />
+                <Stack.Screen name="SplitBill" component={SplitBill} />
+                <Stack.Screen
+                    name="SplitBillAddPosition"
+                    component={SplitBillAddPosition}
+                />
+                <Stack.Screen
+                    name="SplitBillPosition"
+                    component={SplitBillPosition}
+                />
+                <Stack.Screen
+                    name="SplitBillSuccess"
+                    component={SplitBillSuccess}
+                />
+                <Stack.Screen
+                    name="SplitBillTrack"
+                    component={SplitBillTrack}
+                />
+                 <Stack.Screen name="AddFriend" component={AddFriend} />
             </Stack.Navigator>
         </NavigationContainer>
     );

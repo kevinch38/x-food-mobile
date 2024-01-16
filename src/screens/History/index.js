@@ -4,9 +4,11 @@ import { useNavigation } from "@react-navigation/native";
 import OrderScreen from "./OrderScreen";
 import PaymentScreen from "./PaymentScreen";
 import TopUpScreen from "./TopUpScreen";
+import { useSelector } from 'react-redux';
 
 const History = () => {
-    const [activeButton, setActiveButton] = useState(null);
+    const users = useSelector((state) => state.user.users);
+    const [activeButton, setActiveButton] = useState('button1');
 
     const handleButtonPress = (buttonName) => {
         setActiveButton(buttonName);
@@ -39,18 +41,31 @@ const History = () => {
                     justifyContent: 'space-between',
                     marginBottom: -60,
                 }}
-                >
+            >
                 <TouchableOpacity style={styles.button}>
-                    <Image source={require('../../../assets/images/button.png')} />
+                    <Image
+                        source={require('../../../assets/images/button.png')}
+                    />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.button}>
-                    <Text style={{ textAlign: 'center', marginTop: 20, fontSize: 16 }}>
+                    <Text
+                        style={{
+                            textAlign: 'center',
+                            marginTop: 20,
+                            fontSize: 16,
+                        }}
+                    >
                         History
                     </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.button}>
-                    <Image source={require('../../assets/images/userimage.png')} />
+                    <Image
+                        source={{
+                            uri: `data:image/jpeg;base64,${users.profilePhoto}`,
+                        }}
+                        style={styles.imageStyle}
+                    />
                 </TouchableOpacity>
             </View>
             <View style={styles.container}>
@@ -58,7 +73,12 @@ const History = () => {
                     onPress={() => handleButtonPress('button1')}
                     style={[
                         styles.button,
-                        { backgroundColor: activeButton === 'button1' ? 'orange' : 'transparent' },
+                        {
+                            backgroundColor:
+                                activeButton === 'button1'
+                                    ? 'orange'
+                                    : 'transparent',
+                        },
                     ]}
                 >
                     <Text style={styles.font}>Order</Text>
@@ -67,7 +87,12 @@ const History = () => {
                     onPress={() => handleButtonPress('button2')}
                     style={[
                         styles.button,
-                        { backgroundColor: activeButton === 'button2' ? 'orange' : 'transparent' },
+                        {
+                            backgroundColor:
+                                activeButton === 'button2'
+                                    ? 'orange'
+                                    : 'transparent',
+                        },
                     ]}
                 >
                     <Text style={styles.font}>Top Up</Text>
@@ -76,15 +101,18 @@ const History = () => {
                     onPress={() => handleButtonPress('button3')}
                     style={[
                         styles.button,
-                        { backgroundColor: activeButton === 'button3' ? 'orange' : 'transparent' },
+                        {
+                            backgroundColor:
+                                activeButton === 'button3'
+                                    ? 'orange'
+                                    : 'transparent',
+                        },
                     ]}
                 >
                     <Text style={styles.font}>Payment</Text>
                 </TouchableOpacity>
             </View>
-            <View style={{margin:40}}>
-                {selectedComponent}
-            </View>
+            <View style={{ margin: 40 }}>{selectedComponent}</View>
         </View>
     );
 };
@@ -99,13 +127,19 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10,
         margin: 20,
+
         borderRadius: 30,
+    },
+    imageStyle: {
+        height: 40,
+        width: 40,
+        borderRadius: 10,
     },
 
     font: {
-        fontWeight: "bold",
-        textAlign: "center",
-        justifyContent: "center",
+        fontWeight: 'bold',
+        textAlign: 'center',
+        justifyContent: 'center',
         fontSize: 16,
     },
 

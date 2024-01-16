@@ -17,6 +17,10 @@ import { useEffect } from 'react';
 function Complete({ navigation }) {
     const route = useRoute();
     const pointLoyalty = route.params?.pointLoyalty;
+    const orderID = route.params?.orderID;
+    const accountID = route.params?.accountID;
+
+    console.log(orderID, 'ini order ID di Complete')
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener(
@@ -25,8 +29,8 @@ function Complete({ navigation }) {
         );
         return () => backHandler.remove();
     }, []);
-    const handleTrackOrder = () => {
-        navigation.navigate('EReceipt');
+    const handleTrackOrder = (orderID, accountID) => {
+        navigation.navigate('EReceipt',{orderID: orderID, accountID:accountID});
     };
 
     const renderHeader = () => {
@@ -77,7 +81,7 @@ function Complete({ navigation }) {
                 }}
             >
                 <Button
-                    onPress={handleTrackOrder}
+                    onPress={() => handleTrackOrder(orderID, accountID)}
                     buttonStyle={{ width: '80%', borderRadius: 20 }}
                     title={'Track your order'}
                     titleStyle={{ fontWeight: 'bold', fontSize: 16 }}

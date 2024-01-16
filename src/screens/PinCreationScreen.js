@@ -1,18 +1,28 @@
-import {BackHandler, Modal, StyleSheet, Text, Pressable, View, TextInput, ActivityIndicator} from 'react-native';
-import PinCreationService from "../services/PinCreationService";
-import {setPin} from "../slices/pinSlice";
-import {useDispatch, useSelector} from "react-redux";
-import React, {useEffect, useState} from 'react';
+import {
+    BackHandler,
+    Modal,
+    StyleSheet,
+    Text,
+    Pressable,
+    View,
+    TextInput,
+    ActivityIndicator,
+} from 'react-native';
+import PinCreationService from '../services/PinCreationService';
+import { setPin } from '../slices/pinSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
 import Color from '../assets/Color';
 import { BlurView } from 'expo-blur';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import Home from "./Home";
+import Home from './Home';
 import UserService from '../services/UserService';
 
-
 const PinSchema = Yup.object().shape({
-    pinValue: Yup.string().required('PIN is required').length(6, 'PIN must be 6 digits'),
+    pinValue: Yup.string()
+        .required('PIN is required')
+        .length(6, 'PIN must be 6 digits'),
     confirmPinValue: Yup.string()
         .required('Confirm PIN is required')
         .oneOf([Yup.ref('pinValue')], 'PIN does not match'),
@@ -26,7 +36,7 @@ const PinCreationScreen = ({ navigation }) => {
     const [pinIDFetched, setPinIDFetched] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(false);
     const userService = UserService();
-    const [pinID, setPinID]= useState("")
+    const [pinID, setPinID] = useState('');
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
@@ -36,13 +46,15 @@ const PinCreationScreen = ({ navigation }) => {
 
         fetchData();
 
-        const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            handleBackPress,
+        );
 
         return () => {
             backHandler.remove();
         };
     }, [phoneNumber, pinID, modalVisible]);
-
 
     const handleBackPress = () => {
         if (modalVisible) {
@@ -62,24 +74,21 @@ const PinCreationScreen = ({ navigation }) => {
 
     const fetchUserData = async (phoneNumber) => {
         try {
-            const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
-            // console.log('userData:', userData);
+            const userData =
+                await userService.fetchUserByPhoneNumber(phoneNumber);
 
             setPinID(userData.data.pinID);
-
         } catch (error) {
             console.error('Error fetching user data1:', error);
         }
     };
-
     const fetchPinID = async () => {
         try {
             const currentPinID = pinID || '';
 
             const pinData = await userService.fetchPinByPinID(currentPinID);
-            console.log("ini adalah pin data =============", pinData.data.pin);
 
-            if (pinData.data.pin !== "") {
+            if (pinData.data.pin !== '') {
                 setPinIDExists(true);
             } else {
                 setPinIDExists(false);
@@ -91,14 +100,13 @@ const PinCreationScreen = ({ navigation }) => {
         }
     };
 
-
     const handleFormSubmit = async (values, { resetForm }) => {
         // console.log(values.pinValue);
         try {
             dispatch(setPin(values));
             // hideModal();
             resetForm();
-            const response = await PinCreationService(pinID,values.pinValue);
+            const response = await PinCreationService(pinID, values.pinValue);
             hideModal();
             // if (values.pinValue){
             //     showModal();
@@ -109,11 +117,6 @@ const PinCreationScreen = ({ navigation }) => {
             console.error('API Error:', error);
         }
     };
-
-
-    console.log('modalVisible:', modalVisible);
-    console.log('pinIDExists:', pinIDExists);
-
 
     return (
         <View style={styles.centeredView}>
@@ -130,7 +133,7 @@ const PinCreationScreen = ({ navigation }) => {
                         backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semitransparent white background
                     }}
                     size="large"
-                    color= '#FFC529'
+                    color="#FFC529"
                 />
             )}
             {!modalVisible && pinIDFetched && !pinIDExists && !isLoading && (
@@ -148,7 +151,9 @@ const PinCreationScreen = ({ navigation }) => {
             <Modal
                 animationType="slide"
                 transparent={true}
-                visible={!modalVisible && pinIDFetched && !pinIDExists && !isLoading}
+                visible={
+                    !modalVisible && pinIDFetched && !pinIDExists && !isLoading
+                }
             >
                 <View
                     style={{
@@ -171,13 +176,13 @@ const PinCreationScreen = ({ navigation }) => {
                             onSubmit={handleFormSubmit}
                         >
                             {({
-                                  handleChange,
-                                  handleBlur,
-                                  handleSubmit,
-                                  values,
-                                  errors,
-                                  touched,
-                              }) => (
+                                handleChange,
+                                handleBlur,
+                                handleSubmit,
+                                values,
+                                errors,
+                                touched,
+                            }) => (
                                 <>
                                     <TextInput
                                         style={styles.input}
@@ -246,7 +251,6 @@ const PinCreationScreen = ({ navigation }) => {
     );
 };
 
-
 const styles = StyleSheet.create({
     centeredView: {
         flex: 1,
@@ -275,11 +279,11 @@ const styles = StyleSheet.create({
     },
     buttonClose: {
         backgroundColor: Color.secondary,
-        marginTop:20
+        marginTop: 20,
     },
     buttonSubmit: {
         backgroundColor: Color.primary,
-        marginTop:20
+        marginTop: 20,
     },
     textStyle: {
         color: 'white',
@@ -298,7 +302,6 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: 20,
         width: 250,
-
     },
 });
 

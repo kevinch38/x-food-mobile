@@ -7,7 +7,7 @@ import {
     Image,
     Pressable,
     ScrollView,
-    Button,
+    TouchableOpacity,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Card from '../components/card/Card';
@@ -23,12 +23,13 @@ import { Icon } from '@rneui/themed';
 import { loyaltyPointAction } from '../slices/loyaltyPointSlice';
 import { userAction } from '../slices/userSlice';
 import { fetchBalanceAction } from '../slices/balanceSlice';
+import { formatIDRCurrency } from '../utils/utils';
 
 const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
     const { cities } = useSelector((state) => state.city);
-    const { users } = useSelector((state) => state.user);
+    const users = useSelector((state) => state.user.users);
     const { phoneNumber } = useSelector((state) => state.ui);
     const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
     const { balance } = useSelector((state) => state.balance);
@@ -39,7 +40,7 @@ const Home = ({ navigation }) => {
         userService,
         balanceService,
     } = useContext(ServiceContext);
-    const [cityId, setCityId] = useState('8a8ae40b8cd4debc018cd4dec9c70113');
+    const [cityId, setCityId] = useState('8a8ae40b8d0d54bd018d0d54cdc80114');
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
 
@@ -50,6 +51,10 @@ const Home = ({ navigation }) => {
         );
         return hasMatchingBranch;
     });
+
+    const handleNotification = () => {
+        navigation.navigate('Notification');
+    };
 
     const filteredSearchMerchants =
         search.trim() === ''
@@ -103,7 +108,7 @@ const Home = ({ navigation }) => {
                 dispatch(
                     fetchBalanceAction(async () => {
                         const result = balanceService.fetchBalance(
-                            users.balanceID,
+                            users.balance.balanceID,
                         );
                         return result;
                     }),
@@ -112,6 +117,8 @@ const Home = ({ navigation }) => {
                 console.error('Error fetchin balance data: ', e);
             }
         };
+
+        console.log('ini users===>', users);
 
         const onGetLoyaltyPointAmount = () => {
             try {
@@ -151,12 +158,14 @@ const Home = ({ navigation }) => {
             <ScrollView>
                 <View style={styles.container}>
                     <View style={styles.notifBell}>
-                        <Pressable>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('Notification')}
+                        >
                             <Image
                                 style={{ height: 34, width: 34 }}
                                 source={require('../assets/icons/Bell.png')}
                             />
-                        </Pressable>
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.topArea}>
                         <View style={styles.dropdownArea}>
@@ -215,7 +224,7 @@ const Home = ({ navigation }) => {
                             style={{ width: 33, height: 19 }}
                             source={require('../assets/images/card.png')}
                         />
-                        <Text>Rp. {balance.totalBalance}</Text>
+                        <Text>{formatIDRCurrency(balance.totalBalance)}</Text>
                         <Pressable onPress={handleTopUp}>
                             <Text style={{ color: '#5681A5' }}>TOP UP</Text>
                         </Pressable>

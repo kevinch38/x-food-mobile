@@ -8,6 +8,7 @@ import {format} from "date-fns";
 
 const PaymentScreen = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
+    const users = useSelector((state) => state.user.users);
     const userService = UserService();
     const historyService = HistoryService();
     const [id, setId] = useState("");
@@ -29,10 +30,10 @@ const PaymentScreen = () => {
 
     const getAllOrderHistories = async () => {
         try {
-            const historyPayment = await historyService.getAllPaymentHistoryByAccountId(id);
+            const historyPayment =
+                await historyService.getAllPaymentHistoryByAccountId(id);
             setPayments(historyPayment.data);
-            console.log("=========================>",historyPayment.data);
-
+            // console.log("=========================>",historyPayment.data);
         } catch (error) {
             console.error('Error fetching user data2:', error);
         }
@@ -40,60 +41,72 @@ const PaymentScreen = () => {
 
 
     const getAllHistoriesWithStatus = async () => {
-        console.log("+++++++++++++++++++++++++>",payments);
+        // console.log("+++++++++++++++++++++++++>",payments);
         payments.forEach((payment) => {
-            let status = "";
-            let content = "";
-            if (payment.paymentType === "ORDER" && payment.paymentStatus === "PENDING") {
-                status = "Request Sent";
-                content = "Requested";
+            let status = '';
+            let content = '';
+            if (
+                payment.paymentType === 'ORDER' &&
+                payment.paymentStatus === 'PENDING'
+            ) {
+                status = 'Request Sent';
+                content = 'Requested';
+            } else if (
+                payment.paymentType === 'ORDER' &&
+                payment.paymentStatus === 'SUCCESS'
+            ) {
+                status = 'Payment Received';
+                content = 'Received';
+            } else if (
+                payment.paymentType === 'ORDER' &&
+                payment.paymentStatus === 'FAILED'
+            ) {
+                status = 'Request Failed';
+                content = 'Failed';
+            } else if (
+                payment.paymentType === 'ORDER' &&
+                payment.paymentStatus === 'EXPIRED'
+            ) {
+                status = 'Request Expired';
+                content = 'Expired';
+            } else if (
+                payment.paymentType === 'FRIEND' &&
+                payment.paymentStatus === 'PENDING'
+            ) {
+                status = 'Your Friend Requested';
+                content = 'Pay Request';
+            } else if (
+                payment.paymentType === 'FRIEND' &&
+                payment.paymentStatus === 'SUCCESS'
+            ) {
+                status = 'Payment Sent';
+                content = 'Payment Success';
+            } else if (
+                payment.paymentType === 'FRIEND' &&
+                payment.paymentStatus === 'FAILED'
+            ) {
+                status = 'Payment Failed';
+                content = 'Payment Failed';
+            } else if (
+                payment.paymentType === 'FRIEND' &&
+                payment.paymentStatus === 'EXPIRED'
+            ) {
+                status = 'Payment Expired';
+                content = 'Payment Expired';
+            } else {
+                status = 'Failed';
             }
-            else if (payment.paymentType === "ORDER" && payment.paymentStatus === "SUCCESS"){
-                status = "Payment Received";
-                content = "Received";
-            }
-            else if (payment.paymentType === "ORDER" && payment.paymentStatus === "FAILED"){
-                status = "Request Failed";
-                content = "Failed"
-            }
-            else if (payment.paymentType === "ORDER" && payment.paymentStatus === "EXPIRED"){
-                status = "Request Expired";
-                content = "Expired";
-            }
-            else if (payment.paymentType === "FRIEND" && payment.paymentStatus === "PENDING"){
-                status = "Your Friend Requested";
-                content = "Pay Request";
-            }
-            else if (payment.paymentType === "FRIEND" && payment.paymentStatus === "SUCCESS"){
-                status = "Payment Sent";
-                content = "Payment Success";
-            }
-            else if (payment.paymentType === "FRIEND" && payment.paymentStatus === "FAILED") {
-                status = "Payment Failed";
-                content = "Payment Failed";
-            }
-            else if (payment.paymentType === "FRIEND" && payment.paymentStatus === "EXPIRED") {
-                status = "Payment Expired";
-                content = "Payment Expired";
-            }
-            else{
-                status = "Failed";
 
-            }
-
-            setPaymentStatus(prevStatus => ({
+            setPaymentStatus((prevStatus) => ({
                 ...prevStatus,
                 [payment.paymentID]: status,
             }));
 
-            setPaymentContent(prevContent => ({
+            setPaymentContent((prevContent) => ({
                 ...prevContent,
                 [payment.paymentID]: content,
             }));
-
-
         });
-
     }
 
     useEffect(() => {
@@ -113,23 +126,30 @@ const PaymentScreen = () => {
     }, [id, payments]);
 
 
-    return(
-        <View style={{margin:20}}>
+    return (
+        <View>
             <ScrollView>
                 {payments.map((payment, index) => (
-                    <TouchableOpacity  key={index}>
+                    <TouchableOpacity key={index}>
                         <HistoryCard
-                            date={format(new Date(payment.createdAt), "dd MMM, HH:mm")}
+                            date={format(
+                                new Date(payment.createdAt),
+                                'dd MMM, HH:mm',
+                            )}
                             title={paymentStatus[payment.paymentID]}
                             content={paymentContet[payment.paymentID]}
                             amount={payment.paymentAmount}
+                            image={
+                                payment.accountID === users.accountID
+                                    ? payment.friend.imageAccount2
+                                    : payment.friend.imageAccount1
+                            }
                         />
                     </TouchableOpacity>
-
                 ))}
             </ScrollView>
         </View>
-    )
+    );
 }
 
 export default PaymentScreen

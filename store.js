@@ -11,6 +11,8 @@ import authSlice from './src/slices/authSlice';
 import { cartSlice } from './src/slices/cartSlice';
 import orderSlice from './src/slices/orderSlice';
 import balanceSlice from './src/slices/balanceSlice';
+import friendSlice from './src/slices/friendSlice';
+import splitBillSlice from "./src/slices/splitBillSlice";
 
 const setupStore = () =>
     configureStore({
@@ -26,6 +28,8 @@ const setupStore = () =>
             cart: cartSlice.reducer,
             order: orderSlice.reducer,
             balance: balanceSlice.reducer,
+            friend: friendSlice.reducer,
+            splitBill: splitBillSlice.reducer,
         },
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware().concat(asyncMiddlewareAction),

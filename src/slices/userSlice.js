@@ -26,13 +26,15 @@ export const selectUserByPhoneNumberAction = createAsyncThunk(
     RequestHelper,
 );
 
+
+export const checkKtpAction = createAsyncThunk('user/checkKtp', RequestHelper);
 const userSlice = createSlice({
     name: 'user',
     initialState: {
         users: {},
         selectedUser: null,
         registerUser: null,
-        phoneNumber: '+6281239124111',
+        checkKtp: '',
     },
     extraReducers: (builder) => {
         builder.addCase(userAction.fulfilled, (state, { payload }) => {
@@ -81,6 +83,11 @@ const userSlice = createSlice({
                 );
             },
         );
+        builder.addCase(checkKtpAction.fulfilled, (state, { payload }) => {
+            if (payload) {
+                state.checkKtp = payload.data;
+            }
+        });
     },
 });
 

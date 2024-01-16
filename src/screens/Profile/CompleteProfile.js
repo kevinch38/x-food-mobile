@@ -15,7 +15,7 @@ import Button from '../../components/button';
 import { theme } from '../../theme';
 import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
-import { userAction } from '../../slices/userSlice';
+import { checkKtpAction, userAction } from '../../slices/userSlice';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import InputText from '../../components/inputText';
@@ -124,29 +124,31 @@ function CompleteProfile({ navigation }) {
         }
     }, [dispatch, userService, setValues]);
 
-    const handleVerifyKtp = async () => {
-        const registeredKtpIDs = [
-            '1234567890123456',
-            '9876543210987654',
-            '1111222233334444',
-        ];
+    const handleVerifyKtp = async (idKtp) => {
+        try {
+            dispatch(
+                checkKtpAction(async () => {
+                    const result = await userService.checkKtp(idKtp);
 
-        const exists = registeredKtpIDs.includes(ktpID);
-
-        if (exists) {
-            Alert.alert('Warning', 'NIK is already registered');
-            setIsNikVerified(true);
-        } else {
-            Alert.alert('Success', 'NIK Verified', [
-                {
-                    text: 'OK',
-                    onPress: () => {
-                        setIsNikVerified(false);
-                        setIsVisibleButton(true);
-                        setIsSaveButtonDisabled(false);
-                    },
-                },
-            ]);
+                    if (result.data === null) {
+                        Alert.alert('Success', 'NIK Verified', [
+                            {
+                                text: 'OK',
+                                onPress: () => {
+                                    setIsNikVerified(false);
+                                    setIsVisibleButton(true);
+                                    setIsSaveButtonDisabled(false);
+                                },
+                            },
+                        ]);
+                    } else {
+                        Alert.alert('Warning', 'NIK is already registered');
+                        setIsNikVerified(true);
+                    }
+                }),
+            );
+        } catch (error) {
+            console.log('error', error);
         }
     };
 
@@ -253,7 +255,7 @@ function CompleteProfile({ navigation }) {
                                 nikInput.length !== 16 && { opacity: 0.5 },
                             ]}
                             titleStyle={styles.customTitle}
-                            onPress={handleVerifyKtp}
+                            onPress={() => handleVerifyKtp(ktpID)}
                             disabled={isVerify}
                         />
                     ) : null}
