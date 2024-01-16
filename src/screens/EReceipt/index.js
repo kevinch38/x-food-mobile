@@ -14,9 +14,9 @@ import { theme } from '../../theme';
 import { useSelector } from 'react-redux';
 import * as Progress from 'react-native-progress';
 import Button from '../../components/button';
-import {useEffect, useState} from 'react';
-import {useRoute} from "@react-navigation/native";
-import OrderService from "../../services/OrderService";
+import { useEffect, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
+import OrderService from '../../services/OrderService';
 
 function EReceipt({ navigation }) {
     const orderService = OrderService();
@@ -26,8 +26,6 @@ function EReceipt({ navigation }) {
     const sale = useSelector((state) => state.cart.sale);
     const [discounts, setDiscounts] = useState({});
     console.log("ini order id", orderId);
-
-
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener(
@@ -94,7 +92,7 @@ function EReceipt({ navigation }) {
     const dataAssigned = {
         orderID: dataOrder?.orderID,
         accountID: dataOrder?.accountID,
-        orderValue: dataOrder?.orderValue,
+        paymentAmount: dataOrder?.orderValue,
         orderStatus: dataOrder?.orderStatus,
         branchID: dataOrder?.branchID,
         merchantName: dataOrder?.merchantName,
@@ -112,7 +110,6 @@ function EReceipt({ navigation }) {
 
     console.log("data assign", dataAssigned);
 
-
     const handleToHome = () => {
         navigation.navigate('Tabs');
     };
@@ -122,7 +119,9 @@ function EReceipt({ navigation }) {
             <View style={styles.imageController}>
                 <Image
                     style={styles.imageHeader}
-                    source={{ uri: `data:image/jpeg;base64,${dataOrder?.image}` }}
+                    source={{
+                        uri: `data:image/jpeg;base64,${dataOrder?.image}`,
+                    }}
                 />
                 <Text style={styles.title}>
                     Order Confirmed, Your Food is On The Way :)
@@ -219,7 +218,12 @@ function EReceipt({ navigation }) {
                                         justifyContent: 'space-evenly',
                                     }}
                                 >
-                                    <Text style={{ fontSize: 16, fontWeight: 400 }}>
+                                    <Text
+                                        style={{
+                                            fontSize: 16,
+                                            fontWeight: 400,
+                                        }}
+                                    >
                                         {order.itemName}
                                     </Text>
                                     <Text style={{ fontSize: 14, fontWeight: 400, marginLeft:10 }}>
@@ -231,8 +235,22 @@ function EReceipt({ navigation }) {
                                 </View>
                                 <View style={{ marginLeft: '9%' }}>
                                     {order.orderItemSubVarieties.length > 0 && (
-                                        <Text style={{ fontSize: 14, fontWeight: 400, marginTop: 10 }}>
-                                            [{order.orderItemSubVarieties.map((or) => or.subVariety.subVarName).join(', ')}]
+                                        <Text
+                                            style={{
+                                                fontSize: 14,
+                                                fontWeight: 400,
+                                                marginTop: 10,
+                                            }}
+                                        >
+                                            [
+                                            {order.orderItemSubVarieties
+                                                .map(
+                                                    (or) =>
+                                                        or.subVariety
+                                                            .subVarName,
+                                                )
+                                                .join(', ')}
+                                            ]
                                         </Text>
                                     )}
                                 </View>
@@ -243,11 +261,19 @@ function EReceipt({ navigation }) {
                         <View
                             style={{ flexDirection: "row", marginTop: 20, marginLeft: '40%' }}
                         >
-                            <Text style={{ fontSize: 16, fontWeight: 700, marginRight: 10 }}>Total</Text>
-                            <Text style={{ fontSize: 16, fontWeight: 700 }}>Rp {dataOrder?.orderValue}</Text>
+                            <Text
+                                style={{
+                                    fontSize: 16,
+                                    fontWeight: 700,
+                                    marginRight: 10,
+                                }}
+                            >
+                                Total
+                            </Text>
+                            <Text style={{ fontSize: 16, fontWeight: 700 }}>
+                                Rp {dataOrder?.orderValue}
+                            </Text>
                         </View>
-
-
                     </View>
                 </ImageBackground>
             </View>
@@ -262,13 +288,19 @@ function EReceipt({ navigation }) {
                 style={{
                     width: '100%',
                     position: 'absolute',
+                    top: 650,
                     bottom: '10%',
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}
             >
-                {route.params.isSplit ? ``:
+                {route.params.isSplit ? (
+                    ``
+                ) : (
                     <Button
+                        onPress={() =>
+                            navigation.navigate('SplitBill', { dataAssigned })
+                        }
                         buttonStyle={{
                             width: '80%',
                             borderRadius: 20,
@@ -277,9 +309,8 @@ function EReceipt({ navigation }) {
                         }}
                         title={'Split Bill'}
                         titleStyle={{ fontWeight: 'bold', fontSize: 16 }}
-                        onPress={() => navigation.navigate('SplitBill')}
                     />
-                }
+                )}
 
                 <Button
                     onPress={handleToHome}

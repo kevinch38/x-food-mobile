@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import {createSlice} from '@reduxjs/toolkit';
 
 export const cartSlice = createSlice({
     name: 'cart',
@@ -8,7 +8,7 @@ export const cartSlice = createSlice({
         sale : 0
     },
     reducers: {
-        addToCart: (state, { payload }) => {
+        addToCart: (state, {payload}) => {
             state.items = [...state.items, payload];
         },
 
@@ -32,8 +32,8 @@ export const cartSlice = createSlice({
             state.tempItems = [...state.tempItems, payload];
         },
 
-        removeFromTempCart: (state, { payload }) => {
-            const { itemID, itemVarieties } = payload;
+        removeFromTempCart: (state, {payload}) => {
+            const {itemID, itemVarieties} = payload;
 
             const foundIndex = state.tempItems.findIndex(
                 (item) => item.itemID === itemID,
@@ -109,8 +109,8 @@ export const cartSlice = createSlice({
         emptyTempCart: (state) => {
             state.tempItems = [];
         },
-        removeAll(state, { payload }) {
-            const { itemID, itemVarieties } = payload;
+        removeAll(state, {payload}) {
+            const {itemID, itemVarieties} = payload;
 
             const updatedItems = state.items.filter((item) => {
                 const isSameItemID = item.itemID === itemID;

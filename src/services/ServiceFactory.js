@@ -7,6 +7,7 @@ import OrderService from './OrderService';
 import PinService from './PinService';
 import BalanceService from './BalanceService';
 import FriendService from './FriendService';
+import SplitBillService from "./SplitBillService";
 import AuthService from './AuthService';
 
 const ServiceFactory = () => {
@@ -21,6 +22,7 @@ const ServiceFactory = () => {
         balanceService: BalanceService(),
         friendService: FriendService(),
         authService: AuthService(),
+        splitBillService: SplitBillService(),
     };
 };
 

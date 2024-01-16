@@ -5,34 +5,72 @@ import {
     StatusBar,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
     View,
 } from 'react-native';
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import * as Icon from 'react-native-feather';
 import InputText from '../../components/inputText';
 import Color from '../../assets/Color';
 import Button from '../../components/button';
+import { useDispatch, useSelector } from 'react-redux';
+import { ServiceContext } from '../../context/ServiceContext';
+import { friendAction } from '../../slices/friendSlice';
+import { RoundedCheckbox } from 'react-native-rounded-checkbox';
 
-function SplitBill({ navigation }) {
-    const avatarData = [
-        { name: 'Anna', id: 1 },
-        { name: 'Erika', id: 2 },
-        { name: 'Eve', id: 3 },
-    ];
+function SplitBill({ navigation, route }) {
+    const dispatch = useDispatch();
+    const { friends } = useSelector((state) => state.friend);
+    const { friendService } = useContext(ServiceContext);
+    const order = route.params?.dataAssigned;
+    const [avatarData, setAvatarData] = useState([]);
+    const [image, setImage] = useState('');
 
-    const contactData = [
-        { name: 'Hayley Williams', id: 1 },
-        { name: 'Amy Lee', id: 2 },
-        { name: 'John Doe', id: 3 },
-        { name: 'Anna Marie', id: 4 },
-        { name: 'Erika', id: 5 },
-    ];
+    const imageUrl =
+        'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
+
+    const img = async () => {
+        const i = await friends[0].imageAccount1;
+        setImage(i);
+    };
+
+    img();
+
+    const handleCheck = (contact) => {
+        let check = avatarData.find(
+            (data) => data.friendID === contact.friendID,
+        );
+        if (check) {
+            setAvatarData((prevAvatarData) =>
+                prevAvatarData.filter(
+                    (data) => data.friendID !== contact.friendID,
+                ),
+            );
+        } else {
+            setAvatarData([...avatarData, contact]);
+        }
+    };
+
+    useEffect(() => {
+        try {
+            dispatch(
+                friendAction(async () => {
+                    const result = friendService.fetchFriend(order.accountID);
+                    return result;
+                }),
+            );
+        } catch (e) {
+            console.error('Error fetching friend data: ', e);
+        }
+    }, [dispatch, friendService, Object.keys(friends).length]);
+
     const renderHeader = () => {
         return (
             <View style={styles.headerContainer}>
-                <TouchableOpacity style={styles.btnBack}>
+                <TouchableOpacity
+                    style={styles.btnBack}
+                    onPress={() => navigation.goBack()}
+                >
                     <Icon.ChevronLeft
                         width={24}
                         height={24}
@@ -41,10 +79,21 @@ function SplitBill({ navigation }) {
                     />
                 </TouchableOpacity>
                 <Text style={styles.titleHeader}>Split Bill</Text>
-                <Image
-                    source={require('../../assets/images/profile.png')}
-                    style={styles.imageProfile}
-                />
+                {image ? (
+                    <Image
+                        source={{
+                            uri: `data:image/jpeg;base64,${image}`,
+                        }}
+                        style={styles.imageProfile}
+                    />
+                ) : (
+                    <Image
+                        source={{
+                            uri: imageUrl,
+                        }}
+                        style={styles.imageProfile}
+                    />
+                )}
             </View>
         );
     };
@@ -54,20 +103,25 @@ function SplitBill({ navigation }) {
                 <Text style={styles.titleSendTo}>Send to</Text>
                 <View style={styles.avatarSendToContainer}>
                     {avatarData.map((avatar) => (
-                        <View style={styles.avatarSendTo} key={avatar.id}>
-                            <Image
-                                source={require('../../assets/images/avatar.png')}
-                                style={styles.imageAvatar}
-                            />
-                            <TouchableOpacity style={styles.btnClose}>
-                                <Icon.X
-                                    width={16}
-                                    height={16}
-                                    strokeWidth={2}
-                                    color={'#A7A7A7'}
+                        <View style={styles.avatarSendTo} key={avatar.friendID}>
+                            {avatar.imageAccount2 ? (
+                                <Image
+                                    source={{
+                                        uri: `data:image/jpeg;base64,${avatar.imageAccount2}`,
+                                    }}
+                                    style={styles.avatar}
                                 />
-                            </TouchableOpacity>
-                            <Text style={styles.nameAvatar}>{avatar.name}</Text>
+                            ) : (
+                                <Image
+                                    source={{
+                                        uri: imageUrl,
+                                    }}
+                                    style={styles.avatar}
+                                />
+                            )}
+                            <Text style={styles.nameAvatar}>
+                                {avatar.accountFirstName2}
+                            </Text>
                         </View>
                     ))}
                 </View>
@@ -79,7 +133,10 @@ function SplitBill({ navigation }) {
             <View style={styles.addContactContainer}>
                 <View style={styles.titleAddContact}>
                     <Text style={styles.title}>Contacts</Text>
-                    <TouchableOpacity style={styles.btnPlusAddContact}>
+                    <TouchableOpacity
+                        style={styles.btnPlusAddContact}
+                        onPress={() => navigation.navigate('AddFriend')}
+                    >
                         <Icon.Plus
                             width={16}
                             height={16}
@@ -98,36 +155,44 @@ function SplitBill({ navigation }) {
     const renderContact = () => {
         return (
             <View style={styles.contactContainer}>
-                <View style={styles.contact}>
-                    <View style={styles.nameContact}>
-                        <Image
-                            source={require('../../assets/images/avatar.png')}
-                        />
-                        <Text style={styles.name}>Arlan</Text>
-                    </View>
-                    <TouchableOpacity style={styles.btnCheckContact}>
-                        <Icon.Check
-                            width={16}
-                            height={16}
-                            strokeWidth={3}
-                            color={'#fff'}
-                        />
-                    </TouchableOpacity>
-                </View>
-                {contactData.map((contact) => (
+                {friends.map((contact) => (
                     <View style={styles.contact} key={contact.id}>
                         <View style={styles.nameContact}>
-                            <Image
-                                source={require('../../assets/images/avatar.png')}
-                            />
-                            <Text style={styles.name}>{contact.name}</Text>
+                            {contact.imageAccount2 ? (
+                                <Image
+                                    source={{
+                                        uri: `data:image/jpeg;base64,${contact.imageAccount2}`,
+                                    }}
+                                    style={styles.avatar}
+                                />
+                            ) : (
+                                <Image
+                                    source={{
+                                        uri: imageUrl,
+                                    }}
+                                    style={styles.avatar}
+                                />
+                            )}
+
+                            <Text style={styles.name}>
+                                {contact.accountFirstName2}{' '}
+                                {contact.accountLastName2}
+                            </Text>
                         </View>
-                        <TouchableOpacity
-                            style={[
-                                styles.btnCheckContact,
-                                { backgroundColor: Color.gray },
-                            ]}
-                        ></TouchableOpacity>
+
+                        <RoundedCheckbox
+                            text={
+                                <Icon.Check
+                                    width={20}
+                                    height={20}
+                                    strokeWidth={3}
+                                    color={'#fff'}
+                                />
+                            }
+                            checkedColor={Color.primary}
+                            uncheckedColor={Color.gray}
+                            onPress={() => handleCheck(contact)}
+                        />
                     </View>
                 ))}
             </View>
@@ -146,11 +211,32 @@ function SplitBill({ navigation }) {
                 {renderContact()}
             </ScrollView>
             <View style={styles.btnContainer}>
-                <Button
-                    title={'Next'}
-                    titleStyle={styles.titleStyle}
-                    buttonStyle={styles.buttonStyle}
-                />
+                {avatarData.length !== 0 ? (
+                    <Button
+                        onPress={() =>
+                            navigation.navigate('SplitBillAddPosition', {
+                                avatarData,
+                                order,
+                            })
+                        }
+                        title={'Next'}
+                        titleStyle={styles.titleStyle}
+                        buttonStyle={styles.buttonStyle}
+                    />
+                ) : (
+                    <Button
+                        onPress={() =>
+                            navigation.navigate('SplitBillAddPosition', {
+                                avatarData,
+                                order,
+                            })
+                        }
+                        title={'Next'}
+                        disabled={true}
+                        titleStyle={styles.titleStyle}
+                        buttonStyle={[styles.buttonStyle, { opacity: 0.3 }]}
+                    />
+                )}
             </View>
         </SafeAreaView>
     );
@@ -273,30 +359,29 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         marginLeft: 24,
     },
-    btnCheckContact: {
-        backgroundColor: Color.primary,
-        width: 32,
-        height: 32,
-        borderRadius: 32,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     btnContainer: {
         borderTopStartRadius: 24,
         borderTopEndRadius: 24,
         marginTop: -48,
-        backgroundColor: '#fff7ed',
+        backgroundColor: '#fff',
         position: 'relative',
         justifyContent: 'center',
         alignItems: 'center',
         paddingVertical: 28,
+        paddingHorizontal: 34,
     },
     buttonStyle: {
         borderRadius: 20,
+        width: '100%',
     },
     titleStyle: {
         fontSize: 16,
         fontWeight: '600',
+    },
+    avatar: {
+        width: 53,
+        height: 53,
+        borderRadius: 53,
     },
 });
 export default SplitBill;

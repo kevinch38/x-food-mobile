@@ -78,7 +78,7 @@ const VerificationCodeScreen = () => {
 
                     const data = response.data;
 
-                    console.log(data , 'in data')
+                    // console.log(data , 'in data')
 
 
                     if (data.statusCode == 200) {

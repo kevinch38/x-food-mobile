@@ -29,7 +29,11 @@ import CompletePaymentSpiltBill from '../screens/Payment/CompletePaymentSpiltBil
 import SendPayment from '../screens/Notification/sendPayment';
 import Notification from '../screens/Notification/index';
 import AddFriend from '../screens/AddFriend';
-
+import SplitBill from '../screens/SplitBill';
+import SplitBillAddPosition from '../screens/SplitBill/SplitBillAddPosition';
+import SplitBillPosition from '../screens/SplitBill/SplitBillPosition';
+import SplitBillSuccess from '../screens/SplitBill/SplitBillSuccess';
+import SplitBillTrack from '../screens/SplitBill/SplitBillTrack';
 
 const Stack = createStackNavigator();
 
@@ -92,8 +96,24 @@ const Navigation = () => {
                 />
                 <Stack.Screen name="SendPayment" component={SendPayment} />
                 <Stack.Screen name="Notification" component={Notification} />
-
-                {/* <Stack.Screen name="AddFriend" component={AddFriend} /> */}
+                <Stack.Screen name="SplitBill" component={SplitBill} />
+                <Stack.Screen
+                    name="SplitBillAddPosition"
+                    component={SplitBillAddPosition}
+                />
+                <Stack.Screen
+                    name="SplitBillPosition"
+                    component={SplitBillPosition}
+                />
+                <Stack.Screen
+                    name="SplitBillSuccess"
+                    component={SplitBillSuccess}
+                />
+                <Stack.Screen
+                    name="SplitBillTrack"
+                    component={SplitBillTrack}
+                />
+                 <Stack.Screen name="AddFriend" component={AddFriend} />
             </Stack.Navigator>
         </NavigationContainer>
     );

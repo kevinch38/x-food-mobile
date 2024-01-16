@@ -22,7 +22,8 @@ import {
     removeAll,
     removeFromCart,
     selectCartItems,
-    selectCartTotal, setPiece,
+    selectCartTotal,
+    setPiece,
 } from '../../slices/cartSlice';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
@@ -63,7 +64,6 @@ function Cart({ navigation }) {
     useEffect(() => {
         setBalanceUser(balance.totalBalance);
     }, [balance.totalBalance]);
-
 
     const groupCartItems = (cartItems) => {
         const groupedItems = cartItems.reduce((group, item) => {
