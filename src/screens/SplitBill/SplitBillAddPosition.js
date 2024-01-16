@@ -23,9 +23,15 @@ function SplitBillAddPosition({ navigation, route }) {
         friendImage: friends[0].imageAccount2,
     });
 
+    const imageUrl =
+        'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
+
+    const image = friends[0].imageAccount1;
+
     const [requestPayment, setRequestPayment] = useState(
         friends.map((f) => ({
             accountID: f.accountID1,
+            imageAccount: f.imageAccount1,
             paymentAmount: 0.0,
             friendAccountID: f.accountID2,
             friendName: f.accountFirstName2,
@@ -86,17 +92,31 @@ function SplitBillAddPosition({ navigation, route }) {
                     />
                 </TouchableOpacity>
                 <Text style={styles.titleHeader}>Add Positions</Text>
-                <Image
-                    source={require('../../assets/images/profile.png')}
-                    style={styles.imageProfile}
-                />
+                {image ? (
+                    <Image
+                        source={{
+                            uri: `data:image/jpeg;base64,${image}`,
+                        }}
+                        style={styles.imageProfile}
+                    />
+                ) : (
+                    <Image
+                        source={{
+                            uri: imageUrl,
+                        }}
+                        style={styles.imageProfile}
+                    />
+                )}
             </View>
         );
     };
     const renderAddPosition = () => {
         return (
             <View style={styles.addPositionContainer}>
-                <TouchableOpacity style={styles.btnAdd}>
+                <TouchableOpacity
+                    style={styles.btnAdd}
+                    onPress={() => navigation.navigate('AddFriend')}
+                >
                     <Icon.UserPlus
                         width={32}
                         height={32}
@@ -106,9 +126,21 @@ function SplitBillAddPosition({ navigation, route }) {
                 </TouchableOpacity>
                 <View style={styles.cardContainer}>
                     <View style={styles.avatarAddPosition}>
-                        <Image
-                            source={require('../../assets/images/avatar.png')}
-                        />
+                        {selectedFriend.friendImage ? (
+                            <Image
+                                source={{
+                                    uri: `data:image/jpeg;base64,${selectedFriend.friendImage}`,
+                                }}
+                                style={styles.avatar}
+                            />
+                        ) : (
+                            <Image
+                                source={{
+                                    uri: imageUrl,
+                                }}
+                                style={styles.avatar}
+                            />
+                        )}
                         <View style={styles.nameAddPosition}>
                             <Text style={styles.titleAddPosition}>
                                 Add Position to
@@ -184,10 +216,21 @@ function SplitBillAddPosition({ navigation, route }) {
                                         })
                                     }
                                 >
-                                    <Image
-                                        source={require('../../assets/images/avatar.png')}
-                                        style={styles.imageChoiceAvatar}
-                                    />
+                                    {friend.imageAccount2 ? (
+                                        <Image
+                                            source={{
+                                                uri: `data:image/jpeg;base64,${friend.imageAccount2}`,
+                                            }}
+                                            style={styles.imageChoiceAvatar}
+                                        />
+                                    ) : (
+                                        <Image
+                                            source={{
+                                                uri: imageUrl,
+                                            }}
+                                            style={styles.imageChoiceAvatar}
+                                        />
+                                    )}
                                     <Text style={styles.nameChoiceAvatar}>
                                         {friend.accountFirstName2}
                                     </Text>
@@ -343,6 +386,7 @@ const styles = StyleSheet.create({
     imageChoiceAvatar: {
         width: 62,
         height: 62,
+        borderRadius: 62,
         marginBottom: 8,
     },
     nameChoiceAvatar: {
@@ -367,6 +411,11 @@ const styles = StyleSheet.create({
     titleStyle: {
         fontSize: 16,
         fontWeight: '600',
+    },
+    avatar: {
+        width: 64,
+        height: 64,
+        borderRadius: 64,
     },
 });
 export default SplitBillAddPosition;

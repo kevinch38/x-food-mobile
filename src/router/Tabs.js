@@ -2,10 +2,9 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Profile from '../screens/Profile';
 import { Image } from 'react-native';
-import PinCreationScreen from '../screens/PinCreationScreen';
 import History from '../screens/History';
 import Voucher from '../screens/Voucher';
-import AddFriend from '../screens/AddFriend';
+import Home from '../screens/Home';
 
 const Tab = createBottomTabNavigator();
 
@@ -20,7 +19,7 @@ export default () => {
         >
             <Tab.Screen
                 name="Home"
-                component={AddFriend}
+                component={Home}
                 options={{
                     headerShown: false,
                     tabBarLabel: '',

@@ -239,6 +239,7 @@ function EReceipt({ navigation }) {
                 style={{
                     width: '100%',
                     position: 'absolute',
+                    top: 650,
                     bottom: '10%',
                     justifyContent: 'center',
                     alignItems: 'center',

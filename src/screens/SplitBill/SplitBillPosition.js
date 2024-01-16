@@ -23,12 +23,18 @@ function SplitBillPosition({ navigation, route }) {
         route.params?.requestPayment,
     );
 
+    const imageUrl =
+        'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
+
+    const image = requestPayment[0].imageAccount;
+
     const handleSubmit = () => {
         let request = JSON.parse(JSON.stringify(requestPayment));
 
         request = request.map((req) => {
             delete req.friendName;
             delete req.imageFriend;
+            delete req.imageAccount;
 
             req.orderItems = req.orderItems?.map((r) => r.orderItemID);
             return req;
@@ -81,58 +87,107 @@ function SplitBillPosition({ navigation, route }) {
                     />
                 </TouchableOpacity>
                 <Text style={styles.titleHeader}>Add Positions</Text>
-                <Image
-                    source={require('../../assets/images/profile.png')}
-                    style={styles.imageProfile}
-                />
+                {image ? (
+                    <Image
+                        source={{
+                            uri: `data:image/jpeg;base64,${image}`,
+                        }}
+                        style={styles.imageProfile}
+                    />
+                ) : (
+                    <Image
+                        source={{
+                            uri: imageUrl,
+                        }}
+                        style={styles.imageProfile}
+                    />
+                )}
             </View>
         );
     };
-    const renderAddPosition = () => {
-        return (
-            <View style={styles.addPositionContainer}>
-                <View style={styles.cardContainer}>
-                    {requestPayment?.map((request) =>
-                        request.orderItems?.map((r) => (
-                            <View
-                                style={styles.card}
-                                key={request.friendAccountID}
-                            >
-                                <View style={styles.avatarAddPosition}>
-                                    <Image
-                                        source={require('../../assets/images/avatar.png')}
-                                    />
-                                    <View style={styles.nameAddPosition}>
-                                        <Text style={styles.titleAddPosition}>
-                                            Add Position to
-                                        </Text>
-                                        <Text style={styles.name}>
-                                            {request.friendName}
-                                        </Text>
-                                    </View>
-                                </View>
 
-                                <View>
-                                    <Text style={styles.item}>
-                                        {r.itemName}
-                                    </Text>
-                                    <View style={styles.priceContainer}>
-                                        <Text style={styles.price}>
-                                            Rp 55,000
-                                        </Text>
-                                        <Text style={styles.price}>1x</Text>
-                                        <Text style={styles.priceTotal}>
-                                            Rp 55,000
-                                        </Text>
-                                    </View>
-                                </View>
+    const uniqueFriendAccountID = [
+        ...new Set(requestPayment?.map((request) => request.friendAccountID)),
+    ];
+
+    const renderAddPosition = uniqueFriendAccountID.map(
+        (friendAccID, index, array) => {
+            const isLastCard = index === array.length - 1;
+            const friendRequestsWithSameFriendID = requestPayment.filter(
+                (request) => request.friendAccountID === friendAccID,
+            );
+            return (
+                <View
+                    style={[
+                        styles.addPositionContainer,
+                        isLastCard && styles.lastCardMargin,
+                    ]}
+                    key={friendAccID}
+                >
+                    <View style={styles.cardContainer}>
+                        <View style={styles.avatarAddPosition}>
+                            {friendRequestsWithSameFriendID[0]?.imageFriend ? (
+                                <Image
+                                    source={{
+                                        uri: `data:image/jpeg;base64,${friendRequestsWithSameFriendID[0].imageFriend}`,
+                                    }}
+                                    style={styles.avatar}
+                                />
+                            ) : (
+                                <Image
+                                    source={{
+                                        uri: imageUrl,
+                                    }}
+                                    style={styles.avatar}
+                                />
+                            )}
+                            <View style={styles.nameAddPosition}>
+                                <Text style={styles.titleAddPosition}>
+                                    Add Position to
+                                </Text>
+                                <Text style={styles.name}>
+                                    {
+                                        friendRequestsWithSameFriendID[0]
+                                            ?.friendName
+                                    }
+                                </Text>
                             </View>
-                        )),
-                    )}
+                        </View>
+                        <View>
+                            {requestPayment
+                                .filter(
+                                    (request) =>
+                                        request.friendAccountID === friendAccID,
+                                )
+                                ?.map((request) =>
+                                    request.orderItems?.map((r, index) => (
+                                        <View
+                                            key={index}
+                                            style={styles.itemContainer}
+                                        >
+                                            <Text style={styles.item}>
+                                                {r.itemName}
+                                            </Text>
+                                            <View style={styles.priceContainer}>
+                                                <Text style={styles.price}>
+                                                    Rp 55,000
+                                                </Text>
+                                                <Text style={styles.price}>
+                                                    1x
+                                                </Text>
+                                                <Text style={styles.priceTotal}>
+                                                    Rp 55,000
+                                                </Text>
+                                            </View>
+                                        </View>
+                                    )),
+                                )}
+                        </View>
+                    </View>
                 </View>
-            </View>
-        );
-    };
+            );
+        },
+    );
 
     return (
         <SafeAreaView style={styles.container}>
@@ -141,15 +196,25 @@ function SplitBillPosition({ navigation, route }) {
                 showsVerticalScrollIndicator={false}
             >
                 {renderHeader()}
-                {renderAddPosition()}
+                {renderAddPosition}
             </ScrollView>
             <View style={styles.btnContainer}>
-                <Button
-                    onPress={() => handleSubmit()}
-                    title={'Request Payment'}
-                    titleStyle={styles.titleStyle}
-                    buttonStyle={styles.buttonStyle}
-                />
+                {requestPayment[0].orderItems.length < 1 ? (
+                    <Button
+                        onPress={() => handleSubmit()}
+                        title={'Request Payment'}
+                        disabled={true}
+                        titleStyle={styles.titleStyle}
+                        buttonStyle={[styles.buttonStyle, { opacity: 0.3 }]}
+                    />
+                ) : (
+                    <Button
+                        onPress={() => handleSubmit()}
+                        title={'Request Payment'}
+                        titleStyle={styles.titleStyle}
+                        buttonStyle={styles.buttonStyle}
+                    />
+                )}
             </View>
         </SafeAreaView>
     );
@@ -167,6 +232,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 37,
         paddingHorizontal: 27,
+        marginBottom: 20,
     },
     btnBack: {
         width: 38,
@@ -196,12 +262,11 @@ const styles = StyleSheet.create({
     },
     addPositionContainer: {
         marginHorizontal: 27,
-        marginBottom: 50,
+    },
+    lastCardMargin: {
+        marginBottom: 80,
     },
     cardContainer: {
-        marginTop: 20,
-    },
-    card: {
         marginBottom: 16,
         backgroundColor: 'rgba(255, 197, 41, 0.4)',
         borderRadius: 15,
@@ -224,10 +289,13 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         fontSize: 15,
     },
+    itemContainer: {
+        marginBottom: 10,
+    },
     item: {
         fontWeight: '500',
         fontSize: 15,
-        marginBottom: 10,
+        marginBottom: 4,
     },
     priceContainer: {
         flexDirection: 'row',
@@ -278,6 +346,11 @@ const styles = StyleSheet.create({
     titleStyle: {
         fontSize: 16,
         fontWeight: '600',
+    },
+    avatar: {
+        width: 64,
+        height: 64,
+        borderRadius: 64,
     },
 });
 export default SplitBillPosition;

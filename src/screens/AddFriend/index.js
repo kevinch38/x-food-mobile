@@ -102,7 +102,10 @@ const AddFriend = ({ navigation }) => {
             setUserId(user.data.accountID);
             setIsAddFriend(true);
             const result = await friendService.addFriend({ userId, friendId });
-            return result;
+
+            const update = { data: { ...result, temp: 'a' } };
+            return update;
+            // return result;
         } catch (error) {
             console.log(error);
             setIsMessage(true);
@@ -120,7 +123,7 @@ const AddFriend = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.container}>
             <Template />
-            <BackButton onPress={() => navigation.goBack()} />
+            <BackButton onPress={() => navigation.navigate('SplitBill')} />
 
             {modalVisible && (
                 <BlurView intensity={20} tint="light" style={styles.blurView} />

@@ -24,6 +24,17 @@ function SplitBill({ navigation, route }) {
     const { friendService } = useContext(ServiceContext);
     const order = route.params?.order;
     const [avatarData, setAvatarData] = useState([]);
+    const [image, setImage] = useState('');
+
+    const imageUrl =
+        'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
+
+    const img = async () => {
+        const i = await friends[0].imageAccount1;
+        setImage(i);
+    };
+
+    img();
 
     const handleCheck = (contact) => {
         let check = avatarData.find(
@@ -53,7 +64,7 @@ function SplitBill({ navigation, route }) {
         } catch (e) {
             console.error('Error fetching friend data: ', e);
         }
-    }, [dispatch, friendService]);
+    }, [dispatch, friendService, Object.keys(friends).length]);
 
     const renderHeader = () => {
         return (
@@ -70,10 +81,21 @@ function SplitBill({ navigation, route }) {
                     />
                 </TouchableOpacity>
                 <Text style={styles.titleHeader}>Split Bill</Text>
-                <Image
-                    source={require('../../assets/images/profile.png')}
-                    style={styles.imageProfile}
-                />
+                {image ? (
+                    <Image
+                        source={{
+                            uri: `data:image/jpeg;base64,${image}`,
+                        }}
+                        style={styles.imageProfile}
+                    />
+                ) : (
+                    <Image
+                        source={{
+                            uri: imageUrl,
+                        }}
+                        style={styles.imageProfile}
+                    />
+                )}
             </View>
         );
     };
@@ -84,10 +106,21 @@ function SplitBill({ navigation, route }) {
                 <View style={styles.avatarSendToContainer}>
                     {avatarData.map((avatar) => (
                         <View style={styles.avatarSendTo} key={avatar.friendID}>
-                            <Image
-                                source={require('../../assets/images/avatar.png')}
-                                style={styles.imageAvatar}
-                            />
+                            {avatar.imageAccount2 ? (
+                                <Image
+                                    source={{
+                                        uri: `data:image/jpeg;base64,${avatar.imageAccount2}`,
+                                    }}
+                                    style={styles.avatar}
+                                />
+                            ) : (
+                                <Image
+                                    source={{
+                                        uri: imageUrl,
+                                    }}
+                                    style={styles.avatar}
+                                />
+                            )}
                             <Text style={styles.nameAvatar}>
                                 {avatar.accountFirstName2}
                             </Text>
@@ -102,7 +135,10 @@ function SplitBill({ navigation, route }) {
             <View style={styles.addContactContainer}>
                 <View style={styles.titleAddContact}>
                     <Text style={styles.title}>Contacts</Text>
-                    <TouchableOpacity style={styles.btnPlusAddContact}>
+                    <TouchableOpacity
+                        style={styles.btnPlusAddContact}
+                        onPress={() => navigation.navigate('AddFriend')}
+                    >
                         <Icon.Plus
                             width={16}
                             height={16}
@@ -124,9 +160,22 @@ function SplitBill({ navigation, route }) {
                 {friends.map((contact) => (
                     <View style={styles.contact} key={contact.id}>
                         <View style={styles.nameContact}>
-                            <Image
-                                source={require('../../assets/images/avatar.png')}
-                            />
+                            {contact.imageAccount2 ? (
+                                <Image
+                                    source={{
+                                        uri: `data:image/jpeg;base64,${contact.imageAccount2}`,
+                                    }}
+                                    style={styles.avatar}
+                                />
+                            ) : (
+                                <Image
+                                    source={{
+                                        uri: imageUrl,
+                                    }}
+                                    style={styles.avatar}
+                                />
+                            )}
+
                             <Text style={styles.name}>
                                 {contact.accountFirstName2}{' '}
                                 {contact.accountLastName2}
@@ -164,17 +213,32 @@ function SplitBill({ navigation, route }) {
                 {renderContact()}
             </ScrollView>
             <View style={styles.btnContainer}>
-                <Button
-                    onPress={() =>
-                        navigation.navigate('SplitBillAddPosition', {
-                            avatarData,
-                            order,
-                        })
-                    }
-                    title={'Next'}
-                    titleStyle={styles.titleStyle}
-                    buttonStyle={styles.buttonStyle}
-                />
+                {avatarData.length !== 0 ? (
+                    <Button
+                        onPress={() =>
+                            navigation.navigate('SplitBillAddPosition', {
+                                avatarData,
+                                order,
+                            })
+                        }
+                        title={'Next'}
+                        titleStyle={styles.titleStyle}
+                        buttonStyle={styles.buttonStyle}
+                    />
+                ) : (
+                    <Button
+                        onPress={() =>
+                            navigation.navigate('SplitBillAddPosition', {
+                                avatarData,
+                                order,
+                            })
+                        }
+                        title={'Next'}
+                        disabled={true}
+                        titleStyle={styles.titleStyle}
+                        buttonStyle={[styles.buttonStyle, { opacity: 0.3 }]}
+                    />
+                )}
             </View>
         </SafeAreaView>
     );
@@ -315,6 +379,11 @@ const styles = StyleSheet.create({
     titleStyle: {
         fontSize: 16,
         fontWeight: '600',
+    },
+    avatar: {
+        width: 53,
+        height: 53,
+        borderRadius: 53,
     },
 });
 export default SplitBill;

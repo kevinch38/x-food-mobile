@@ -19,16 +19,14 @@ function SplitBillTrack({ navigation, route }) {
     const imageUrl =
         'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
 
+    const image = requestPayment[0].imageAccount;
+
     const renderHeader = () => {
         return (
             <View style={styles.headerContainer}>
                 <TouchableOpacity
                     style={styles.btnBack}
-                    onPress={() =>
-                        navigation.navigate('SplitBillAddPosition', {
-                            requestPayment,
-                        })
-                    }
+                    onPress={() => navigation.navigate('SplitBillAddPosition')}
                 >
                     <Icon.ChevronLeft
                         width={24}
@@ -38,74 +36,102 @@ function SplitBillTrack({ navigation, route }) {
                     />
                 </TouchableOpacity>
                 <Text style={styles.titleHeader}>Track Your Bill</Text>
-                <Image
-                    source={require('../../assets/images/profile.png')}
-                    style={styles.imageProfile}
-                />
+                {image ? (
+                    <Image
+                        source={{
+                            uri: `data:image/jpeg;base64,${image}`,
+                        }}
+                        style={styles.imageProfile}
+                    />
+                ) : (
+                    <Image
+                        source={{
+                            uri: imageUrl,
+                        }}
+                        style={styles.imageProfile}
+                    />
+                )}
             </View>
         );
     };
-    const renderTrack = () => {
+
+    const uniqueFriendAccountID = [
+        ...new Set(requestPayment?.map((request) => request.friendAccountID)),
+    ];
+
+    const renderTrack = uniqueFriendAccountID.map((friendAccID) => {
+        const friendRequestsWithSameFriendID = requestPayment.filter(
+            (request) => request.friendAccountID === friendAccID,
+        );
         return (
-            <View style={styles.trackContainer}>
+            <View style={styles.trackContainer} key={friendAccID}>
                 <View style={styles.cardContainer}>
-                    {requestPayment?.map((request) =>
-                        request.orderItems?.map((r) => (
-                            <View style={styles.card}>
-                                <View style={styles.avatarContainer}>
-                                    <View style={styles.avatarTrack}>
-                                        {request.imageFriend ? (
-                                            <Image
-                                                source={{
-                                                    uri: `data:image/jpeg;base64,${request.imageFriend}`,
-                                                }}
-                                                style={styles.avatar}
-                                            />
-                                        ) : (
-                                            <Image
-                                                source={{
-                                                    uri: imageUrl,
-                                                }}
-                                                style={styles.avatar}
-                                            />
-                                        )}
-                                        <View style={styles.nameTrack}>
-                                            <Text style={styles.titleTrack}>
-                                                Requested to
+                    <View style={styles.avatarContainer}>
+                        <View style={styles.avatarTrack}>
+                            {friendRequestsWithSameFriendID[0]?.imageFriend ? (
+                                <Image
+                                    source={{
+                                        uri: `data:image/jpeg;base64,${friendRequestsWithSameFriendID[0].imageFriend}`,
+                                    }}
+                                    style={styles.avatar}
+                                />
+                            ) : (
+                                <Image
+                                    source={{ uri: imageUrl }}
+                                    style={styles.avatar}
+                                />
+                            )}
+                            <View style={styles.nameTrack}>
+                                <Text style={styles.titleTrack}>
+                                    Requested to
+                                </Text>
+                                <Text style={styles.name}>
+                                    {
+                                        friendRequestsWithSameFriendID[0]
+                                            ?.friendName
+                                    }
+                                </Text>
+                            </View>
+                        </View>
+                        <View>
+                            <Text style={styles.now}>Now</Text>
+                            <Text style={[styles.statusNow]}>
+                                Waiting for{'\n'} Payment
+                            </Text>
+                        </View>
+                    </View>
+                    <View>
+                        {requestPayment
+                            .filter(
+                                (request) =>
+                                    request.friendAccountID === friendAccID,
+                            )
+                            ?.map((request) =>
+                                request.orderItems?.map((r, index) => (
+                                    <View
+                                        key={index}
+                                        style={styles.itemContainer}
+                                    >
+                                        <Text style={styles.item}>
+                                            {r.itemName}
+                                        </Text>
+                                        <View style={styles.priceContainer}>
+                                            <Text style={styles.price}>
+                                                {request.paymentAmount}
                                             </Text>
-                                            <Text style={styles.name}>
-                                                {request.friendName}
+                                            <Text style={styles.price}>1x</Text>
+                                            <Text style={styles.priceTotal}>
+                                                Rp 55,000
                                             </Text>
                                         </View>
                                     </View>
-                                    <View>
-                                        <Text style={styles.now}>Now</Text>
-                                        <Text style={[styles.statusNow]}>
-                                            Waiting for{'\n'} Payment
-                                        </Text>
-                                    </View>
-                                </View>
-                                <View>
-                                    <Text style={styles.item}>
-                                        {r.itemName}
-                                    </Text>
-                                    <View style={styles.priceContainer}>
-                                        <Text style={styles.price}>
-                                            {request.paymentAmount}
-                                        </Text>
-                                        <Text style={styles.price}>1x</Text>
-                                        <Text style={styles.priceTotal}>
-                                            Rp 55,000
-                                        </Text>
-                                    </View>
-                                </View>
-                            </View>
-                        )),
-                    )}
+                                )),
+                            )}
+                    </View>
                 </View>
             </View>
         );
-    };
+    });
 
     return (
         <SafeAreaView style={styles.container}>
@@ -114,7 +140,7 @@ function SplitBillTrack({ navigation, route }) {
                 showsVerticalScrollIndicator={false}
             >
                 {renderHeader()}
-                {renderTrack()}
+                {renderTrack}
             </ScrollView>
         </SafeAreaView>
     );
@@ -132,6 +158,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 37,
         paddingHorizontal: 27,
+        marginBottom: 20,
     },
     btnBack: {
         width: 38,
@@ -161,12 +188,8 @@ const styles = StyleSheet.create({
     },
     trackContainer: {
         marginHorizontal: 27,
-        marginBottom: 50,
     },
     cardContainer: {
-        marginTop: 20,
-    },
-    card: {
         marginBottom: 16,
         backgroundColor: 'rgba(255, 197, 41, 0.4)',
         borderRadius: 15,
@@ -216,10 +239,13 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         fontSize: 15,
     },
+    itemContainer: {
+        marginBottom: 10,
+    },
     item: {
         fontWeight: '500',
         fontSize: 15,
-        marginBottom: 10,
+        marginBottom: 4,
     },
     priceContainer: {
         flexDirection: 'row',
