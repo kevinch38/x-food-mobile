@@ -44,6 +44,15 @@ const Voucher = ({ navigation }) => {
     useEffect(() => {
         if (refetch) {
             fetchUserData(phoneNumber);
+        dispatch(
+            loyaltyPointAction(async () => {
+                const result = await loyaltyPointService.fetchLoyaltyPointById(
+                    users.loyaltyPoint.loyaltyPointID,
+                );
+                console.log(result, 'ngetes');
+                return result;
+            }),
+        );
             setRefecth(false);
         }
     }, [phoneNumber]);

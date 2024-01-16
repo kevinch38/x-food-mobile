@@ -51,29 +51,29 @@ const HistoryCard = ({image, date, title, content, amount}) => {
 }
 
 const styles = StyleSheet.create({
-    card : {
-        width: 290,
-        height: 109,
-        flexDirection:"row",
-        marginBottom :20,
-        padding :20,
-        alignItems:"center",
-        borderRadius: 18.214,
+    card: {
+        width: '85%',
+        height: 'min-content',
+        flexDirection: 'row',
+        marginVertical: '3%',
+        marginHorizontal: '8%',
+        padding: '5%',
+        alignItems: 'center',
+        borderRadius: 15,
         backgroundColor: '#FFF',
-        elevation: 5,
-        shadowColor: '#D3D1D8',
+        shadowColor: '#000000',
         shadowOffset: {
-            width: 18.214,
-            height: 18.214,
+            width: 0,
+            height: 3,
         },
-        shadowOpacity: 0.25,
-        shadowRadius: 36.42
-
+        shadowOpacity: 1,
+        shadowRadius: 4,
+        elevation: 6,
     },
-    image : {
-        margin: 10,
+    image: {
+        margin: '1%',
         width: 60,
-        height : 60,
+        height: 60,
         borderRadius: 18.214,
         backgroundColor: '#FFF',
         elevation: 10,
@@ -83,8 +83,8 @@ const styles = StyleSheet.create({
             height: 18.214,
         },
         shadowOpacity: 0.25,
-        shadowRadius: 36.42
-    }
-})
+        shadowRadius: 36.42,
+    },
+});
 
 export default HistoryCard

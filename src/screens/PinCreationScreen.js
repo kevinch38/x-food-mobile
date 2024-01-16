@@ -82,14 +82,11 @@ const PinCreationScreen = ({ navigation }) => {
             console.error('Error fetching user data1:', error);
         }
     };
-
     const fetchPinID = async () => {
         try {
             const currentPinID = pinID || '';
 
             const pinData = await userService.fetchPinByPinID(currentPinID);
-            console.log('ini adalah pin data =============', pinData.data.pin);
-
             if (pinData.data.pin !== '') {
                 setPinIDExists(true);
             } else {

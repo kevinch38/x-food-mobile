@@ -11,7 +11,8 @@ import Color from '../../assets/Color';
 import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import { userAction } from '../../slices/userSlice';
-import paymentService from '../../services/PaymentService';
+import PaymentService from '../../services/PaymentService';
+import Loading from '../../components/loading/index';
 
 function CompletePaymentSpiltBill({ navigation, route }) {
     const dispatch = useDispatch();
@@ -19,18 +20,22 @@ function CompletePaymentSpiltBill({ navigation, route }) {
     const { phoneNumber } = useSelector((state) => state.ui);
     const { userService } = useContext(ServiceContext);
     const [splitBill, setSplitBill] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
+    const paymentID = route.params?.paymentID;
+    // const { completePaymentSplit } = PaymentService;
+    const completePayment = PaymentService();
 
     useEffect(() => {
         const timer = setTimeout(() => {
             navigation.navigate('Tabs');
-        }, 5000);
+        }, 10000);
 
         return () => clearTimeout(timer);
     }, []);
 
-
     useEffect(async () => {
         try {
+            setIsLoading(true);
             dispatch(
                 userAction(async () => {
                     const result =
@@ -38,18 +43,38 @@ function CompletePaymentSpiltBill({ navigation, route }) {
                     return result;
                 }),
             );
+
+            setIsLoading(false);
         } catch (e) {
             console.log('message == ', e);
+            setIsLoading(false);
         }
     }, []);
 
-    useEffect(async () => {
-        const result = await paymentService.completePaymentSplit(
-            users.paymentID,
-        );
-        setSplitBill(result.data);
-    }, []);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setIsLoading(true);
 
+                console.log('Fetching data for paymentID:', paymentID);
+
+                // Only fetch data if paymentID is available
+                if (paymentID) {
+                    const result =
+                        await completePayment.completePaymentSplit(paymentID);
+                    console.log('Fetched data:', result.data);
+                    setSplitBill(result.data);
+                }
+
+                setIsLoading(false);
+            } catch (e) {
+                console.error(e);
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [paymentID]);
     const renderHeader = () => {
         return (
             <View
@@ -77,7 +102,7 @@ function CompletePaymentSpiltBill({ navigation, route }) {
                     <Text style={styles.textStyle}>From :</Text>
                     <Image
                         source={{
-                            uri: `data:image/jpeg;base64,${users.profilePhoto}`,
+                            uri: `data:image/jpeg;base64,${splitBill?.friend?.imageAccount2}`,
                         }}
                         style={styles.avatarStyle}
                     />
@@ -87,12 +112,12 @@ function CompletePaymentSpiltBill({ navigation, route }) {
                     <Text style={styles.textStyle}>To :</Text>
                     <Image
                         source={{
-                            uri: `data:image/jpeg;base64,${splitBill.friendImage}`,
+                            uri: `data:image/jpeg;base64,${splitBill?.friend?.imageAccount1}`,
                         }}
                         style={styles.avatarStyle}
                     />
                     <Text style={styles.textStyle}>
-                        {splitBill.friendImage}
+                        {splitBill.paymentAmount}
                     </Text>
                 </View>
             </View>
@@ -112,9 +137,15 @@ function CompletePaymentSpiltBill({ navigation, route }) {
     };
     return (
         <SafeAreaView style={styles.wrapper}>
-            {renderHeader()}
-            {renderUser()}
-            {renderAmount()}
+            {isLoading ? (
+                <Loading />
+            ) : (
+                <>
+                    {renderHeader()}
+                    {renderUser()}
+                    {renderAmount()}
+                </>
+            )}
         </SafeAreaView>
     );
 }

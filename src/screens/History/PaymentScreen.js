@@ -8,6 +8,7 @@ import {format} from "date-fns";
 
 const PaymentScreen = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
+    const users = useSelector((state) => state.user.users);
     const userService = UserService();
     const historyService = HistoryService();
     const [id, setId] = useState("");
@@ -125,23 +126,30 @@ const PaymentScreen = () => {
     }, [id, payments]);
 
 
-    return(
-        <View style={{margin:20}}>
+    return (
+        <View>
             <ScrollView>
                 {payments.map((payment, index) => (
-                    <TouchableOpacity  key={index}>
+                    <TouchableOpacity key={index}>
                         <HistoryCard
-                            date={format(new Date(payment.createdAt), "dd MMM, HH:mm")}
+                            date={format(
+                                new Date(payment.createdAt),
+                                'dd MMM, HH:mm',
+                            )}
                             title={paymentStatus[payment.paymentID]}
                             content={paymentContet[payment.paymentID]}
                             amount={payment.paymentAmount}
+                            image={
+                                payment.accountID === users.accountID
+                                    ? payment.friend.imageAccount2
+                                    : payment.friend.imageAccount1
+                            }
                         />
                     </TouchableOpacity>
-
                 ))}
             </ScrollView>
         </View>
-    )
+    );
 }
 
 export default PaymentScreen

@@ -1,5 +1,3 @@
-import axios from "axios";
-import navigation from "../router/Navigation";
 import {useNavigation} from "@react-navigation/native";
 import axiosInstance from "../api/axiosInstance";
 

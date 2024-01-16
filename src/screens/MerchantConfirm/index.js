@@ -20,7 +20,7 @@ function MerchantConfirm({ navigation }) {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            navigation.navigate('Complete', { pointLoyalty: data.pointAmount });
+            navigation.navigate('Complete', { pointLoyalty: data.pointAmount, orderID : data.orderID});
         }, 3000);
 
         return () => clearTimeout(timer);

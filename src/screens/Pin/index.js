@@ -33,6 +33,7 @@ function Pin({ navigation }) {
     const orderID = route.params?.orderID;
     const paymentID = route.params?.paymentID;
     const destination = route.params?.destination;
+    const sale = route.params?.sale;
 
     const input1Ref = useRef();
     const input2Ref = useRef();
@@ -86,6 +87,9 @@ function Pin({ navigation }) {
                                   })
                                 : navigation.navigate(
                                       'CompletePaymentSpiltBill',
+                                      {
+                                          paymentID: paymentID,
+                                      },
                                   );
                         } else {
                             Alert.alert(

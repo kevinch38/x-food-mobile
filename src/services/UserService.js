@@ -11,11 +11,6 @@ const UserService = () => {
             const data = await axiosInstance.post(
                 'http://10.0.2.2:8087/api/users/register',
                 newUserRequest,
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                },
             );
             return data;
         } catch (error) {
@@ -25,7 +20,7 @@ const UserService = () => {
 
     const fetchUserById = async (id) => {
         const { data } = await axiosInstance.get(
-            `http://10.0.2.2:8087/api/users/${id}`,
+            `http://10.0.2.2:8087/api/users/${id}`
         );
         return data;
     };

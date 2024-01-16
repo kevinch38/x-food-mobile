@@ -21,7 +21,7 @@ export default () => {
         >
             <Tab.Screen
                 name="Home"
-                component={Home}
+                component={PinCreationScreen}
                 options={{
                     headerShown: false,
                     tabBarLabel: '',

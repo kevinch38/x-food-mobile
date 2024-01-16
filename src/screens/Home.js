@@ -28,7 +28,7 @@ const Home = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchants = useSelector((state) => state.merchant.merchants);
     const { cities } = useSelector((state) => state.city);
-    const users = useSelector((state) => state.user, users);
+    const users = useSelector((state) => state.user.users);
     const { phoneNumber } = useSelector((state) => state.ui);
     const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
     const { balance } = useSelector((state) => state.balance);
@@ -50,6 +50,10 @@ const Home = ({ navigation }) => {
         );
         return hasMatchingBranch;
     });
+
+    const handleNotification = () => {
+        navigation.navigate("Notification");
+    }
 
     const filteredSearchMerchants =
         search.trim() === ''
@@ -112,6 +116,8 @@ const Home = ({ navigation }) => {
                 console.error('Error fetchin balance data: ', e);
             }
         };
+
+        console.log("ini users===>", users);
 
         const onGetLoyaltyPointAmount = () => {
             try {

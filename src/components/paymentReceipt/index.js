@@ -1,6 +1,5 @@
 import React from 'react';
 import { Image, Text, View } from 'react-native';
-import Avatar from '../../assets/images/avatar-2.png';
 import Button from '../button';
 
 function PaymentReceipt({
@@ -53,7 +52,7 @@ function PaymentReceipt({
                         borderRadius: 20,
                         marginTop: '9%',
                     }}
-                    source={image}
+                    source={{ uri: `data:image/jpeg;base64,${image}` }}
                 />
 
                 <Text

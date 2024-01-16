@@ -27,8 +27,8 @@ import PinCreationScreen from '../screens/PinCreationScreen';
 import ChangePin from '../screens/Pin/ChangePin';
 import CompletePaymentSpiltBill from '../screens/Payment/CompletePaymentSpiltBill';
 import SendPayment from '../screens/Notification/sendPayment';
+import Notification from '../screens/Notification/index';
 import AddFriend from '../screens/AddFriend';
-import Notification from '../screens/Notification';
 
 
 const Stack = createStackNavigator();
