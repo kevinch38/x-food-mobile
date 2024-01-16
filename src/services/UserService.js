@@ -7,7 +7,6 @@ const UserService = () => {
             const newUserRequest = {
                 phoneNumber: phoneNumber,
             };
-
             const data = await axiosInstance.post(
                 'http://10.0.2.2:8087/api/users/register',
                 newUserRequest,

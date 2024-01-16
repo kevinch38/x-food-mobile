@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
 import {
-    Animated,
     View,
     StyleSheet,
     Text,
@@ -37,7 +36,6 @@ const AddFriend = ({ navigation }) => {
     const [userId, setUserId] = useState();
     const [isMessage, setIsMessage] = useState(false);
     const [isInvitationSuccess, setIsInvitationSuccess] = useState(false);
-    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
     const schema = Yup.object({
         phoneNumber: Yup.string().test(
@@ -104,7 +102,6 @@ const AddFriend = ({ navigation }) => {
             const result = await friendService.addFriend({ userId, friendId });
             return result;
         } catch (error) {
-            console.log(error);
             setIsMessage(true);
         }
     };
