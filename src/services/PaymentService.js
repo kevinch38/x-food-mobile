@@ -1,10 +1,10 @@
-import axios from 'axios';
 import axiosInstance from '../api/axiosInstance';
+import { apiBaseUrl } from '../api/xfood';
 
 const PaymentService = () => {
     const completePaymentSplit = async (id) => {
         const { data } = await axiosInstance.put(
-            `http://10.0.2.2:8087/api/payments/${id}`,
+            `${apiBaseUrl}/api/payments/${id}`,
         );
         return data;
     };

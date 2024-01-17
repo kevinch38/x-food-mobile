@@ -30,6 +30,7 @@ import { fetchBalanceAction } from '../../slices/balanceSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../../api/axiosInstance';
 import { formatIDRCurrency } from '../../utils/utils';
+import { apiBaseUrl } from '../../api/xfood';
 
 function Profile({ navigation }) {
     const dispatch = useDispatch();
@@ -46,51 +47,48 @@ function Profile({ navigation }) {
     const imageUrl =
         'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
 
-    useEffect(
-        () => {
-            const onGetLoyaltyPointAmount = () => {
-                try {
-                    dispatch(
-                        loyaltyPointAction(async () => {
-                            const result =
-                                loyaltyPointService.fetchLoyaltyPointById(
-                                    users.loyaltyPoint.loyaltyPointID,
-                                );
-                            return result;
-                        }),
-                    );
-                } catch (e) {
-                    console.error('Error fetching loyalty point data: ', e);
-                }
-            };
-
-            const onGetBalanceUser = async () => {
-                try {
-                    dispatch(
-                        fetchBalanceAction(async () => {
-                            const result = balanceService.fetchBalance(
-                                users.balance.balanceID,
+    useEffect(() => {
+        const onGetLoyaltyPointAmount = () => {
+            try {
+                dispatch(
+                    loyaltyPointAction(async () => {
+                        const result =
+                            loyaltyPointService.fetchLoyaltyPointById(
+                                users.loyaltyPoint.loyaltyPointID,
                             );
-                            return result;
-                        }),
-                    );
-                } catch (e) {
-                    console.error('Error fetchin balance data: ', e);
-                }
-            };
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetching loyalty point data: ', e);
+            }
+        };
 
-            onGetBalanceUser();
-            onGetUserByPhoneNumber();
-            onGetLoyaltyPointAmount();
-        },
-        [
-            // dispatch,
-            // userService,
-            // loyaltyPointService,
-            // balanceService,
-            // Object.keys(users).length,
-        ],
-    );
+        const onGetBalanceUser = async () => {
+            try {
+                dispatch(
+                    fetchBalanceAction(async () => {
+                        const result = balanceService.fetchBalance(
+                            users.balance.balanceID,
+                        );
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetchin balance data: ', e);
+            }
+        };
+
+        onGetBalanceUser();
+        onGetUserByPhoneNumber();
+        onGetLoyaltyPointAmount();
+    }, [
+        dispatch,
+        userService,
+        loyaltyPointService,
+        balanceService,
+        Object.keys(users).length,
+    ]);
 
     const onGetUserByPhoneNumber = () => {
         try {
@@ -161,13 +159,9 @@ function Profile({ navigation }) {
                 });
 
                 await axiosInstance
-                    .put(
-                        'http://10.0.2.2:8087/api/users/profile/photo',
-                        formData,
-                        {
-                            headers: { 'Content-Type': 'multipart/form-data' },
-                        },
-                    )
+                    .put(`${apiBaseUrl}/api/users/profile/photo`, formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' },
+                    })
                     .then(async (res) => {
                         setImage(res.data.profilePhoto);
 

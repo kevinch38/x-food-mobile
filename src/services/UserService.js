@@ -1,5 +1,5 @@
-import axios from 'axios';
 import axiosInstance from '../api/axiosInstance';
+import { apiBaseUrl } from '../api/xfood';
 
 const UserService = () => {
     const register = async (phoneNumber) => {
@@ -9,7 +9,7 @@ const UserService = () => {
             };
 
             const data = await axiosInstance.post(
-                'http://10.0.2.2:8087/api/users/register',
+                `${apiBaseUrl}/api/users/register`,
                 newUserRequest,
             );
             return data;
@@ -20,14 +20,14 @@ const UserService = () => {
 
     const fetchUserById = async (id) => {
         const { data } = await axiosInstance.get(
-            `http://10.0.2.2:8087/api/users/${id}`
+            `${apiBaseUrl}/api/users/${id}`,
         );
         return data;
     };
 
     const fetchUserByPhoneNumber = async (phoneNumber) => {
         const { data } = await axiosInstance.get(
-            `http://10.0.2.2:8087/api/users/${phoneNumber}`,
+            `${apiBaseUrl}/api/users/${phoneNumber}`,
         );
         return data;
     };
@@ -35,7 +35,7 @@ const UserService = () => {
     const updateUser = async (user) => {
         try {
             const { data } = await axiosInstance.put(
-                `http://10.0.2.2:8087/api/users`,
+                `${apiBaseUrl}/api/users`,
                 user,
             );
             return data;
@@ -46,14 +46,14 @@ const UserService = () => {
 
     const fetchPinByPinID = async (pinID) => {
         const { data } = await axiosInstance.get(
-            `http://10.0.2.2:8087/api/pins/${pinID}`,
+            `${apiBaseUrl}/api/pins/${pinID}`,
         );
         return data;
     };
 
     const ktpCheck = async (ktpID) => {
         const { data } = await axiosInstance.get(
-            `http://10.0.2.2:8087/api/users/ktp/${ktpID}`,
+            `${apiBaseUrl}/api/users/ktp/${ktpID}`,
         );
         return data;
     };
