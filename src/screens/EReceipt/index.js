@@ -7,7 +7,7 @@ import {
     StyleSheet,
     Text,
     View,
-    ScrollView
+    ScrollView,
 } from 'react-native';
 import BackButton from '../../components/backButton';
 import { theme } from '../../theme';
@@ -25,7 +25,6 @@ function EReceipt({ navigation }) {
     const [order, setOrder] = useState();
     const sale = useSelector((state) => state.cart.sale);
     const [discounts, setDiscounts] = useState({});
-    console.log("ini order id", orderId);
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener(
@@ -35,15 +34,15 @@ function EReceipt({ navigation }) {
         return () => backHandler.remove();
     }, [order]);
 
-    useEffect( () => {
-         fetchOrderByID()
+    useEffect(() => {
+        fetchOrderByID();
     }, []);
 
     useEffect(() => {
-        if (order && (sale !== 0 || sale !== null || sale !== "")) {
+        if (order && (sale !== 0 || sale !== null || sale !== '')) {
             getDiscount();
         }
-    }, [order,sale])
+    }, [order, sale]);
 
     const fetchOrderByID = async () => {
         try {
@@ -63,8 +62,6 @@ function EReceipt({ navigation }) {
             }));
         });
     };
-
-    console.log("data order ====>", dataOrder);
 
     const orderItemsAssign = Object.values(
         (dataOrder?.orderItems || []).reduce((groupedItems, order) => {
@@ -86,7 +83,7 @@ function EReceipt({ navigation }) {
             }
 
             return groupedItems;
-        }, {})
+        }, {}),
     );
 
     const dataAssigned = {
@@ -101,14 +98,12 @@ function EReceipt({ navigation }) {
         pointAmount: dataOrder?.pointAmount,
         orderItems: orderItemsAssign.map((item) => ({
             ...item,
-            quantity: item.quantity ,
-            newPrice : item.quantity * item.price
+            quantity: item.quantity,
+            newPrice: item.quantity * item.price,
         })),
         createdAt: dataOrder?.createdAt,
         updatedAt: dataOrder?.updatedAt,
     };
-
-    console.log("data assign", dataAssigned);
 
     const handleToHome = () => {
         navigation.navigate('Tabs');
@@ -197,7 +192,9 @@ function EReceipt({ navigation }) {
                     >
                         <Image
                             style={{ width: 130, height: 130 }}
-                            source={{ uri: `data:image/jpeg;base64,${dataAssigned?.image}` }}
+                            source={{
+                                uri: `data:image/jpeg;base64,${dataAssigned?.image}`,
+                            }}
                         />
                         <Text
                             style={{
@@ -209,57 +206,77 @@ function EReceipt({ navigation }) {
                             Order Completed
                         </Text>
 
-                    <ScrollView>
-                        {dataAssigned?.orderItems.map((order, index) => (
-                            <View key={index} style={{ width: '100%', marginTop: '5%' }}>
+                        <ScrollView>
+                            {dataAssigned?.orderItems.map((order, index) => (
                                 <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-evenly',
-                                    }}
+                                    key={index}
+                                    style={{ width: '100%', marginTop: '5%' }}
                                 >
-                                    <Text
+                                    <View
                                         style={{
-                                            fontSize: 16,
-                                            fontWeight: 400,
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-evenly',
                                         }}
                                     >
-                                        {order.itemName}
-                                    </Text>
-                                    <Text style={{ fontSize: 14, fontWeight: 400, marginLeft:10 }}>
-                                        x{order.quantity}
-                                    </Text>
-                                    <Text style={{ fontWeight: '700', fontSize: 16, marginLeft:10 }}>
-                                        Rp. {order.newPrice}
-                                    </Text>
-                                </View>
-                                <View style={{ marginLeft: '9%' }}>
-                                    {order.orderItemSubVarieties.length > 0 && (
+                                        <Text
+                                            style={{
+                                                fontSize: 16,
+                                                fontWeight: 400,
+                                            }}
+                                        >
+                                            {order.itemName}
+                                        </Text>
                                         <Text
                                             style={{
                                                 fontSize: 14,
                                                 fontWeight: 400,
-                                                marginTop: 10,
+                                                marginLeft: 10,
                                             }}
                                         >
-                                            [
-                                            {order.orderItemSubVarieties
-                                                .map(
-                                                    (or) =>
-                                                        or.subVariety
-                                                            .subVarName,
-                                                )
-                                                .join(', ')}
-                                            ]
+                                            x{order.quantity}
                                         </Text>
-                                    )}
+                                        <Text
+                                            style={{
+                                                fontWeight: '700',
+                                                fontSize: 16,
+                                                marginLeft: 10,
+                                            }}
+                                        >
+                                            Rp. {order.newPrice}
+                                        </Text>
+                                    </View>
+                                    <View style={{ marginLeft: '9%' }}>
+                                        {order.orderItemSubVarieties.length >
+                                            0 && (
+                                            <Text
+                                                style={{
+                                                    fontSize: 14,
+                                                    fontWeight: 400,
+                                                    marginTop: 10,
+                                                }}
+                                            >
+                                                [
+                                                {order.orderItemSubVarieties
+                                                    .map(
+                                                        (or) =>
+                                                            or.subVariety
+                                                                .subVarName,
+                                                    )
+                                                    .join(', ')}
+                                                ]
+                                            </Text>
+                                        )}
+                                    </View>
                                 </View>
-                            </View>
-                        ))}
-                    </ScrollView>
+                            ))}
+                        </ScrollView>
 
                         <View
-                            style={{ flexDirection: "row", marginTop: 20, marginLeft: '40%' }}
+                            style={{
+                                flexDirection: 'row',
+                                marginTop: 20,
+                                marginLeft: '40%',
+                            }}
                         >
                             <Text
                                 style={{
@@ -279,8 +296,6 @@ function EReceipt({ navigation }) {
             </View>
         );
     };
-
-
 
     const renderFooter = () => {
         return (

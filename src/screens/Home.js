@@ -118,8 +118,6 @@ const Home = ({ navigation }) => {
             }
         };
 
-        console.log('ini users===>', users);
-
         const onGetLoyaltyPointAmount = () => {
             try {
                 dispatch(
