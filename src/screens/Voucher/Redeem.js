@@ -198,7 +198,7 @@ const Redeem = ({ navigation }) => {
                     {promotions.map((promotion) => (
                         <RedeemCard
                             key={promotion.promotionID}
-                            image={Starbuck}
+                            image={promotion.logoImage}
                             vouchersLeft={vouchersLeftData[promotion.promotionID] ? vouchersLeftData[promotion.promotionID].toString() : '0'}
                             points={promotion.cost.toString()}
                             items={promotion.quantity.toString()}

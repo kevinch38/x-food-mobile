@@ -35,7 +35,7 @@ const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, point
                 <View style={{flexDirection:"row"}}>
                     <View style={{marginTop:5}}>
                         <View style={styles.image}>
-                            <Image source={image}/>
+                            <Image source={{ uri: `data:image/jpeg;base64,${image}` }}/>
                         </View>
                         <Text style={{marginTop:-36, fontSize:13}}>Vouchers Left : {vouchersLeft}</Text>
                         <Text style={{marginTop:30, fontSize:11}}>Expired Date:{formattedExpiredDate}</Text>
