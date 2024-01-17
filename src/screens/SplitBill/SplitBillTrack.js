@@ -59,79 +59,113 @@ function SplitBillTrack({ navigation, route }) {
         ...new Set(requestPayment?.map((request) => request.friendAccountID)),
     ];
 
-    const renderTrack = uniqueFriendAccountID.map((friendAccID) => {
-        const friendRequestsWithSameFriendID = requestPayment.filter(
-            (request) => request.friendAccountID === friendAccID,
-        );
-        return (
-            <View style={styles.trackContainer} key={friendAccID}>
-                <View style={styles.cardContainer}>
-                    <View style={styles.avatarContainer}>
-                        <View style={styles.avatarTrack}>
-                            {friendRequestsWithSameFriendID[0]?.imageFriend ? (
-                                <Image
-                                    source={{
-                                        uri: `data:image/jpeg;base64,${friendRequestsWithSameFriendID[0].imageFriend}`,
-                                    }}
-                                    style={styles.avatar}
-                                />
-                            ) : (
-                                <Image
-                                    source={{ uri: imageUrl }}
-                                    style={styles.avatar}
-                                />
-                            )}
-                            <View style={styles.nameTrack}>
-                                <Text style={styles.titleTrack}>
-                                    Requested to
-                                </Text>
-                                <Text style={styles.name}>
-                                    {
-                                        friendRequestsWithSameFriendID[0]
-                                            ?.friendName
-                                    }
+    const renderTrack = uniqueFriendAccountID.map(
+        (friendAccID, index, array) => {
+            const isLastCard = index === array.length - 1;
+            const friendRequestsWithSameFriendID = requestPayment.filter(
+                (request) => request.friendAccountID === friendAccID,
+            );
+            return (
+                <View
+                    style={[
+                        styles.trackContainer,
+                        isLastCard && styles.lastCardMargin,
+                    ]}
+                    key={friendAccID}
+                >
+                    <View style={styles.cardContainer}>
+                        <View style={styles.avatarContainer}>
+                            <View style={styles.avatarTrack}>
+                                {friendRequestsWithSameFriendID[0]
+                                    ?.imageFriend ? (
+                                    <Image
+                                        source={{
+                                            uri: `data:image/jpeg;base64,${friendRequestsWithSameFriendID[0].imageFriend}`,
+                                        }}
+                                        style={styles.avatar}
+                                    />
+                                ) : (
+                                    <Image
+                                        source={{
+                                            uri: imageUrl,
+                                        }}
+                                        style={styles.avatar}
+                                    />
+                                )}
+                                <View style={styles.nameTrack}>
+                                    <Text style={styles.titleTrack}>
+                                        Add Position to
+                                    </Text>
+                                    <Text style={styles.name}>
+                                        {
+                                            friendRequestsWithSameFriendID[0]
+                                                ?.friendName
+                                        }
+                                    </Text>
+                                </View>
+                            </View>
+                            <View>
+                                <Text style={styles.now}>Now</Text>
+                                <Text style={[styles.statusNow]}>
+                                    Waiting for{'\n'} Payment
                                 </Text>
                             </View>
                         </View>
                         <View>
-                            <Text style={styles.now}>Now</Text>
-                            <Text style={[styles.statusNow]}>
-                                Waiting for{'\n'} Payment
-                            </Text>
-                        </View>
-                    </View>
-                    <View>
-                        {requestPayment
-                            .filter(
-                                (request) =>
-                                    request.friendAccountID === friendAccID,
-                            )
-                            ?.map((request) =>
-                                request.orderItems?.map((r, index) => (
+                            {requestPayment
+                                .filter(
+                                    (request) =>
+                                        request.friendAccountID === friendAccID,
+                                )
+                                .reduce((acc, request) => {
+                                    request.orderItems?.forEach((r) => {
+                                        const existingItem = acc.find(
+                                            (item) =>
+                                                item.itemName === r.itemName,
+                                        );
+
+                                        if (existingItem) {
+                                            existingItem.quantity += 1;
+                                        } else {
+                                            acc.push({
+                                                itemName: r.itemName,
+                                                newPrice: r.newPrice,
+                                                quantity: 1,
+                                            });
+                                        }
+                                    });
+
+                                    return acc;
+                                }, [])
+                                .map((groupedItem, index) => (
                                     <View
                                         key={index}
                                         style={styles.itemContainer}
                                     >
                                         <Text style={styles.item}>
-                                            {r.itemName}
+                                            {groupedItem.itemName}
                                         </Text>
                                         <View style={styles.priceContainer}>
                                             <Text style={styles.price}>
-                                                {request.paymentAmount}
+                                                Rp {groupedItem.newPrice}
                                             </Text>
-                                            <Text style={styles.price}>1x</Text>
+                                            <Text style={styles.price}>
+                                                {groupedItem.quantity}x
+                                            </Text>
                                             <Text style={styles.priceTotal}>
-                                                Rp 55,000
+                                                Rp{' '}
+                                                {groupedItem.newPrice *
+                                                    groupedItem.quantity}
                                             </Text>
                                         </View>
                                     </View>
-                                )),
-                            )}
+                                ))}
+                        </View>
                     </View>
                 </View>
-            </View>
-        );
-    });
+            );
+        },
+    );
 
     return (
         <SafeAreaView style={styles.container}>
@@ -188,6 +222,9 @@ const styles = StyleSheet.create({
     },
     trackContainer: {
         marginHorizontal: 27,
+    },
+    lastCardMargin: {
+        marginBottom: 80,
     },
     cardContainer: {
         marginBottom: 16,
