@@ -31,7 +31,8 @@ const PaymentScreen = () => {
         try {
             const historyPayment =
                 await historyService.getAllPaymentHistoryByAccountId(id);
-            setPayments(historyPayment.data);
+            const sortedPayment = historyPayment.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setPayments(sortedPayment);
         } catch (error) {
             console.error('Error fetching user data2:', error);
         }

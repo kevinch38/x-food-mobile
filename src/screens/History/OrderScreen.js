@@ -44,7 +44,8 @@ const OrderScreen = () => {
         try {
             const historyOrder =
                 await historyService.getAllOrderByAccountId(id);
-            setOrder(historyOrder.data);
+            const sortedOrder = historyOrder.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setOrder(sortedOrder);
         } catch (error) {
             console.error('Error fetching user data2:', error);
         }

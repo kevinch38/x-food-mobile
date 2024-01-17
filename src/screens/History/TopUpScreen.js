@@ -28,7 +28,8 @@ const TopUpScreen = () => {
     const getAllTopUpHistories = async () => {
         try {
             const historyTopUp = await historyService.getAllTopUpHistoryByAccountId(id);
-            setTopUp(historyTopUp.data);
+            const sortedTopUp = historyTopUp.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setTopUp(sortedTopUp);
         } catch (error) {
             console.error('Error fetching user data2:', error);
         }
