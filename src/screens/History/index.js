@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TouchableOpacity, View, Text, StyleSheet, Image } from "react-native";
+import {TouchableOpacity, View, Text, StyleSheet, Image, SafeAreaView} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import OrderScreen from "./OrderScreen";
 import PaymentScreen from "./PaymentScreen";
@@ -13,8 +13,6 @@ const History = () => {
     const handleButtonPress = (buttonName) => {
         setActiveButton(buttonName);
     };
-
-    const navigation = useNavigation();
 
     let selectedComponent;
 
@@ -34,7 +32,7 @@ const History = () => {
     }
 
     return (
-        <View>
+        <SafeAreaView style={{backgroundColor:'#fff'}}>
             <View
                 style={{
                     flexDirection: 'row',
@@ -112,8 +110,8 @@ const History = () => {
                     <Text style={styles.font}>Payment</Text>
                 </TouchableOpacity>
             </View>
-            <View style={{ margin: 40 }}>{selectedComponent}</View>
-        </View>
+            <View style={{ margin: 40, backgroundColor:'#fff'}}>{selectedComponent}</View>
+        </SafeAreaView>
     );
 };
 

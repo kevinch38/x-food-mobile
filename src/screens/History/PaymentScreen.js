@@ -5,6 +5,7 @@ import UserService from "../../services/UserService";
 import HistoryService from "../../services/HistoryService";
 import {useSelector} from "react-redux";
 import {format} from "date-fns";
+import {formatIDRCurrency} from "../../utils/utils";
 
 const PaymentScreen = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
@@ -138,7 +139,7 @@ const PaymentScreen = () => {
                             )}
                             title={paymentStatus[payment.paymentID]}
                             content={paymentContet[payment.paymentID]}
-                            amount={payment.paymentAmount}
+                            amount={formatIDRCurrency(payment.paymentAmount)}
                             image={
                                 payment.accountID === users.accountID
                                     ? payment.friend.imageAccount2

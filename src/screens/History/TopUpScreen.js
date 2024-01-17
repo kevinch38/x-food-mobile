@@ -6,6 +6,7 @@ import HistoryService from "../../services/HistoryService";
 import UserService from "../../services/UserService";
 import {useSelector} from "react-redux";
 import {format} from "date-fns";
+import {formatIDRCurrency} from "../../utils/utils";
 
 const TopUpScreen = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
@@ -45,10 +46,10 @@ const TopUpScreen = () => {
         }
     }, [id]);
     return(
-       <View style={{margin:20}}>
+       <View>
            <ScrollView>
                {topUp.map((tu, index)=>(
-                   <HistoryCard key={index} image={image} date={format(new Date(tu.createdAt), "dd MMM, HH:mm")} title={`Top Up`} content={`Top Up Success`} amount={tu.topUpAmount}/>
+                   <HistoryCard key={index} image={image} date={format(new Date(tu.createdAt), "dd MMM, HH:mm")} title={`Top Up`} content={`Top Up Success`} amount={formatIDRCurrency(tu.topUpAmount)}/>
                ))}
            </ScrollView>
        </View>

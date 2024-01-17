@@ -17,6 +17,7 @@ import Button from '../../components/button';
 import { useEffect, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
 import OrderService from '../../services/OrderService';
+import {formatIDRCurrency} from "../../utils/utils";
 
 function EReceipt({ navigation }) {
     const orderService = OrderService();
@@ -43,7 +44,7 @@ function EReceipt({ navigation }) {
         if (order && (sale !== 0 || sale !== null || sale !== "")) {
             getDiscount();
         }
-    }, [order,sale])
+    }, [order,sale]);
 
     const fetchOrderByID = async () => {
         try {
@@ -55,7 +56,7 @@ function EReceipt({ navigation }) {
     };
     const dataOrder = order?.data;
     const getDiscount = () => {
-        let countDiscount = 1 - sale / dataOrder?.orderValue;
+        let countDiscount = Math.ceil(1 - sale / dataOrder?.orderValue);
         dataOrder?.orderItems.forEach((o) => {
             setDiscounts((prevState) => ({
                 ...prevState,
@@ -63,6 +64,16 @@ function EReceipt({ navigation }) {
             }));
         });
     };
+
+    const getDiscountValue = () => {
+        let initialValue = 0;
+        dataOrder?.orderItems.map((o)=> {
+            initialValue += o?.price
+        })
+
+        let orderValue = dataOrder?.orderValue;
+        return orderValue - initialValue;
+    }
 
     console.log("data order ====>", dataOrder);
 
@@ -137,15 +148,8 @@ function EReceipt({ navigation }) {
     const renderContent = () => {
         return (
             <View style={{ alignItems: 'center', height: '60%', width: '90%' }}>
-                <ImageBackground
-                    source={require('../../assets/images/test.png')}
-                    style={{
-                        height: '100%',
-                        width: '100%',
-                        marginTop: '20%',
-                    }}
-                    resizeMode={'stretch'}
-                >
+                <View style={styles.struckContainer}>
+
                     <View
                         style={{
                             position: 'absolute',
@@ -209,7 +213,6 @@ function EReceipt({ navigation }) {
                             Order Completed
                         </Text>
 
-                    <ScrollView>
                         {dataAssigned?.orderItems.map((order, index) => (
                             <View key={index} style={{ width: '100%', marginTop: '5%' }}>
                                 <View
@@ -230,7 +233,7 @@ function EReceipt({ navigation }) {
                                         x{order.quantity}
                                     </Text>
                                     <Text style={{ fontWeight: '700', fontSize: 16, marginLeft:10 }}>
-                                        Rp. {order.newPrice}
+                                        {formatIDRCurrency(order.newPrice)}
                                     </Text>
                                 </View>
                                 <View style={{ marginLeft: '9%' }}>
@@ -256,7 +259,25 @@ function EReceipt({ navigation }) {
                                 </View>
                             </View>
                         ))}
-                    </ScrollView>
+                        {/*<Text>{dataOrder?.orderValue - }</Text>*/}
+                        {getDiscountValue() === 0 ? `` :
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-evenly',
+                                    marginTop: '5%'
+                                }}
+                            >
+                                <Text>
+                                    Discount
+                                </Text>
+                                <Text style={{marginLeft:100, fontWeight: '700', fontSize: 16, color:'#F94D63'}}>
+                                    {formatIDRCurrency(getDiscountValue())}
+                                </Text>
+                            </View>
+
+                        }
+
 
                         <View
                             style={{ flexDirection: "row", marginTop: 20, marginLeft: '40%' }}
@@ -271,11 +292,12 @@ function EReceipt({ navigation }) {
                                 Total
                             </Text>
                             <Text style={{ fontSize: 16, fontWeight: 700 }}>
-                                Rp {dataOrder?.orderValue}
+                                {formatIDRCurrency(dataOrder?.orderValue)}
                             </Text>
                         </View>
                     </View>
-                </ImageBackground>
+                </View>
+
             </View>
         );
     };
@@ -397,6 +419,16 @@ const styles = StyleSheet.create({
         color: theme.primary,
         fontSize: 16,
         fontWeight: '600',
+    },
+
+    struckContainer: {
+        backgroundColor: '#fff',
+        marginHorizontal: 20,
+        marginVertical: 55,
+        paddingHorizontal: 20,
+        paddingVertical: 24,
+        borderRadius: 20,
+        height:500
     },
 });
 export default EReceipt;

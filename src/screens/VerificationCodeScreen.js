@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
     Image,
     StyleSheet,
@@ -27,8 +27,14 @@ const VerificationCodeScreen = () => {
     const navigation = useNavigation();
     const route = useRoute();
     const userService = UserService();
+    const inputRefs = [useRef(),useRef(), useRef(), useRef()];
 
     useEffect(() => {
+        inputRefs.forEach((ref, index) => {
+            if (ref.current) {
+                ref.current.index = index;
+            }
+        });
         fetchOtpID(phoneNumber);
     }, [phoneNumber]);
 
@@ -52,6 +58,18 @@ const VerificationCodeScreen = () => {
         }
     };
 
+    const handleBackspace = (currentIndex) => {
+        if (currentIndex > 0) {
+            const previousIndex = currentIndex - 1;
+            inputRefs[previousIndex].current.focus();
+
+            const updatedCode = [...verificationCode];
+            updatedCode[currentIndex] = '';
+            setVerificationCode(updatedCode);
+        }
+    };
+
+
     const handleInputChange = (text, index) => {
         const updatedCode = [...verificationCode];
         updatedCode[index] = text;
@@ -59,6 +77,12 @@ const VerificationCodeScreen = () => {
 
         const enteredCode = updatedCode.join('');
         checkOTP(enteredCode);
+
+        if (text === '' && index > 0) {
+            inputRefs[index - 1].current.focus();
+        } else if (text !== '' && index < inputRefs.length - 1) {
+            inputRefs[index + 1].current.focus();
+        }
     };
 
     const checkOTP = async (enteredCode) => {
@@ -153,6 +177,7 @@ const VerificationCodeScreen = () => {
                 {verificationCode.map((value, index) => (
                     <TextInput
                         key={index}
+                        ref={inputRefs[index]}
                         style={[
                             style.input,
                             {
