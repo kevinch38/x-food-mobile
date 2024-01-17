@@ -90,8 +90,6 @@ export const cartSlice = createSlice({
         // },
 
         removeFromCart: (state, { payload }) => {
-            console.log(payload.mergeID, 'cart Slice');
-
             // Temukan index item dengan mergeID yang sesuai
             const indexToRemove = state.items.findIndex(
                 (item) => item.mergeID === payload.mergeID,

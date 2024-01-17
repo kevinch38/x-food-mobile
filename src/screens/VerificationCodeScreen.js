@@ -42,8 +42,6 @@ const VerificationCodeScreen = () => {
         try {
             const userData =
                 await userService.fetchUserByPhoneNumber(phoneNumber);
-            // console.log('userData:', userData);
-
             if (userData && userData.data.otpID) {
                 setFirstName(userData.data.firstName);
                 setOtpID(userData.data.otpID);
@@ -99,18 +97,11 @@ const VerificationCodeScreen = () => {
                             enteredOtp: enteredCode,
                         },
                     );
-
                     const data = response.data;
-
-                    // console.log(data , 'in data')
-
-
                     if (data.statusCode == 200) {
                         await AsyncStorage.setItem('token', data.data.token);
                     }
 
-                    // console.log('Check OTP response:', data);
-                    console.log(firstName);
                     if (data.data.check && firstName === '') {
                         setIsValidCode(true);
                         console.log('Code is valid. Navigating to Register.');

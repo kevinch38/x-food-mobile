@@ -22,9 +22,6 @@ function Payment({ navigation }) {
     const accountID = route.params?.accountID;
     const orderID = route.params?.orderID;
     const [paymentCompleted, setPaymentCompleted] = useState(false); // Track payment completion
-
-    console.log(orderID,'order id di payment')
-
     useEffect(() => {
         const completeOrder = async () => {
             try {

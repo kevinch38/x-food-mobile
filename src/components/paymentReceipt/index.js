@@ -75,7 +75,7 @@ function PaymentReceipt({
                 </Text>
                 <Text style={{ fontWeight: '600', fontSize: 20 }}>
                     {' '}
-                    Rp. {totalAmount}
+                    {totalAmount}
                 </Text>
                 <Button
                     onPress={onPress}

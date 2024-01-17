@@ -19,7 +19,6 @@ const TopUpScreen = () => {
             const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
             const accountID = userData.data.accountID;
             setId(accountID);
-            console.log(id);
 
         } catch (error) {
             console.error('Error fetching user data1:', error);

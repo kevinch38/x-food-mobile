@@ -10,6 +10,7 @@ import HistoryService from "../../services/HistoryService";
 import Account from "../../components/account";
 import { render } from "@testing-library/react-native";
 import BackButton from "../../components/backButton";
+import {formatIDRCurrency} from "../../utils/utils";
 
 
 function Notification() {
@@ -33,8 +34,6 @@ function Notification() {
             const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
             const accountID = userData.data.accountID;
             setId(accountID);
-            console.log(id);
-
         } catch (error) {
             console.error('Error fetching user data1:', error);
         }
@@ -44,8 +43,6 @@ function Notification() {
         try {
             const historyPayment = await historyService.getAllPaymentHistoryByAccountId(id);
             setPayments(historyPayment.data);
-            // console.log("=========================>",historyPayment.data);
-
         } catch (error) {
             console.error('Error fetching user data2:', error);
         }
@@ -53,7 +50,6 @@ function Notification() {
 
 
     const getAllHistoriesWithStatus = async () => {
-        // console.log("+++++++++++++++++++++++++>",payments);
         payments.forEach((payment) => {
             let status ='';
             let title = "";
@@ -165,7 +161,6 @@ function Notification() {
             <View>
                 <PaymentReceipt
                     title={paymentTitle[paymentData.paymentID]}
-                    // display={paymentDisplay[paymentData.paymentID]}
                     name={
                         paymentData.accountID === users.accountID
                             ? paymentData.friend.accountFirstName2
@@ -176,7 +171,7 @@ function Notification() {
                             ? paymentData.friend.imageAccount2
                             : paymentData.friend.imageAccount1
                     }
-                    totalAmount={paymentData.paymentAmount}
+                    totalAmount={formatIDRCurrency(paymentData.paymentAmount)}
                     titleButton={paymentTitleButton[paymentData.paymentID]}
                     onPress={
                         paymentTitleButton[paymentData.paymentID] === 'Pay'

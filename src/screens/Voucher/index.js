@@ -49,7 +49,6 @@ const Voucher = ({ navigation }) => {
                 const result = await loyaltyPointService.fetchLoyaltyPointById(
                     users.loyaltyPoint.loyaltyPointID,
                 );
-                console.log(result, 'ngetes');
                 return result;
             }),
         );
@@ -62,7 +61,6 @@ const Voucher = ({ navigation }) => {
             const fetchedUserData =
                 await userService().fetchUserByPhoneNumber(phoneNumber);
             setUserData(fetchedUserData.data);
-            // console.log('userData:', fetchedUserData);
         } catch (error) {
             console.error('Error fetching user data:', error);
         }

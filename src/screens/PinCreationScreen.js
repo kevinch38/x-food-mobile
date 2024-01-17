@@ -101,18 +101,11 @@ const PinCreationScreen = ({ navigation }) => {
     };
 
     const handleFormSubmit = async (values, { resetForm }) => {
-        // console.log(values.pinValue);
         try {
             dispatch(setPin(values));
-            // hideModal();
             resetForm();
             const response = await PinCreationService(pinID, values.pinValue);
             hideModal();
-            // if (values.pinValue){
-            //     showModal();
-            // }
-
-            // console.log('API Response:', response.data);
         } catch (error) {
             console.error('API Error:', error);
         }

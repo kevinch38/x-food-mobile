@@ -117,9 +117,6 @@ const Home = ({ navigation }) => {
                 console.error('Error fetchin balance data: ', e);
             }
         };
-
-        console.log('ini users===>', users);
-
         const onGetLoyaltyPointAmount = () => {
             try {
                 dispatch(

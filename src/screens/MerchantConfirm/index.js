@@ -74,10 +74,6 @@ function MerchantConfirm({ navigation }) {
     return (
         <SafeAreaView style={styles.controller}>
             <View>
-                {/*<Button*/}
-                {/*    title={'hh'}*/}
-                {/*    onPress={console.log(data, 'ini merchant confirm')}*/}
-                {/*/>*/}
                 {renderHeader()}
                 {renderLoading()}
                 {renderFooter()}

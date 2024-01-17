@@ -28,7 +28,6 @@ const Redeem = ({ navigation }) => {
     const [isVoucherEmpty, setIsVoucherEmpty] = useState({});
 
     const getAllPromotions = async () => {
-        console.log('Manggil getAllPromotions');
         try {
             setIsLoading(true);
             const userData = await promotionService.getPromotions();
@@ -60,7 +59,6 @@ const Redeem = ({ navigation }) => {
 
             await Promise.all(promises);
             setIsLoading(false);
-            console.log("====+>", isLoading)
         } catch (error) {
             console.error('Error fetching user data:', error);
             alert("Vouchers empty or your point not enough !!");
@@ -92,8 +90,6 @@ const Redeem = ({ navigation }) => {
         });
     };
 
-    // console.log(promotions);
-
     useEffect(() => {
         fetchUserData(phoneNumber);
     }, [phoneNumber]);
@@ -113,7 +109,6 @@ const Redeem = ({ navigation }) => {
                             await loyaltyPointService.fetchLoyaltyPointById(
                                 users.loyaltyPoint.loyaltyPointID,
                             );
-                        console.log(result, '?');
                         return result;
                     }),
                 );

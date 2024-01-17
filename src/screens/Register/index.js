@@ -70,8 +70,6 @@ export default function Register({ navigation }) {
 
                 dispatch(
                     userRegisterAction(async () => {
-                        // const result = await userService.updateUser(values);
-                        // console.log(result, 'result-----');
                         try {
                             const result = await userService.updateUser(values);
                             if (result.statusCode === 200) {

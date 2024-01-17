@@ -23,9 +23,6 @@ const OrderHistoryCard = ({image,items, title, date, status, orderValue, isSplit
                                 source={{ uri: `data:image/jpeg;base64,${image}` }}
                                 style={{ width: '100%', height: '100%', borderRadius: 18.214 }}
                                 resizeMode="cover"
-                                onLoadStart={() => console.log('Mulai memuat gambar')}
-                                onLoadEnd={() => console.log('Selesai memuat gambar')}
-                                onError={(error) => console.error('Error memuat gambar:', error)}
                             />
                         </View>
 

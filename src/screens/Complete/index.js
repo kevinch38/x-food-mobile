@@ -19,9 +19,6 @@ function Complete({ navigation }) {
     const pointLoyalty = route.params?.pointLoyalty;
     const orderID = route.params?.orderID;
     const accountID = route.params?.accountID;
-
-    console.log(orderID, 'ini order ID di Complete')
-
     useEffect(() => {
         const backHandler = BackHandler.addEventListener(
             'hardwareBackPress',

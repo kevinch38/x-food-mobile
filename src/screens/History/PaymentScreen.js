@@ -22,8 +22,6 @@ const PaymentScreen = () => {
             const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
             const accountID = userData.data.accountID;
             setId(accountID);
-            console.log(id);
-
         } catch (error) {
             console.error('Error fetching user data1:', error);
         }
@@ -34,7 +32,6 @@ const PaymentScreen = () => {
             const historyPayment =
                 await historyService.getAllPaymentHistoryByAccountId(id);
             setPayments(historyPayment.data);
-            // console.log("=========================>",historyPayment.data);
         } catch (error) {
             console.error('Error fetching user data2:', error);
         }
@@ -42,7 +39,6 @@ const PaymentScreen = () => {
 
 
     const getAllHistoriesWithStatus = async () => {
-        // console.log("+++++++++++++++++++++++++>",payments);
         payments.forEach((payment) => {
             let status = '';
             let content = '';

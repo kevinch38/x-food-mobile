@@ -55,14 +55,9 @@ function CompletePaymentSpiltBill({ navigation, route }) {
         const fetchData = async () => {
             try {
                 setIsLoading(true);
-
-                console.log('Fetching data for paymentID:', paymentID);
-
-                // Only fetch data if paymentID is available
                 if (paymentID) {
                     const result =
                         await completePayment.completePaymentSplit(paymentID);
-                    console.log('Fetched data:', result.data);
                     setSplitBill(result.data);
                 }
 
