@@ -8,23 +8,25 @@ import {
     Pressable,
     TouchableOpacity,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Color from '../assets/Color';
 import BackButton from '../components/backButton';
 import UserService from '../services/UserService';
+import axios from 'axios'; // Import UserService
 import { useSelector } from 'react-redux';
-import axiosInstance from '../api/axiosInstance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '../api/axiosInstance';
 
 const VerificationCodeScreen = () => {
+    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
     const [focusedInput, setFocusedInput] = useState(null);
     const [isValidCode, setIsValidCode] = useState(true);
     const [otpID, setOtpID] = useState(null);
     const [firstName, setFirstName] = useState('');
     const navigation = useNavigation();
+    const route = useRoute();
     const userService = UserService();
-    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
 
     useEffect(() => {
         fetchOtpID(phoneNumber);
@@ -34,6 +36,7 @@ const VerificationCodeScreen = () => {
         try {
             const userData =
                 await userService.fetchUserByPhoneNumber(phoneNumber);
+            // console.log('userData:', userData);
 
             if (userData && userData.data.otpID) {
                 setFirstName(userData.data.firstName);
@@ -72,17 +75,23 @@ const VerificationCodeScreen = () => {
                             enteredOtp: enteredCode,
                         },
                     );
+
                     const data = response.data;
+
+                    // console.log(data , 'in data')
+
 
                     if (data.statusCode == 200) {
                         await AsyncStorage.setItem('token', data.data.token);
                     }
 
-                    if (data.data && firstName === '') {
+                    // console.log('Check OTP response:', data);
+                    console.log(firstName);
+                    if (data.data.check && firstName === '') {
                         setIsValidCode(true);
                         console.log('Code is valid. Navigating to Register.');
                         navigation.navigate('Register');
-                    } else if (data.data && firstName !== '') {
+                    } else if (data.data.check && firstName !== '') {
                         setIsValidCode(true);
                         navigation.navigate('Tabs');
                     } else {
@@ -222,7 +231,7 @@ const style = StyleSheet.create({
 
     buttonImage: {
         position: 'absolute',
-        top: 20,
+        top: 30,
     },
 });
 

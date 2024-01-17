@@ -22,15 +22,17 @@ import {
     removeAll,
     removeFromCart,
     selectCartItems,
-    selectCartItemsById,
     selectCartTotal,
+    setPiece,
 } from '../../slices/cartSlice';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
 import { userAction } from '../../slices/userSlice';
 import { ServiceContext } from '../../context/ServiceContext';
-import Loading from '../../components/loading';
 import { createOrderAction } from '../../slices/orderSlice';
+import { fetchBalanceAction } from '../../slices/balanceSlice';
+import Color from '../../assets/Color';
+import ErrorText from '../../components/errorText';
 
 function Cart({ navigation }) {
     const dispatch = useDispatch();
@@ -39,17 +41,54 @@ function Cart({ navigation }) {
     const cartTotal = useSelector(selectCartTotal);
     const [groupedItems, setGroupedItems] = useState({});
     const { users } = useSelector((state) => state.user);
+    const { balance } = useSelector((state) => state.balance);
     const { selectedBranch } = useSelector((state) => state.merchantBranch);
     const [sale, setSale] = useState('');
     const [nameVoucher, setNameVoucher] = useState('');
-    const { userService, orderService } = useContext(ServiceContext);
+    const { userService, orderService, balanceService } =
+        useContext(ServiceContext);
     const [vouchers, setVouchers] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [balanceUser, setBalanceUser] = useState(0);
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
+
+    const validationButton =
+        balanceUser <= 0 || cartItems.length === 0 || isValid || dirty
+            ? Color.disabled
+            : Color.primary;
 
     useEffect(() => {
         setVouchers(users?.vouchers);
     }, [users]);
+
+    useEffect(() => {
+        setBalanceUser(balance.totalBalance);
+    }, [balance.totalBalance]);
+
+    const groupCartItems = (cartItems) => {
+        const groupedItems = cartItems.reduce((group, item) => {
+            const key = item.mergeID;
+            if (!group[key]) {
+                group[key] = [];
+            }
+            group[key].push(item);
+            return group;
+        }, {});
+        const groupsWithMergeId = Object.entries(groupedItems).map(
+            ([mergeId, items]) => ({
+                mergeId,
+                items,
+            }),
+        );
+
+        return groupsWithMergeId;
+    };
+
+    useEffect(() => {
+        const groupedCartItems = groupCartItems(cartItems);
+
+        setGroupedItems(groupedCartItems);
+    }, [cartItems]);
 
     useEffect(() => {
         const onGetUserByPhoneNumber = async () => {
@@ -68,14 +107,47 @@ function Cart({ navigation }) {
                 setIsLoading(false);
             }
         };
+
+        const onGetBalanceUser = async () => {
+            try {
+                dispatch(
+                    fetchBalanceAction(async () => {
+                        const result = balanceService.fetchBalance(
+                            users.balance.balanceID,
+                        );
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetching balance data: ', e);
+            }
+        };
+
         onGetUserByPhoneNumber();
+        onGetBalanceUser();
     }, [dispatch, userService]);
 
     const Schema = yup.object().shape({
-        tableNumber: yup.number().required('No Table Required'),
+        tableNumber: yup
+            .number()
+            .required('Table Number is required')
+            .integer('Table Number must be an integer')
+            .positive('Table Number must be a positive number'),
+        orderNote: yup.string().matches(/^[a-zA-Z0-9. ]*$/, 'Invalid Notes'),
     });
 
-    const { values, errors, touched, handleSubmit } = useFormik({
+    const {
+        values: { tableNumber, orderNote },
+        errors,
+        touched,
+        dirty,
+        isValid,
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        setFieldValue,
+        setValues,
+    } = useFormik({
         initialValues: {
             accountID: null,
             orderValue: 0,
@@ -90,61 +162,55 @@ function Cart({ navigation }) {
                     try {
                         const groupedOrderItem = cartItems.reduce(
                             (grouped, item) => {
-                                const key =
-                                    item.itemID +
-                                    JSON.stringify(
-                                        item.itemVarieties
-                                            .map(
-                                                (variety) =>
-                                                    variety.subVarietyID,
-                                            )
-                                            .sort(),
-                                    );
+                                const key = item.mergeID;
                                 if (!grouped[key]) {
                                     grouped[key] = {
                                         itemID: item.itemID,
-                                        subVarieties: item.itemVarieties.map(
-                                            (variety) => ({
-                                                subVarietyID:
-                                                    variety.subVarietyID,
-                                            }),
-                                        ),
                                         quantity: 0,
+                                        subVarieties: new Set(),
                                     };
                                 }
+
+                                item.itemVarieties.forEach((variety) => {
+                                    grouped[key].subVarieties.add(
+                                        variety.subVarietyID,
+                                    );
+                                });
+
                                 grouped[key].quantity += 1;
                                 return grouped;
                             },
                             {},
                         );
 
-                        const result = Object.values(groupedOrderItem);
+                        const result = Object.values(groupedOrderItem).map(
+                            (item) => ({
+                                itemID: item.itemID,
+                                quantity: item.quantity,
+                                subVarieties: Array.from(item.subVarieties),
+                            }),
+                        );
 
                         const orderItems = {
                             accountID: users.accountID,
                             orderValue: cartTotal - sale,
-                            notes: values.orderNote,
-                            tableNumber: values.tableNumber,
+                            notes: orderNote,
+                            tableNumber: tableNumber,
                             branchID: selectedBranch.branchID,
                             orderItems: result,
                         };
                         dispatch(
                             createOrderAction(async () => {
-                                //         const result =
-                                //             await orderService.orderItem(orderItems);
-                                //         console.log(result, 'ini result');
-                                //     }),
-                                // );
                                 try {
                                     const result =
                                         await orderService.orderItem(
                                             orderItems,
                                         );
-                                    console.log(result, 'ini result');
                                     if (result.statusCode === 201) {
                                         navigation.navigate('Pin', {
                                             accountID: result.data.accountID,
                                             orderID: result.data.orderID,
+                                            destination: 'Payment',
                                         });
                                         dispatch(emptyCart());
                                         return result;
@@ -172,61 +238,8 @@ function Cart({ navigation }) {
     };
 
     const handleDecrease = (item) => {
-        dispatch(
-            removeFromCart({
-                itemID: item.itemID,
-                itemVarieties: item.itemVarieties,
-            }),
-        );
+        dispatch(removeFromCart(item));
     };
-
-    useEffect(() => {
-        const groupedItems = cartItems.reduce((group, item) => {
-            const variety = Array.isArray(item.itemVarieties)
-                ? item.itemVarieties
-                      .map((variety) => variety.subVarietyID)
-                      .join('-')
-                : 'No Variety';
-            const key = item.itemID + '-' + variety;
-            if (group[key]) {
-                group[key].push(item);
-            } else {
-                group[key] = [item];
-            }
-            return group;
-        }, {});
-
-        const mergedGroupedItems = Object.values(groupedItems).reduce(
-            (finalGroup, itemsArray) => {
-                const firstItem = itemsArray[0];
-                const matchingItems = finalGroup.find(
-                    (groupedItem) =>
-                        groupedItem.itemID === firstItem.itemID &&
-                        groupedItem.itemVarieties.join('-') ===
-                            firstItem.itemVarieties
-                                .map((variety) => variety.subVarietyID)
-                                .join('-'),
-                );
-
-                if (matchingItems) {
-                    matchingItems.items.push(...itemsArray);
-                } else {
-                    finalGroup.push({
-                        itemID: firstItem.itemID,
-                        itemVarieties: firstItem.itemVarieties.map(
-                            (variety) => variety.subVarietyID,
-                        ),
-                        items: itemsArray,
-                    });
-                }
-
-                return finalGroup;
-            },
-            [],
-        );
-
-        setGroupedItems(mergedGroupedItems);
-    }, [cartItems]);
 
     const handleBack = () => {
         navigation.navigate('Menu');
@@ -256,10 +269,10 @@ function Cart({ navigation }) {
     };
 
     const renderCart = () => {
-        return Object.entries(groupedItems).map(([key, items]) => {
-            const item = items.items[0];
+        return Object.entries(groupedItems).map(([mergeID, group]) => {
+            const item = group.items[0];
             return (
-                <View style={styles.sectionContainer} key={key}>
+                <View style={styles.sectionContainer} key={mergeID}>
                     <Image
                         source={{ uri: `data:image/jpeg;base64,${item.image}` }}
                         style={styles.imageCart}
@@ -279,7 +292,7 @@ function Cart({ navigation }) {
                             </TouchableOpacity>
                         </View>
                         <Text style={styles.toppings}>
-                            {item.itemVarieties
+                            {item.itemVarieties.length !== 0
                                 ? item.itemVarieties
                                       .map((variety) =>
                                           findVarietyName(
@@ -292,13 +305,10 @@ function Cart({ navigation }) {
                         </Text>
                         <View style={styles.priceSection}>
                             <Text style={styles.priceMenu}>
-                                Rp.{' '}
-                                {item.isDiscounted
-                                    ? item.discountedPrice
-                                    : item.initialPrice}
+                                Rp. {item.itemPrice.toLocaleString()}
                             </Text>
                             <View style={styles.counter}>
-                                {order === items.items.length ? (
+                                {order === group.items.length ? (
                                     <TouchableOpacity disabled>
                                         <Icon.MinusCircle
                                             width={28}
@@ -309,9 +319,7 @@ function Cart({ navigation }) {
                                     </TouchableOpacity>
                                 ) : (
                                     <TouchableOpacity
-                                        onPress={() =>
-                                            handleDecrease(items.items[0])
-                                        }
+                                        onPress={() => handleDecrease(item)}
                                     >
                                         <Icon.MinusCircle
                                             width={28}
@@ -322,7 +330,7 @@ function Cart({ navigation }) {
                                     </TouchableOpacity>
                                 )}
                                 <Text style={styles.numCounter}>
-                                    {items.items.length}
+                                    {group.items.length}
                                 </Text>
                                 <TouchableOpacity
                                     onPress={() => handleIncrease(item)}
@@ -352,46 +360,48 @@ function Cart({ navigation }) {
                     icon={require('../../assets/icons/chair.png')}
                     keyboardType={'numeric'}
                     placeholder={'1                                     '}
-                    value={values.tableNumber}
+                    onChangeText={handleChange('tableNumber')}
+                    value={tableNumber}
                 />
                 {touched.tableNumber && errors.tableNumber && (
-                    <Text style={styles.errorText}>{errors.tableNumber}</Text>
+                    <ErrorText message={errors.tableNumber} />
                 )}
                 <InputText
                     label={'Note'}
                     placeholder={'example: extra spicy'}
-                    value={values.orderNote}
+                    onChangeText={handleChange('orderNote')}
+                    value={orderNote}
                 />
+                {touched.orderNote && errors.orderNote && (
+                    <ErrorText message={errors.orderNote} />
+                )}
             </View>
         );
+    };
+
+    const convertImage = (image) => {
+        return `uri: 'data:image/png;base64,${image}'`;
     };
 
     const renderVoucher = () => {
         return (
             <View style={styles.dropdownContainer}>
-                {/*<Image*/}
-                {/*    source={{*/}
-                {/*        uri: `data:image/png;base64,${vouchers[0].logoImage}`,*/}
-                {/*    }}*/}
-                {/*/>*/}
                 <SelectCountry
                     style={styles.dropdown}
                     placeholderStyle={styles.placeholderStyle}
                     selectedTextStyle={styles.selectedTextStyle}
                     imageStyle={styles.imageStyle}
                     data={vouchers}
-                    imageField={`
-                        uri: "data:image/jpeg;base64,${'logoImage'}",
-                    `}
+                    imageField={convertImage('logoImage')}
                     labelField="promotionName"
                     valueField="voucherValue"
-                    // onChange={handleDropdown}
                     maxHeight={300}
                     searchPlaceholder="Search..."
                     placeholder={'Select Voucher'}
                     value={sale}
                     onChange={(item) => {
                         setSale(item.voucherValue);
+                        dispatch(setPiece(item.voucherValue));
                         setNameVoucher(item.label);
                     }}
                 />
@@ -404,12 +414,16 @@ function Cart({ navigation }) {
             <View style={styles.subtotalContainer}>
                 <View style={styles.subtotalStyle}>
                     <Text style={styles.textSubtotal}>Subtotal</Text>
-                    <Text style={styles.textSubtotal}>Rp. {cartTotal}</Text>
+                    <Text style={styles.textSubtotal}>
+                        Rp. {cartTotal.toLocaleString()}
+                    </Text>
                 </View>
                 {sale ? (
                     <View style={styles.subtotalStyle}>
                         <Text style={styles.textSubtotal}>Voucher</Text>
-                        <Text style={styles.textSale}>Rp.- {sale}</Text>
+                        <Text style={styles.textSale}>
+                            Rp.- {sale.toLocaleString()}
+                        </Text>
                     </View>
                 ) : (
                     <View style={{ display: 'none' }} />
@@ -427,7 +441,7 @@ function Cart({ navigation }) {
                             ? 0
                             : sale
                               ? cartTotal - sale
-                              : cartTotal}
+                              : cartTotal.toLocaleString()}
                     </Text>
                 </View>
             </View>
@@ -436,7 +450,6 @@ function Cart({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            {/*<Button title={'tt'} onPress={console.log(groupedItems)} />*/}
             <ScrollView>
                 {renderHeader()}
                 <View style={styles.sectionWrapper}>
@@ -449,7 +462,16 @@ function Cart({ navigation }) {
                     <Button
                         title={'CHECKOUT'}
                         titleStyle={styles.titleStyle}
-                        onPress={handleSubmit}
+                        buttonStyle={{ backgroundColor: validationButton }}
+                        onPress={() => {
+                            handleSubmit();
+                        }}
+                        disabled={
+                            balanceUser <= 0 ||
+                            cartItems.length === 0 ||
+                            !isValid ||
+                            !dirty
+                        }
                     />
                 </View>
             </ScrollView>
@@ -563,8 +585,8 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     imageStyle: {
-        marginLeft: 12,
         width: 36,
+        height: 36,
     },
     subtotalContainer: {
         marginTop: 35,

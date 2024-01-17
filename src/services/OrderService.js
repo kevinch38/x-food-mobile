@@ -7,7 +7,6 @@ const OrderService = () => {
             'http://10.0.2.2:8087/api/orders',
             order,
         );
-        console.log(data, 'ini service');
         return data;
     };
 
@@ -19,7 +18,14 @@ const OrderService = () => {
         return data;
     };
 
-    return { orderItem, completedOrder };
+    const getOrderById = async (orderId) => {
+        const { data } = await axiosInstance.get(
+            `http://10.0.2.2:8087/api/orders/${orderId}`,
+        );
+        return data;
+    };
+
+    return { orderItem, completedOrder, getOrderById };
 };
 
 export default OrderService;

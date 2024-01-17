@@ -8,7 +8,7 @@ const PinService = () => {
     };
 
     const pinCheck = async (user) => {
-        const { data } = await axios.post(
+        const { data } = await axiosInstance.post(
             `http://10.0.2.2:8087/api/pins`,
             user,
         );

@@ -110,9 +110,10 @@ const Redeem = ({ navigation }) => {
                 dispatch(
                     loyaltyPointAction(async () => {
                         const result =
-                            loyaltyPointService.fetchLoyaltyPointById(
+                            await loyaltyPointService.fetchLoyaltyPointById(
                                 users.loyaltyPoint.loyaltyPointID,
                             );
+                        console.log(result, '?');
                         return result;
                     }),
                 );

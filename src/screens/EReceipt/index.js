@@ -7,21 +7,108 @@ import {
     StyleSheet,
     Text,
     View,
+    ScrollView
 } from 'react-native';
 import BackButton from '../../components/backButton';
 import { theme } from '../../theme';
+import { useSelector } from 'react-redux';
 import * as Progress from 'react-native-progress';
 import Button from '../../components/button';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
+import OrderService from '../../services/OrderService';
 
 function EReceipt({ navigation }) {
+    const orderService = OrderService();
+    const route = useRoute();
+    const orderId = route.params.orderID;
+    const [order, setOrder] = useState();
+    const sale = useSelector((state) => state.cart.sale);
+    const [discounts, setDiscounts] = useState({});
+    console.log("ini order id", orderId);
+
     useEffect(() => {
         const backHandler = BackHandler.addEventListener(
             'hardwareBackPress',
             () => true,
         );
         return () => backHandler.remove();
+    }, [order]);
+
+    useEffect( () => {
+         fetchOrderByID()
     }, []);
+
+    useEffect(() => {
+        if (order && (sale !== 0 || sale !== null || sale !== "")) {
+            getDiscount();
+        }
+    }, [order,sale])
+
+    const fetchOrderByID = async () => {
+        try {
+            const getOrder = await orderService.getOrderById(orderId);
+            setOrder(getOrder);
+        } catch (error) {
+            console.error('Error fetching user data1:', error);
+        }
+    };
+    const dataOrder = order?.data;
+    const getDiscount = () => {
+        let countDiscount = 1 - sale / dataOrder?.orderValue;
+        dataOrder?.orderItems.forEach((o) => {
+            setDiscounts((prevState) => ({
+                ...prevState,
+                [o.orderID]: countDiscount * o?.price,
+            }));
+        });
+    };
+
+    console.log("data order ====>", dataOrder);
+
+    const orderItemsAssign = Object.values(
+        (dataOrder?.orderItems || []).reduce((groupedItems, order) => {
+            const key = order?.itemName;
+
+            if (!groupedItems[key]) {
+                groupedItems[key] = {
+                    orderItemID: order?.orderItemID,
+                    orderID: order?.orderID,
+                    itemName: order?.itemName,
+                    price: discounts[order?.orderID],
+                    orderItemSubVarieties: [],
+                    createdAt: order?.createdAt,
+                    updatedAt: order?.updatedAt,
+                    quantity: 1,
+                };
+            } else {
+                groupedItems[key].quantity += 1;
+            }
+
+            return groupedItems;
+        }, {})
+    );
+
+    const dataAssigned = {
+        orderID: dataOrder?.orderID,
+        accountID: dataOrder?.accountID,
+        paymentAmount: dataOrder?.orderValue,
+        orderStatus: dataOrder?.orderStatus,
+        branchID: dataOrder?.branchID,
+        merchantName: dataOrder?.merchantName,
+        image: dataOrder?.image,
+        isSplit: dataOrder?.isSplit,
+        pointAmount: dataOrder?.pointAmount,
+        orderItems: orderItemsAssign.map((item) => ({
+            ...item,
+            quantity: item.quantity ,
+            newPrice : item.quantity * item.price
+        })),
+        createdAt: dataOrder?.createdAt,
+        updatedAt: dataOrder?.updatedAt,
+    };
+
+    console.log("data assign", dataAssigned);
 
     const handleToHome = () => {
         navigation.navigate('Tabs');
@@ -32,7 +119,9 @@ function EReceipt({ navigation }) {
             <View style={styles.imageController}>
                 <Image
                     style={styles.imageHeader}
-                    source={require('../../assets/icons/confirm-icon.png')}
+                    source={{
+                        uri: `data:image/jpeg;base64,${dataOrder?.image}`,
+                    }}
                 />
                 <Text style={styles.title}>
                     Order Confirmed, Your Food is On The Way :)
@@ -87,7 +176,7 @@ function EReceipt({ navigation }) {
                                 fontSize: 16,
                             }}
                         >
-                            Order ID #237
+                            Order ID {dataAssigned?.orderID}
                         </Text>
                         <Text
                             style={{
@@ -95,7 +184,7 @@ function EReceipt({ navigation }) {
                                 fontSize: 14,
                             }}
                         >
-                            April 8th, 2022
+                            {dataAssigned?.date}
                         </Text>
                     </View>
                     <View
@@ -108,7 +197,7 @@ function EReceipt({ navigation }) {
                     >
                         <Image
                             style={{ width: 130, height: 130 }}
-                            source={require('../../assets/images/mechant-logo.png')}
+                            source={{ uri: `data:image/jpeg;base64,${dataAssigned?.image}` }}
                         />
                         <Text
                             style={{
@@ -119,61 +208,71 @@ function EReceipt({ navigation }) {
                         >
                             Order Completed
                         </Text>
-                        <View style={{ width: '100%', marginTop: '5%' }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                }}
-                            >
-                                <Text style={{ fontSize: 16, fontWeight: 400 }}>
-                                    Mushroom Signature
-                                </Text>
-                                <Text style={{ fontSize: 14, fontWeight: 400 }}>
-                                    x1
-                                </Text>
-                                <Text
-                                    style={{ fontWeight: '700', fontSize: 16 }}
-                                >
-                                    Rp 55,000
-                                </Text>
-                            </View>
-                            <View style={{ marginLeft: '9%' }}>
-                                <Text style={{ fontSize: 14, fontWeight: 400 }}>
-                                    [Spice, Mushroom]
-                                </Text>
-                            </View>
-                        </View>
 
-                        <View style={{ width: '100%', marginTop: '5%' }}>
-                            <View
+                    <ScrollView>
+                        {dataAssigned?.orderItems.map((order, index) => (
+                            <View key={index} style={{ width: '100%', marginTop: '5%' }}>
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-evenly',
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            fontSize: 16,
+                                            fontWeight: 400,
+                                        }}
+                                    >
+                                        {order.itemName}
+                                    </Text>
+                                    <Text style={{ fontSize: 14, fontWeight: 400, marginLeft:10 }}>
+                                        x{order.quantity}
+                                    </Text>
+                                    <Text style={{ fontWeight: '700', fontSize: 16, marginLeft:10 }}>
+                                        Rp. {order.newPrice}
+                                    </Text>
+                                </View>
+                                <View style={{ marginLeft: '9%' }}>
+                                    {order.orderItemSubVarieties.length > 0 && (
+                                        <Text
+                                            style={{
+                                                fontSize: 14,
+                                                fontWeight: 400,
+                                                marginTop: 10,
+                                            }}
+                                        >
+                                            [
+                                            {order.orderItemSubVarieties
+                                                .map(
+                                                    (or) =>
+                                                        or.subVariety
+                                                            .subVarName,
+                                                )
+                                                .join(', ')}
+                                            ]
+                                        </Text>
+                                    )}
+                                </View>
+                            </View>
+                        ))}
+                    </ScrollView>
+
+                        <View
+                            style={{ flexDirection: "row", marginTop: 20, marginLeft: '40%' }}
+                        >
+                            <Text
                                 style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    marginHorizontal: '9%',
+                                    fontSize: 16,
+                                    fontWeight: 700,
+                                    marginRight: 10,
                                 }}
                             >
-                                <Text style={{ fontSize: 16, fontWeight: 400 }}>
-                                    Chicken Hawaian
-                                </Text>
-                                <Text style={{ fontSize: 14, fontWeight: 400 }}>
-                                    x1
-                                </Text>
-                                <Text
-                                    style={{ fontWeight: '700', fontSize: 16 }}
-                                >
-                                    Rp 55,000
-                                </Text>
-                            </View>
-                            <View style={{ marginLeft: '9%' }}>
-                                <Text style={{ fontSize: 14, fontWeight: 400 }}>
-                                    [Spice, Mushroom]
-                                </Text>
-                            </View>
-                        </View>
-                        <View>
-                            <Text>Total</Text>
-                            <Text></Text>
+                                Total
+                            </Text>
+                            <Text style={{ fontSize: 16, fontWeight: 700 }}>
+                                Rp {dataOrder?.orderValue}
+                            </Text>
                         </View>
                     </View>
                 </ImageBackground>
@@ -181,28 +280,38 @@ function EReceipt({ navigation }) {
         );
     };
 
+
+
     const renderFooter = () => {
         return (
             <View
                 style={{
                     width: '100%',
                     position: 'absolute',
+                    top: 650,
                     bottom: '10%',
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}
             >
-                <Button
-                    buttonStyle={{
-                        width: '80%',
-                        borderRadius: 20,
-                        marginBottom: 15,
-                        backgroundColor: '#029094',
-                    }}
-                    title={'Split Bill'}
-                    titleStyle={{ fontWeight: 'bold', fontSize: 16 }}
-                    onPress={() => navigation.navigate('SplitBill')}
-                />
+                {route.params.isSplit ? (
+                    ``
+                ) : (
+                    <Button
+                        onPress={() =>
+                            navigation.navigate('SplitBill', { dataAssigned })
+                        }
+                        buttonStyle={{
+                            width: '80%',
+                            borderRadius: 20,
+                            marginBottom: 15,
+                            backgroundColor: '#029094',
+                        }}
+                        title={'Split Bill'}
+                        titleStyle={{ fontWeight: 'bold', fontSize: 16 }}
+                    />
+                )}
+
                 <Button
                     onPress={handleToHome}
                     buttonStyle={{
