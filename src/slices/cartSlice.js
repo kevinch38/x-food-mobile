@@ -1,14 +1,14 @@
-import {createSlice} from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
 export const cartSlice = createSlice({
     name: 'cart',
     initialState: {
         items: [],
         tempItems: [],
-        sale : 0
+        sale: 0,
     },
     reducers: {
-        addToCart: (state, {payload}) => {
+        addToCart: (state, { payload }) => {
             state.items = [...state.items, payload];
         },
 
@@ -32,8 +32,8 @@ export const cartSlice = createSlice({
             state.tempItems = [...state.tempItems, payload];
         },
 
-        removeFromTempCart: (state, {payload}) => {
-            const {itemID, itemVarieties} = payload;
+        removeFromTempCart: (state, { payload }) => {
+            const { itemID, itemVarieties } = payload;
 
             const foundIndex = state.tempItems.findIndex(
                 (item) => item.itemID === itemID,
@@ -61,38 +61,7 @@ export const cartSlice = createSlice({
             }
         },
 
-        // removeFromCart: (state, { payload }) => {
-        //     const { itemID, itemVarieties } = payload;
-        //
-        //     let found = false;
-        //     const updatedItems = state.items.filter((item) => {
-        //         if (!found && item.itemID === itemID && item.itemVarieties) {
-        //             const subVarietyIDs = item.itemVarieties.map(
-        //                 (variety) => variety.subVarietyID,
-        //             );
-        //             const payloadSubVarietyIDs = itemVarieties.map(
-        //                 (variety) => variety.subVarietyID,
-        //             );
-        //             const hasDuplicateSubVarietyID = subVarietyIDs.some(
-        //                 (subVarietyID) =>
-        //                     payloadSubVarietyIDs.includes(subVarietyID),
-        //             );
-        //
-        //             if (hasDuplicateSubVarietyID) {
-        //                 found = true;
-        //                 return false;
-        //             }
-        //         }
-        //         return true;
-        //     });
-        //
-        //     state.items = updatedItems;
-        // },
-
         removeFromCart: (state, { payload }) => {
-            console.log(payload.mergeID, 'cart Slice');
-
-            // Temukan index item dengan mergeID yang sesuai
             const indexToRemove = state.items.findIndex(
                 (item) => item.mergeID === payload.mergeID,
             );
@@ -109,8 +78,8 @@ export const cartSlice = createSlice({
         emptyTempCart: (state) => {
             state.tempItems = [];
         },
-        removeAll(state, {payload}) {
-            const {itemID, itemVarieties} = payload;
+        removeAll(state, { payload }) {
+            const { itemID, itemVarieties } = payload;
 
             const updatedItems = state.items.filter((item) => {
                 const isSameItemID = item.itemID === itemID;
@@ -154,7 +123,7 @@ export const {
     removeFromTempCart,
     addTempCartToCart,
     updateItem,
-    setPiece
+    setPiece,
 } = cartSlice.actions;
 export const selectCartItems = (state) => state.cart.items;
 export const selectCartTotal = (state) =>

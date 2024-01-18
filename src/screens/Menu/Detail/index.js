@@ -54,21 +54,21 @@ const Detail = ({ navigation }) => {
         }
     }, []);
     const handleIncrease = () => {
-        if (
-            tempItems.length > 0 &&
-            hasRequiredVarieties &&
-            itemVariety.length === 0
-        ) {
-            alert('Variety is Required');
-        } else {
-            const tempCartItem = {
-                ...item,
-                mergeID: mergeID,
-                itemPrice: price,
-                itemVarieties: itemVariety.length > 0 ? itemVariety : [],
-            };
-            dispatch(addToTempCart(tempCartItem));
-        }
+        // if (
+        //     tempItems.length > 0 &&
+        //     hasRequiredVarieties &&
+        //     itemVariety.length === 0
+        // ) {
+        //     alert('Variety is Required');
+        // } else {
+        const tempCartItem = {
+            ...item,
+            mergeID: mergeID,
+            itemPrice: price,
+            itemVarieties: itemVariety.length > 0 ? itemVariety : [],
+        };
+        dispatch(addToTempCart(tempCartItem));
+        // }
     };
     const handleDecrease = () => {
         dispatch(
@@ -80,6 +80,7 @@ const Detail = ({ navigation }) => {
     };
 
     const handleBack = () => {
+        dispatch(emptyTempCart());
         navigation.navigate('Menu');
     };
 
@@ -106,16 +107,23 @@ const Detail = ({ navigation }) => {
     };
 
     const handleAddToCart = () => {
-        dispatch(addTempCartToCart(tempItems));
-        dispatch(emptyTempCart());
+        if (
+            tempItems.length > 0 &&
+            hasRequiredVarieties &&
+            itemVariety.length === 0
+        ) {
+            alert('Variety is Required');
+        } else {
+            dispatch(addTempCartToCart(tempItems));
+            dispatch(emptyTempCart());
 
-        navigation.navigate('Cart');
+            navigation.navigate('Cart');
+        }
     };
 
     const hasRequiredVarieties = item.itemVarieties.some(
         (v) => v.variety.isRequired,
     );
-
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -123,40 +131,11 @@ const Detail = ({ navigation }) => {
                 <BackButton onPress={handleBack} />
                 <Image
                     source={{ uri: base64StringImage }}
-                    style={{
-                        marginTop: '5%',
-                        width: '90%',
-                        height: 206,
-                        marginHorizontal: '5%',
-                        borderRadius: 10,
-                    }}
+                    style={styles.image}
                 />
-                <Text
-                    style={{
-                        marginTop: 10,
-                        fontWeight: '900',
-                        fontSize: 24,
-                        marginHorizontal: '5%',
-                    }}
-                >
-                    {item.itemName}
-                </Text>
-                <View
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        marginTop: '5%',
-                    }}
-                >
-                    <Text
-                        style={{
-                            marginTop: 10,
-                            fontWeight: '400',
-                            fontSize: 20,
-                            marginHorizontal: '5%',
-                        }}
-                    >
+                <Text style={styles.textName}>{item.itemName}</Text>
+                <View style={styles.tagPrice}>
+                    <Text style={styles.price}>
                         {/*Rp. {price * qty}*/}
                         Rp.{' '}
                         {item.isDiscounted
@@ -169,36 +148,39 @@ const Detail = ({ navigation }) => {
                             disabled={tempItems.length <= 1}
                             onPress={handleDecrease}
                             title="-"
-                            buttonStyle={{
-                                width: 36,
-                                height: 36,
-                                backgroundColor:
+                            buttonStyle={[
+                                styles.buttonStyle,
+                                {
+                                    backgroundColor:
+                                        tempItems.length <= 1
+                                            ? '#fff'
+                                            : Color.primary,
+                                    borderColor:
+                                        tempItems.length <= 1
+                                            ? Color.primary
+                                            : Color.primary,
+                                    borderWidth: tempItems.length <= 1 ? 2 : 0,
+                                },
+                            ]}
+                            titleStyle={{
+                                fontWeight: 'bold',
+                                color:
                                     tempItems.length <= 1
-                                        ? Color.disabled
-                                        : Color.primary,
-                                borderRadius: 36 / 2,
+                                        ? Color.primary
+                                        : '#fff',
+                                fontSize: tempItems.length <= 1 ? 20 : 20,
                             }}
-                            titleStyle={{ fontWeight: 'bold' }}
                         />
-                        <Text
-                            style={{
-                                fontSize: 16,
-                                fontWeight: '900',
-                                marginTop: '5%',
-                                marginHorizontal: '8%',
-                            }}
-                        >
-                            {tempItems.length}
-                        </Text>
+                        <Text style={styles.count}>{tempItems.length}</Text>
                         <Button
                             onPress={handleIncrease}
                             title="+"
-                            buttonStyle={{
-                                width: 36,
-                                height: 36,
-                                backgroundColor: Color.primary,
-                                borderRadius: 36 / 2,
-                            }}
+                            buttonStyle={[
+                                styles.buttonStyle,
+                                {
+                                    backgroundColor: Color.primary,
+                                },
+                            ]}
                             titleStyle={{ fontWeight: 'bold' }}
                         />
                     </View>
@@ -231,9 +213,18 @@ const Detail = ({ navigation }) => {
                                                           }
                                                       >
                                                           <Text
-                                                              style={
-                                                                  styles.textNameVariety
-                                                              }
+                                                              style={[
+                                                                  styles.textNameVariety,
+                                                                  {
+                                                                      color:
+                                                                          s
+                                                                              .subVariety
+                                                                              .subVarStock <=
+                                                                          0
+                                                                              ? 'rgba(0,0,0,0.5)'
+                                                                              : '#000',
+                                                                  },
+                                                              ]}
                                                           >
                                                               {
                                                                   s.subVariety
@@ -266,9 +257,20 @@ const Detail = ({ navigation }) => {
                                                                   Color.primary
                                                               }
                                                               uncheckedColor="#fff"
-                                                              outerStyle={
-                                                                  styles.styleCheckBox
-                                                              }
+                                                              outerStyle={[
+                                                                  styles.styleCheckBox,
+                                                                  {
+                                                                      display:
+                                                                          s
+                                                                              .subVariety
+                                                                              .subVarStock <=
+                                                                              0 ||
+                                                                          tempItems <=
+                                                                              0
+                                                                              ? 'none'
+                                                                              : undefined,
+                                                                  },
+                                                              ]}
                                                               innerStyle={
                                                                   styles.styleCheckBox
                                                               }
@@ -281,6 +283,7 @@ const Detail = ({ navigation }) => {
                                                                           .subVariety
                                                                           .subVarPrice,
                                                                       s.subVariety,
+                                                                      s.subVarStock,
                                                                   )
                                                               }
                                                           />
@@ -302,9 +305,20 @@ const Detail = ({ navigation }) => {
                                                           }
                                                       >
                                                           <Text
-                                                              style={
-                                                                  styles.textNameVariety
-                                                              }
+                                                              style={[
+                                                                  styles.textNameVariety,
+                                                                  {
+                                                                      color:
+                                                                          s
+                                                                              .subVariety
+                                                                              .subVarStock <=
+                                                                              0 ||
+                                                                          tempItems <=
+                                                                              0
+                                                                              ? 'rgba(0,0,0,0.5)'
+                                                                              : '#000',
+                                                                  },
+                                                              ]}
                                                           >
                                                               {
                                                                   s.subVariety
@@ -337,9 +351,18 @@ const Detail = ({ navigation }) => {
                                                                   Color.primary
                                                               }
                                                               uncheckedColor="#fff"
-                                                              outerStyle={
-                                                                  styles.styleCheckBox
-                                                              }
+                                                              outerStyle={[
+                                                                  styles.styleCheckBox,
+                                                                  {
+                                                                      display:
+                                                                          s
+                                                                              .subVariety
+                                                                              .subVarStock <=
+                                                                          0
+                                                                              ? 'none'
+                                                                              : undefined,
+                                                                  },
+                                                              ]}
                                                               innerStyle={
                                                                   styles.styleCheckBox
                                                               }
@@ -352,6 +375,7 @@ const Detail = ({ navigation }) => {
                                                                           .subVariety
                                                                           .subVarPrice,
                                                                       s.subVariety,
+                                                                      s.subVarStock,
                                                                   )
                                                               }
                                                           />
@@ -431,6 +455,42 @@ const styles = StyleSheet.create({
         height: '100%',
         backgroundColor: '#fff',
     },
+    image: {
+        marginTop: '6%',
+        width: '90%',
+        height: 206,
+        marginHorizontal: '5%',
+        borderRadius: 10,
+    },
+    textName: {
+        marginTop: 10,
+        fontWeight: '900',
+        fontSize: 24,
+        marginHorizontal: '5%',
+    },
+    tagPrice: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: '5%',
+    },
+    price: {
+        marginTop: 10,
+        fontWeight: '400',
+        fontSize: 20,
+        marginHorizontal: '5%',
+    },
+    buttonStyle: {
+        width: 36,
+        height: 36,
+        borderRadius: 36 / 2,
+    },
+    count: {
+        fontSize: 16,
+        fontWeight: '900',
+        marginTop: '5%',
+        marginHorizontal: '8%',
+    },
     roundedCheckBox: {
         width: 22,
         height: 22,
@@ -461,7 +521,6 @@ const styles = StyleSheet.create({
     },
     wrapperNameVariaety: { width: 200 },
     textNameVariety: {
-        color: '#000',
         fontSize: 16,
         fontWeight: '500',
     },

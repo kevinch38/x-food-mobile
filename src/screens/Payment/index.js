@@ -21,9 +21,10 @@ function Payment({ navigation }) {
     const route = useRoute();
     const accountID = route.params?.accountID;
     const orderID = route.params?.orderID;
-    const [paymentCompleted, setPaymentCompleted] = useState(false); // Track payment completion
+    const [paymentCompleted, setPaymentCompleted] = useState(false);
 
-    console.log(orderID,'order id di payment')
+    console.log(orderID, 'order id di payment');
+    console.log(accountID, 'accountID');
 
     useEffect(() => {
         const completeOrder = async () => {
@@ -42,6 +43,7 @@ function Payment({ navigation }) {
                     navigation.navigate('Tabs');
                 }
             } catch (e) {
+                console.log(e);
                 Alert.alert(
                     'Balance',
                     'Your balance is not sufficient',

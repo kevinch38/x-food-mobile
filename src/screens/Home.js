@@ -43,10 +43,11 @@ const Home = ({ navigation }) => {
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
     const [cityId, setCityId] = useState(() => {
-        const findCityID = items.find(
+        const findCity = items.find(
             (item) => item.cityName === 'Kota Administrasi Jakarta Selatan',
         );
-        return findCityID ? findCityID.cityID : '';
+        console.log('findCityID:', findCity);
+        return findCity ? findCity.cityID : '';
     });
     const [isLoading, setIsLoading] = useState(false);
     const [userLoad, setUserLoad] = useState(false);
@@ -108,12 +109,6 @@ const Home = ({ navigation }) => {
         );
         return hasMatchingBranch;
     });
-
-    // items.filter((item) =>
-    //     item.cityName === ' Kota Administrasi Jakarta Selatan'
-    //         ? setCityId(item.cityID)
-    //         : setCityId(''),
-    // );
 
     const handleNotification = () => {
         navigation.navigate('Notification');

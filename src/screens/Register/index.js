@@ -8,6 +8,8 @@ import {
     StatusBar,
     TouchableOpacity,
     BackHandler,
+    Animated,
+    Alert,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import Color from '../../assets/Color';
@@ -24,6 +26,56 @@ export default function Register({ navigation }) {
     const { userService } = useContext(ServiceContext);
     const { users } = useSelector((state) => state.user);
     const { phoneNumber } = useSelector((state) => state.ui);
+    const [bottomAnim] = useState(new Animated.Value(-100));
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        if (visible) {
+            Animated.timing(bottomAnim, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: false,
+            }).start();
+
+            setTimeout(() => {
+                setVisible(false);
+                bottomAnim.setValue(-100);
+            }, 3000);
+        }
+    }, [visible, bottomAnim]);
+
+    useEffect(() => {
+        if (phoneNumber) {
+            dispatch(
+                userAction(async () => {
+                    const response =
+                        await userService.fetchUserByPhoneNumber(phoneNumber);
+                    const updateData = {
+                        ...response.data,
+                    };
+
+                    const values = {
+                        accountID: updateData.accountID,
+                        ktpID: updateData.ktpID,
+                        phoneNumber: updateData.phoneNumber,
+                        firstName: updateData.firstName,
+                        lastName: updateData.lastName,
+                        dateOfBirth: updateData.dateOfBirth,
+                    };
+                    setValues(values);
+                    return null;
+                }),
+            );
+        }
+    }, [dispatch, userService, setValues]);
+
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            () => true,
+        );
+        return () => backHandler.remove();
+    }, []);
 
     const Schema = yup.object().shape({
         firstName: yup
@@ -70,20 +122,32 @@ export default function Register({ navigation }) {
 
                 dispatch(
                     userRegisterAction(async () => {
-                        // const result = await userService.updateUser(values);
-                        // console.log(result, 'result-----');
                         try {
                             const result = await userService.updateUser(values);
                             if (result.statusCode === 200) {
-                                navigation.reset({
-                                    index: 0,
-                                    routes: [{ name: 'Tabs' }],
-                                });
+                                setVisible(true);
+                                setTimeout(() => {
+                                    navigation.reset({
+                                        index: 0,
+                                        routes: [{ name: 'Tabs' }],
+                                    });
+                                }, 3000);
                             } else if (result.statusCode === 409) {
                                 alert(`We're sorry, that email is taken`);
                             }
                         } catch (error) {
-                            alert(`message`, error);
+                            error.response.data.statusCode === 409
+                                ? Alert.alert(
+                                      'Message',
+                                      "We're sorry, that email is taken",
+                                      [
+                                          {
+                                              text: 'Ok',
+                                          },
+                                      ],
+                                      { cancelable: false },
+                                  )
+                                : alert(error.response.data.message);
                         }
                     }),
                 );
@@ -94,44 +158,35 @@ export default function Register({ navigation }) {
         validationSchema: Schema,
     });
 
-    useEffect(() => {
-        if (phoneNumber) {
-            dispatch(
-                userAction(async () => {
-                    const response =
-                        await userService.fetchUserByPhoneNumber(phoneNumber);
-                    const updateData = {
-                        ...response.data,
-                    };
-
-                    const values = {
-                        accountID: updateData.accountID,
-                        ktpID: updateData.ktpID,
-                        phoneNumber: updateData.phoneNumber,
-                        firstName: updateData.firstName,
-                        lastName: updateData.lastName,
-                        dateOfBirth: updateData.dateOfBirth,
-                    };
-                    setValues(values);
-                    return null;
-                }),
-            );
-        }
-    }, [dispatch, userService, setValues]);
-
-    useEffect(() => {
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            () => true,
-        );
-        return () => backHandler.remove();
-    }, []);
+    const isDisabled =
+        !isValid || !dirty || values.aggrement !== true
+            ? Color.disabled
+            : Color.primary;
 
     const handleInputFocus = (input) => {
         setFocusedInput(input);
     };
 
-    const isDisabled = !isValid || !dirty ? Color.disabled : Color.primary;
+    const renderPopup = () => {
+        return (
+            <View>
+                {visible && (
+                    <Animated.View
+                        style={[
+                            styles.popupContainer,
+                            {
+                                bottom: bottomAnim,
+                            },
+                        ]}
+                    >
+                        <Text style={styles.popupText}>
+                            Account Successfully Created
+                        </Text>
+                    </Animated.View>
+                )}
+            </View>
+        );
+    };
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -165,7 +220,10 @@ export default function Register({ navigation }) {
             <View style={styles.container}>
                 <View>
                     <View>
-                        <Text style={styles.labelStyle}>First Name</Text>
+                        <View style={styles.wrapperTitle}>
+                            <Text style={styles.labelStyle}>First Name </Text>
+                            <Text style={styles.labelRequired}>*</Text>
+                        </View>
                         <TextInput
                             style={[
                                 styles.input,
@@ -219,7 +277,10 @@ export default function Register({ navigation }) {
                         )}
                     </View>
                     <View>
-                        <Text style={styles.labelStyle}>Email</Text>
+                        <View style={styles.wrapperTitle}>
+                            <Text style={styles.labelStyle}>Email</Text>
+                            <Text style={styles.labelRequired}>*</Text>
+                        </View>
                         <TextInput
                             style={[
                                 styles.input,
@@ -269,13 +330,21 @@ export default function Register({ navigation }) {
                             </Text>
                         )}
                     </View>
-                    <TouchableOpacity
-                        style={[styles.button, { backgroundColor: isDisabled }]}
-                        onPress={handleSubmit}
-                        disabled={!isValid || !dirty}
-                    >
-                        <Text style={styles.textStyle}>Sign Up</Text>
-                    </TouchableOpacity>
+                    {renderPopup()}
+                    <View style={styles.wrapperButton}>
+                        <TouchableOpacity
+                            style={[
+                                styles.button,
+                                { backgroundColor: isDisabled },
+                            ]}
+                            onPress={handleSubmit}
+                            disabled={
+                                !isValid || !dirty || values.aggrement !== true
+                            }
+                        >
+                            <Text style={styles.textStyle}>LOGIN</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         </SafeAreaView>
@@ -305,10 +374,15 @@ const styles = StyleSheet.create({
         height: '100%',
         alignItems: 'center',
     },
-    button: {
-        borderRadius: 25,
-        padding: 15,
+    wrapperButton: {
         width: 350,
+        height: 'min-content',
+    },
+    button: {
+        borderRadius: 1000 / 2,
+        padding: 15,
+        height: '30%',
+        width: '100%',
     },
     buttonBack: {
         left: 20,
@@ -326,12 +400,19 @@ const styles = StyleSheet.create({
     backIcon: {
         width: 'auto',
     },
+    wrapperTitle: {
+        flexDirection: 'row',
+        marginTop: '2%',
+    },
     labelStyle: {
-        marginTop: 10,
         textAlign: 'left',
         fontWeight: '400',
         color: theme.dark,
         fontSize: 16,
+    },
+    labelRequired: {
+        color: theme.secondary,
+        fontSize: 15,
     },
     titleStyle: {
         textAlign: 'left',
@@ -348,8 +429,9 @@ const styles = StyleSheet.create({
         color: '#C4C4C4',
     },
     textStyle: {
+        fontSize: 20,
         color: 'white',
-        fontWeight: 'bold',
+        fontWeight: 'medium',
         textAlign: 'center',
     },
     errorText: {
@@ -372,5 +454,20 @@ const styles = StyleSheet.create({
         marginTop: 5,
         borderRadius: 10,
         borderColor: '#C4C4C4',
+    },
+    popupContainer: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: -100,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        padding: 4,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginHorizontal: 70,
+        borderRadius: 8,
+    },
+    popupText: {
+        color: 'white',
     },
 });

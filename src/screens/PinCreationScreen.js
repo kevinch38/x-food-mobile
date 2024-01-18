@@ -18,6 +18,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import Home from './Home';
 import UserService from '../services/UserService';
+import Loading from '../components/loading';
 
 const PinSchema = Yup.object().shape({
     pinValue: Yup.string()
@@ -122,19 +123,20 @@ const PinCreationScreen = ({ navigation }) => {
         <View style={styles.centeredView}>
             <Home navigation={navigation} />
             {isLoading && (
-                <ActivityIndicator
-                    style={{
-                        position: 'absolute',
-                        zIndex: 2,
-                        width: '100%',
-                        height: '100%',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semitransparent white background
-                    }}
-                    size="large"
-                    color="#FFC529"
-                />
+                <Loading />
+                // <ActivityIndicator
+                //     style={{
+                //         position: 'absolute',
+                //         zIndex: 2,
+                //         width: '100%',
+                //         height: '100%',
+                //         alignItems: 'center',
+                //         justifyContent: 'center',
+                //         backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semitransparent white background
+                //     }}
+                //     size="large"
+                //     color="#FFC529"
+                // />
             )}
             {!modalVisible && pinIDFetched && !pinIDExists && !isLoading && (
                 <BlurView

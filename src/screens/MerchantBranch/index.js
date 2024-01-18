@@ -19,31 +19,18 @@ import Loading from '../../components/loading';
 const Merchant = ({ navigation }) => {
     const dispatch = useDispatch();
     const merchant = useSelector((state) => state.merchant.selectedMerchant);
-    // const branchs = useSelector((state) => state.merchantBranch.branchs);
     const { merchantService, merchantBranchService } =
         useContext(ServiceContext);
     const route = useRoute();
     const receivedId = route.params?.id;
-
     const [branches, setBranches] = useState([]);
-
     const [isLoading, setIsLoading] = useState(true);
-
-    // const filteredBranch = branches.filter(
-    //     (branch) => branch.city.cityID === cityId,
-    // );
-
     const handleBack = () => {
         navigation.navigate('Tabs');
     };
-
     const handleToMenu = (branchId) => {
         navigation.navigate('Menu', { branchId });
     };
-
-    // useEffect(() => {
-    //     setBranches(merchant.merchantBranches);
-    // }, [merchant.merchantBranches]);
 
     useEffect(() => {
         const onGetMerchant = async () => {
@@ -64,26 +51,6 @@ const Merchant = ({ navigation }) => {
         };
         onGetMerchant();
     }, [dispatch, merchantService]);
-
-    // useEffect(() => {
-    //     const onGetMerchantBranch = async () => {
-    //         try {
-    //             setIsLoading(true);
-
-    //             await dispatch(
-    //                 merchantBranchAction(() =>
-    //                     merchantBranchService.fetchMerchantBranchs(receivedId),
-    //                 ),
-    //             );
-
-    //             setIsLoading(false);
-    //         } catch (error) {
-    //             console.error('Error fetching merchant:', error);
-    //             setIsLoading(false);
-    //         }
-    //     };
-    //     onGetMerchantBranch();
-    // }, [dispatch, merchantBranchService]);
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -119,11 +86,11 @@ const Merchant = ({ navigation }) => {
                         </View>
                     </View>
                     <View
-                        style={{ marginTop: '20%', justifyContent: 'center' }}
+                        style={{ marginTop: '15%', justifyContent: 'center' }}
                     >
                         <Text
                             style={{
-                                fontSize: 20,
+                                fontSize: 22,
                                 fontWeight: '900',
                                 textAlign: 'center',
                             }}
@@ -133,7 +100,7 @@ const Merchant = ({ navigation }) => {
                         <Text
                             style={{
                                 textAlign: 'center',
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontWeight: '300',
                             }}
                         >

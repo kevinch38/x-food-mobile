@@ -56,9 +56,9 @@ function Cart({ navigation }) {
     const { selectedMerchant } = useSelector((state) => state.merchant);
     const [voucherID, setVoucherID] = useState('');
 
-    // const filteredVoucher = vouchers.filter(
-    //     (voucher) => voucher.merchantID === selectedMerchant.merchantID,
-    // );
+    const filteredVouchers = vouchers.filter((voucher) => {
+        return voucher.merchantID === selectedMerchant.merchantID;
+    });
 
     const validationButton =
         balanceUser <= 0 || cartItems.length === 0 || isValid || dirty
@@ -207,33 +207,12 @@ function Cart({ navigation }) {
                             branchID: selectedBranch.branchID,
                             orderItems: result,
                         };
-                        dispatch(
-                            createOrderAction(async () => {
-                                try {
-                                    const result =
-                                        await orderService.orderItem(
-                                            orderItems,
-                                        );
-                                    if (result.statusCode === 201) {
-                                        navigation.navigate('Pin', {
-                                            accountID: result.data.accountID,
-                                            orderID: result.data.orderID,
-                                            destination: 'Payment',
-                                        });
-                                        dispatch(emptyCart());
-                                        if (voucherID) {
-                                            await voucherService.deleteVoucher(
-                                                voucherID,
-                                            );
-                                        }
-                                        return result;
-                                    }
-                                    return null;
-                                } catch (e) {
-                                    console.log('error e', e);
-                                }
-                            }),
-                        );
+
+                        navigation.navigate('Pin', {
+                            destination: 'Payment',
+                            orderItems: orderItems,
+                            voucherID: voucherID,
+                        });
                     } catch (e) {
                         console.error('error e', e);
                     }
@@ -255,7 +234,7 @@ function Cart({ navigation }) {
     };
 
     const handleBack = () => {
-        navigation.navigate('Menu');
+        navigation.goBack();
     };
 
     const handleClose = (item) => {
@@ -404,7 +383,7 @@ function Cart({ navigation }) {
                     placeholderStyle={styles.placeholderStyle}
                     selectedTextStyle={styles.selectedTextStyle}
                     imageStyle={styles.imageStyle}
-                    data={vouchers}
+                    data={filteredVouchers}
                     imageField={convertImage('logoImage')}
                     labelField="promotionName"
                     valueField="voucherValue"

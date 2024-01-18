@@ -19,21 +19,24 @@ import { useDispatch, useSelector } from 'react-redux';
 import { userAction } from '../../slices/userSlice';
 import { ServiceContext } from '../../context/ServiceContext';
 import { pinAction, pinCheckAction } from '../../slices/pinSlice';
+import { emptyCart } from '../../slices/cartSlice';
+import VoucherService from '../../services/VoucherService';
+import { createOrderAction } from '../../slices/orderSlice';
 
 function Pin({ navigation }) {
     const dispatch = useDispatch();
     const route = useRoute();
+    const voucherService = VoucherService();
+    const [isLoading, setIsLoading] = useState(false);
+    const { pinService, orderService } = useContext(ServiceContext);
     const orderItem = route.params?.cartItems;
     const { users } = useSelector((state) => state.user);
     const { order } = useSelector((state) => state.order);
     const { pin } = useSelector((state) => state.pin);
-    const [isLoading, setIsLoading] = useState(false);
-    const { pinService, orderService } = useContext(ServiceContext);
-    const accountID = route.params?.accountID;
-    const orderID = route.params?.orderID;
     const paymentID = route.params?.paymentID;
+    const voucherID = route.params?.voucherID;
     const destination = route.params?.destination;
-    const sale = route.params?.sale;
+    const orderItems = route.params?.orderItems;
 
     const input1Ref = useRef();
     const input2Ref = useRef();
@@ -78,19 +81,44 @@ function Pin({ navigation }) {
                             pin: verificationCode,
                         });
 
-
                         if (result.data) {
-                            destination === 'Payment'
-                                ? navigation.navigate('Payment', {
-                                      accountID: accountID,
-                                      orderID: orderID,
-                                  })
-                                : navigation.navigate(
-                                      'CompletePaymentSpiltBill',
-                                      {
-                                          paymentID: paymentID,
-                                      },
-                                  );
+                            if (destination === 'Payment') {
+                                dispatch(
+                                    createOrderAction(async () => {
+                                        try {
+                                            const result =
+                                                await orderService.orderItem(
+                                                    orderItems,
+                                                );
+                                            if (result.statusCode === 201) {
+                                                navigation.navigate('Payment', {
+                                                    accountID:
+                                                        result.data.accountID,
+                                                    orderID:
+                                                        result.data.orderID,
+                                                });
+                                                dispatch(emptyCart());
+                                                if (voucherID) {
+                                                    await voucherService.deleteVoucher(
+                                                        voucherID,
+                                                    );
+                                                }
+                                                return result;
+                                            }
+                                            return null;
+                                        } catch (e) {
+                                            alert(e.response.data.message);
+                                        }
+                                    }),
+                                );
+                            } else {
+                                navigation.navigate(
+                                    'CompletePaymentSpiltBill',
+                                    {
+                                        paymentID: paymentID,
+                                    },
+                                );
+                            }
                         } else {
                             Alert.alert(
                                 'Verifikasi gagal',
@@ -99,7 +127,7 @@ function Pin({ navigation }) {
                         }
                     } catch (error) {
                         Alert.alert(
-                            'Verifikasi gagal 1',
+                            'Verifikasi gagal ',
                             'Kode verifikasi salah.',
                         );
                     }

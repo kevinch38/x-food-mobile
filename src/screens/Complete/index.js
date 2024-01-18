@@ -20,8 +20,6 @@ function Complete({ navigation }) {
     const orderID = route.params?.orderID;
     const accountID = route.params?.accountID;
 
-    console.log(orderID, 'ini order ID di Complete')
-
     useEffect(() => {
         const backHandler = BackHandler.addEventListener(
             'hardwareBackPress',
@@ -30,7 +28,10 @@ function Complete({ navigation }) {
         return () => backHandler.remove();
     }, []);
     const handleTrackOrder = (orderID, accountID) => {
-        navigation.navigate('EReceipt',{orderID: orderID, accountID:accountID});
+        navigation.navigate('EReceipt', {
+            orderID: orderID,
+            accountID: accountID,
+        });
     };
 
     const renderHeader = () => {

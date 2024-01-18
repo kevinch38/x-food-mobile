@@ -13,7 +13,7 @@ const CardMenu = ({
 }) => {
     const base64StringImage = `data:image/jpeg;base64,${image}`;
 
-    const display = itemStock <= 0 ? '' : 'none';
+    // const display = itemStock <= 0 ? '' : 'none';
 
     const opacity = itemStock <= 0 ? 0.7 : 1;
     const isOutOfStock =
@@ -42,16 +42,16 @@ const CardMenu = ({
                         </Text>
                     </View>
 
-                    <View
-                        style={[
-                            styles.stock,
-                            { backgroundColor: isOutOfStock, display: display },
-                        ]}
-                    >
-                        <Text style={{ fontWeight: '700' }}>
-                            {itemStock <= 0 ? 'Out of Stock' : ''}
-                        </Text>
-                    </View>
+                    {/*<View*/}
+                    {/*    style={[*/}
+                    {/*        styles.stock,*/}
+                    {/*        { backgroundColor: isOutOfStock, display: display },*/}
+                    {/*    ]}*/}
+                    {/*>*/}
+                    {/*    <Text style={{ fontWeight: '700' }}>*/}
+                    {/*        {itemStock <= 0 ? 'Out of Stock' : ''}*/}
+                    {/*    </Text>*/}
+                    {/*</View>*/}
                 </View>
 
                 <Image
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         opacity: 1,
         top: '50%',
-        left: '90%',
+        left: '50%',
     },
     itemName: {
         fontWeight: '900',
