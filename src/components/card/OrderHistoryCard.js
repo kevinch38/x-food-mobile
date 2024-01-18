@@ -38,11 +38,6 @@ const OrderHistoryCard = ({
                                     borderRadius: 18.214,
                                 }}
                                 resizeMode="cover"
-                                // onLoadStart={() => console.log('Mulai memuat gambar')}
-                                // onLoadEnd={() => console.log('Selesai memuat gambar')}
-                                onError={(error) =>
-                                    console.error('Error memuat gambar:', error)
-                                }
                             />
                         </View>
                     </View>
@@ -81,25 +76,8 @@ const OrderHistoryCard = ({
                                 {status}
                             </Text>
                         </View>
-                        <Text
-                            style={{
-                                marginLeft: 80,
-                                fontSize: 12,
-                                color: '#9796A1',
-                                position: 'absolute',
-                            }}
-                        >
-                            {items} Items
-                        </Text>
-                        <Text
-                            style={{
-                                marginLeft: 125,
-                                color: '#FE724C',
-                                position: 'absolute',
-                            }}
-                        >
-                            {formatIDRCurrency(orderValue)}
-                        </Text>
+                        <Text style={{marginLeft:80, fontSize:12, color:'#9796A1', position:'absolute'}}>{items} Items</Text>
+                        <Text style={{marginLeft:125, color:'#FE724C',  position:'absolute'}}>{orderValue}</Text>
                     </View>
                 </View>
             </View>
@@ -122,11 +100,12 @@ const styles = StyleSheet.create({
         elevation: 5,
         shadowColor: '#D3D1D8',
         shadowOffset: {
-            width: 18.214,
-            height: 18.214,
+            width: 1,
+            height: 1,
         },
         shadowOpacity: 0.25,
-        shadowRadius: 36.42,
+        shadowRadius: 1
+
     },
     image: {
         margin: 40,

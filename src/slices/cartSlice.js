@@ -66,7 +66,6 @@ export const cartSlice = createSlice({
                 (item) => item.mergeID === payload.mergeID,
             );
 
-            // Hapus satu item dari array jika ditemukan
             if (indexToRemove !== -1) {
                 state.items.splice(indexToRemove, 1);
             }

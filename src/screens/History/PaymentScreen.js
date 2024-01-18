@@ -1,10 +1,11 @@
-import { View, ScrollView, TouchableOpacity } from 'react-native';
-import HistoryCard from '../../components/HistoryCard';
-import React, { useEffect, useState } from 'react';
-import UserService from '../../services/UserService';
-import HistoryService from '../../services/HistoryService';
-import { useSelector } from 'react-redux';
-import { format } from 'date-fns';
+import {View, ScrollView, TouchableOpacity} from "react-native";
+import HistoryCard from "../../components/HistoryCard";
+import React, {useEffect, useState} from "react";
+import UserService from "../../services/UserService";
+import HistoryService from "../../services/HistoryService";
+import {useSelector} from "react-redux";
+import {format} from "date-fns";
+import {formatIDRCurrency} from "../../utils/utils";
 
 const PaymentScreen = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
@@ -31,15 +32,14 @@ const PaymentScreen = () => {
         try {
             const historyPayment =
                 await historyService.getAllPaymentHistoryByAccountId(id);
-            setPayments(historyPayment.data);
-            // console.log("=========================>",historyPayment.data);
+            const sortedPayment = historyPayment.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setPayments(sortedPayment);
         } catch (error) {
             console.error('Error fetching user data2:', error);
         }
     };
 
     const getAllHistoriesWithStatus = async () => {
-        // console.log("+++++++++++++++++++++++++>",payments);
         payments.forEach((payment) => {
             let status = '';
             let content = '';
@@ -124,30 +124,28 @@ const PaymentScreen = () => {
     }, [id, payments]);
 
     return (
-        <ScrollView style={{ height: 'min-height' }}>
-            {payments.map((payment, index) => (
-                <TouchableOpacity key={index}>
-                    <HistoryCard
-                        date={format(
-                            new Date(payment.createdAt),
-                            'dd MMM, HH:mm',
-                        )}
-                        title={paymentStatus[payment.paymentID]}
-                        content={paymentContet[payment.paymentID]}
-                        amount={payment.paymentAmount}
-                        image={
-                            payment.accountID === users.accountID
-                                ? {
-                                      uri: `data:image/jpeg;base64,${payment.friend.imageAccount2}`,
-                                  }
-                                : {
-                                      uri: `data:image/jpeg;base64,${payment.friend.imageAccount1}`,
-                                  }
-                        }
-                    />
-                </TouchableOpacity>
-            ))}
-        </ScrollView>
+        <View>
+            <ScrollView>
+                {payments.map((payment, index) => (
+                    <TouchableOpacity key={index}>
+                        <HistoryCard
+                            date={format(
+                                new Date(payment.createdAt),
+                                'dd MMM, HH:mm',
+                            )}
+                            title={paymentStatus[payment.paymentID]}
+                            content={paymentContet[payment.paymentID]}
+                            amount={formatIDRCurrency(payment.paymentAmount)}
+                            image={
+                                payment.accountID === users.accountID
+                                    ? payment.friend.imageAccount2
+                                    : payment.friend.imageAccount1
+                            }
+                        />
+                    </TouchableOpacity>
+                ))}
+            </ScrollView>
+        </View>
     );
 };
 

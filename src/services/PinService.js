@@ -17,7 +17,16 @@ const PinService = () => {
         return data;
     };
 
-    return { getPin, pinCheck };
+    const updatePin = async (user) => {
+        const { data } = await axiosInstance.put(
+            `${apiBaseUrl}/api/pins`,
+            user,
+        );
+
+        return data;
+    }
+
+    return { getPin, pinCheck, updatePin };
 };
 
 export default PinService;

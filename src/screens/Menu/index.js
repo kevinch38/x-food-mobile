@@ -48,8 +48,6 @@ const Menu = ({ navigation }) => {
         const onGetMerchantBranch = async () => {
             try {
                 setIsLoading(true);
-                // console.log(branch, 'branchId');
-
                 await dispatch(
                     selectedMerchantBranchAction(() =>
                         merchantBranchService.fetchMerchantBranchById(branchId),

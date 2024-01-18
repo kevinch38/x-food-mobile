@@ -1,34 +1,19 @@
-import {
-    Alert,
-    Image,
-    SafeAreaView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
-} from 'react-native';
-import BackButton from '../../components/backButton';
-import { theme } from '../../theme';
-import React, { useEffect, useRef, useState } from 'react';
-import Color from '../../assets/Color';
+import React, {useEffect, useRef, useState} from "react";
 import {useSelector} from "react-redux";
 import PinService from "../../services/PinService";
+import {Image, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, View} from "react-native";
+import BackButton from "../../components/backButton";
+import Color from "../../assets/Color";
+import {theme} from "../../theme";
+import {useRoute} from "@react-navigation/native";
 
-function ChangePin({ navigation }) {
+const UpdateNewPin = ({navigation}) => {
     const [isFocused, setIsFocused] = useState(false);
     const {users}  = useSelector((state) => state.user);
     const pinService = PinService();
+    const route = useRoute();
+    const inputPin = route.params?.dataInput;
 
-
-
-    const handleFocus = () => {
-        setIsFocused(true);
-    };
-
-    const handleBlur = () => {
-        setIsFocused(false);
-    };
 
     const input1Ref = useRef();
     const input2Ref = useRef();
@@ -43,28 +28,6 @@ function ChangePin({ navigation }) {
     const [input4, setInput4] = useState('');
     const [input5, setInput5] = useState('');
     const [input6, setInput6] = useState('');
-
-    const checkPin = async () => {
-        try {
-            const verificationCode =
-                input1 + input2 + input3 + input4 + input5 + input6;
-            if (input6.length === 1){
-                const result = await pinService.pinCheck({
-                    pinID: users.pinID,
-                    pin: verificationCode,
-                });
-                if (result.data) {
-                    navigation.navigate("SetupNewPin");
-                } else {
-                    Alert.alert('Verifikasi gagal', 'Kode verifikasi salah.');
-                }
-            }
-
-        } catch (error) {
-            console.error("Error during pinCheck:", error);
-        }
-    };
-
 
     const handleTextChange = (
         text,
@@ -81,6 +44,40 @@ function ChangePin({ navigation }) {
         }
     };
 
+    useEffect(() => {
+        handleInput()
+    }, [input6]);
+
+    const handleInput = async () => {
+        const input = input1 + input2 + input3 + input4 + input5 + input6;
+        try {
+            if (input.length === 6) {
+                if (input === inputPin) {
+                    const result = await pinService.updatePin({
+                        pinID: users.pinID,
+                        pin: input,
+                    });
+                    if (result.statusCode === 200){
+                        alert("Success Change PIN");
+                        navigation.navigate("Tabs");
+                    }
+                } else {
+                    alert("Pin Doesn't Match");
+                }
+            }
+        } catch (error) {
+            console.error("Error during pinCheck:", error);
+        }
+    }
+
+    const handleFocus = () => {
+        setIsFocused(true);
+    };
+
+    const handleBlur = () => {
+        setIsFocused(false);
+    };
+
     const renderHeader = () => {
         return (
             <View>
@@ -91,7 +88,7 @@ function ChangePin({ navigation }) {
                         style={styles.imageHeader}
                         source={require('../../assets/images/pin-image.png')}
                     />
-                    <Text style={styles.title}>Confirm Old PIN</Text>
+                    <Text style={styles.title}>Confirm New Pin</Text>
                     <Text style={styles.subTitle}>
                         Verify 6-digit security PIN
                     </Text>
@@ -196,11 +193,9 @@ function ChangePin({ navigation }) {
                 />
             </View>
         );
-    };
 
-    useEffect(() => {
-        checkPin();
-    }, [input6]);
+    }
+
     return (
         <SafeAreaView style={styles.controller}>
             <View>
@@ -210,6 +205,7 @@ function ChangePin({ navigation }) {
         </SafeAreaView>
     );
 }
+
 
 const styles = StyleSheet.create({
     controller: {
@@ -261,4 +257,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
 });
-export default ChangePin;
+
+
+export default UpdateNewPin;

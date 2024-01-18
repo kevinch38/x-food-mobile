@@ -12,6 +12,7 @@ import React, { useEffect, useState } from 'react';
 import HistoryService from '../../services/HistoryService';
 import { format } from 'date-fns';
 import { useNavigation } from '@react-navigation/native';
+import {formatIDRCurrency} from "../../utils/utils";
 
 const OrderScreen = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
@@ -49,7 +50,8 @@ const OrderScreen = () => {
         try {
             const historyOrder =
                 await historyService.getAllOrderByAccountId(id);
-            setOrder(historyOrder.data);
+            const sortedOrder = historyOrder.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setOrder(sortedOrder);
         } catch (error) {
             console.error('Error fetching user data2:', error);
         }
@@ -80,50 +82,46 @@ const OrderScreen = () => {
     }, [order]);
 
     return (
-        <ScrollView
-            style={{
-                marginHorizontal: '10%',
-                width: '100%',
-                marginBottom: '10%',
-                paddingTop: '5%',
-            }}
-        >
-            {order.map((orderItem, index) => (
-                <Pressable
-                    key={index}
-                    onPress={() => {
-                        navigation.navigate('EReceipt', {
-                            orderID: orderItem.orderID,
-                            image: orderItem.image,
-                            date: format(
-                                new Date(orderItem.createdAt),
-                                'dd MMM, HH:mm',
-                            ),
-                            total: orderItem.orderValue,
-                            orderItems: orderItem.orderItems,
-                            isSplit: orderItem.isSplit,
-                        });
-                    }}
-                    disabled={
-                        orderItem.orderStatus === 'WAITING_FOR_PAYMENT' ||
-                        orderItem.orderStatus === 'REJECTED'
-                    }
-                >
-                    <OrderHistoryCard
-                        image={orderItem.image}
-                        items={orderItem.quantity}
-                        title={orderItem.merchantName}
-                        date={format(
-                            new Date(orderItem.createdAt),
-                            'dd MMM, HH:mm',
-                        )}
-                        status={status[orderItem.orderID]}
-                        orderValue={orderItem.orderValue}
-                        isSplit={orderItem.isSplit}
-                    />
-                </Pressable>
-            ))}
-        </ScrollView>
+        <View style={{ margin: 5 }}>
+            <ScrollView style={{marginBottom:250}}>
+                    {order.map((orderItem, index) => (
+                        <Pressable
+                            key={index}
+                            onPress={() => {
+                                navigation.navigate('EReceipt', {
+                                    orderID: orderItem.orderID,
+                                    image : orderItem.image,
+                                    date : format(
+                                        new Date(orderItem.createdAt),
+                                        'dd MMM, HH:mm',
+                                    ),
+                                    total : orderItem.orderValue,
+                                    orderItems : orderItem.orderItems,
+                                    isSplit : orderItem.isSplit
+                                });
+                            }}
+
+                            disabled={orderItem.orderStatus === "WAITING_FOR_PAYMENT" || orderItem.orderStatus === "REJECTED"}
+                        >
+
+                            <OrderHistoryCard
+                                image={orderItem.image}
+                                items={orderItem.quantity}
+                                title={orderItem.merchantName}
+                                date={format(
+                                    new Date(orderItem.createdAt),
+                                    'dd MMM, HH:mm',
+                                )}
+                                status={status[orderItem.orderID]}
+                                orderValue={formatIDRCurrency(orderItem.orderValue)}
+                                isSplit={orderItem.isSplit}
+                            />
+
+                        </Pressable>
+                    ))}
+
+            </ScrollView>
+        </View>
     );
 };
 

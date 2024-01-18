@@ -68,7 +68,6 @@ const userSlice = createSlice({
                     console.log(`we're sorry, that email taken`);
                 } else {
                     alert(errorPayload);
-                    // console.log(errorPayload, 'error slice payload');
                 }
             });
         builder.addCase(

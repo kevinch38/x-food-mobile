@@ -272,7 +272,6 @@ function Pin({ navigation }) {
 
     return (
         <SafeAreaView style={styles.controller}>
-            {/*<Button title={'tt'} onPress={console.log(order, 'di pin')} />*/}
             <View>
                 {renderHeader()}
                 {renderPin()}

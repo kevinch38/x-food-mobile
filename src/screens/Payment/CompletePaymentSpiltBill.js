@@ -57,7 +57,7 @@ function CompletePaymentSpiltBill({ navigation, route }) {
             try {
                 setIsLoading(true);
 
-                console.log('Fetching data for paymentID:', paymentID);
+                // console.log('Fetching data for paymentID:', paymentID);
 
                 if (paymentID) {
                     const result =

@@ -28,7 +28,6 @@ const pinSlice = createSlice({
         });
         builder.addCase(pinCheckAction.fulfilled, (state, { payload }) => {
             if (payload) {
-                // console.log(payload.data, 'data slice update order');
                 state.checkPin = payload.data;
             }
         });

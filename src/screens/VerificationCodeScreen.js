@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
     Image,
     StyleSheet,
@@ -28,8 +28,14 @@ const VerificationCodeScreen = () => {
     const navigation = useNavigation();
     const route = useRoute();
     const userService = UserService();
+    const inputRefs = [useRef(),useRef(), useRef(), useRef()];
 
     useEffect(() => {
+        inputRefs.forEach((ref, index) => {
+            if (ref.current) {
+                ref.current.index = index;
+            }
+        });
         fetchOtpID(phoneNumber);
     }, [phoneNumber]);
 
@@ -37,8 +43,6 @@ const VerificationCodeScreen = () => {
         try {
             const userData =
                 await userService.fetchUserByPhoneNumber(phoneNumber);
-            // console.log('userData:', userData);
-
             if (userData && userData.data.otpID) {
                 setFirstName(userData.data.firstName);
                 setOtpID(userData.data.otpID);
@@ -53,6 +57,18 @@ const VerificationCodeScreen = () => {
         }
     };
 
+    const handleBackspace = (currentIndex) => {
+        if (currentIndex > 0) {
+            const previousIndex = currentIndex - 1;
+            inputRefs[previousIndex].current.focus();
+
+            const updatedCode = [...verificationCode];
+            updatedCode[currentIndex] = '';
+            setVerificationCode(updatedCode);
+        }
+    };
+
+
     const handleInputChange = (text, index) => {
         const updatedCode = [...verificationCode];
         updatedCode[index] = text;
@@ -60,6 +76,12 @@ const VerificationCodeScreen = () => {
 
         const enteredCode = updatedCode.join('');
         checkOTP(enteredCode);
+
+        if (text === '' && index > 0) {
+            inputRefs[index - 1].current.focus();
+        } else if (text !== '' && index < inputRefs.length - 1) {
+            inputRefs[index + 1].current.focus();
+        }
     };
 
     const checkOTP = async (enteredCode) => {
@@ -76,17 +98,11 @@ const VerificationCodeScreen = () => {
                             enteredOtp: enteredCode,
                         },
                     );
-
                     const data = response.data;
-
-                    // console.log(data , 'in data')
-
                     if (data.statusCode == 200) {
                         await AsyncStorage.setItem('token', data.data.token);
                     }
 
-                    // console.log('Check OTP response:', data);
-                    // console.log(firstName);
                     if (data.data.check && firstName === '') {
                         setIsValidCode(true);
                         // console.log('Code is valid. Navigating to Register.');
@@ -153,6 +169,7 @@ const VerificationCodeScreen = () => {
                 {verificationCode.map((value, index) => (
                     <TextInput
                         key={index}
+                        ref={inputRefs[index]}
                         style={[
                             style.input,
                             {

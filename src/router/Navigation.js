@@ -34,6 +34,8 @@ import SplitBillAddPosition from '../screens/SplitBill/SplitBillAddPosition';
 import SplitBillPosition from '../screens/SplitBill/SplitBillPosition';
 import SplitBillSuccess from '../screens/SplitBill/SplitBillSuccess';
 import SplitBillTrack from '../screens/SplitBill/SplitBillTrack';
+import SetupNewPin from "../screens/Pin/SetupNewPin";
+import UpdateNewPin from "../screens/Pin/UpdateNewPin";
 
 const Stack = createStackNavigator();
 
@@ -83,6 +85,9 @@ const Navigation = () => {
                     component={Pin}
                 />
                 <Stack.Screen name={'ChangePin'} component={ChangePin} />
+                <Stack.Screen name={'SetupNewPin'} component={SetupNewPin} />
+                <Stack.Screen name={'UpdateNewPin'} component={UpdateNewPin} />
+
                 <Stack.Screen name="EReceipt" component={EReceipt} />
                 <Stack.Screen name="Complete" component={Complete} />
                 <Stack.Screen

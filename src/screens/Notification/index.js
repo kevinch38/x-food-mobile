@@ -249,7 +249,6 @@ function Notification() {
             <View>
                 <PaymentReceipt
                     title={paymentTitle[paymentData.paymentID]}
-                    // display={paymentDisplay[paymentData.paymentID]}
                     name={
                         paymentData.accountID === users.accountID
                             ? paymentData.friend.accountFirstName2
@@ -264,7 +263,7 @@ function Notification() {
                         paymentData.orderItems,
                         paymentData.orderItemSplits,
                     )}
-                    totalAmount={paymentData.paymentAmount}
+                    totalAmount={formatIDRCurrency(paymentData.paymentAmount)}
                     titleButton={paymentTitleButton[paymentData.paymentID]}
                     onPress={
                         paymentTitleButton[paymentData.paymentID] === 'Pay'
