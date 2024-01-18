@@ -1,16 +1,17 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View, Button, Pressable} from "react-native";
+import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React, {useEffect, useState} from "react";
-import { format } from 'date-fns';
 import VoucherService from "../services/VoucherService";
-import PromotionService from "../services/PromotionService";
 import {theme} from "../theme";
+import { format } from 'date-fns';
+import {useSelector} from "react-redux";
 
 
-const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, points, isMaxRedeemed, promotionID, accountID, voucherEmpty,onRedeemPress}) => {
-    console.log("Vouchers Left for Promotion ID", promotionID, ":", vouchersLeft);
-    console.log("voucher empty",voucherEmpty);
-    console.log("is max redeem", isMaxRedeemed)
+
+const RedeemCard = ({image, title, percenOff, vouchersLeft, expired, points, isMaxRedeemed, promotionID, accountID, voucherEmpty,onRedeemPress, maxRedeem, loyaltyPoint}) => {
     const formattedExpiredDate = format(new Date(expired), 'yyyy/MM/dd');
+    const isExpired = new Date(expired) < new Date();
+    const { users } = useSelector((state) => state.user);
+
     const handleRedeem = async () => {
         try {
 
@@ -40,26 +41,28 @@ const RedeemCard = ({image,items, title, percenOff, vouchersLeft, expired, point
                         <Text style={{marginTop:-36, fontSize:13}}>Vouchers Left : {vouchersLeft}</Text>
                         <Text style={{marginTop:30, fontSize:11}}>Expired Date:{formattedExpiredDate}</Text>
                     </View>
+                    <View>
                     <View style={{flexDirection:"row", marginLeft:-40, marginTop:10}}>
-                        <View>
-                            <Text style={{fontSize:12, color:'#9796A1'}}>{percenOff}% Off</Text>
-                            <Text style={{fontWeight:900, fontSize:16}}>{title}</Text>
+                        <View style={{flexDirection:'row'}}>
+                            <Text style={{fontSize:12, color:'#9796A1'}}>{percenOff} Off</Text>
+                            <Text style={{marginLeft:20, fontSize:12, color:'#9796A1'}}>{maxRedeem} Items</Text>
                         </View>
-                        <Text style={{marginLeft:20, fontSize:12, color:'#9796A1'}}>{items} Items</Text>
-                        <Text style={{marginLeft:60, color:'#4EE476'}}>{points}</Text>
+                            <Text style={{marginLeft:60, color:'#4EE476'}}>{points}</Text>
                     </View>
-                    <TouchableOpacity style={{marginTop:80, marginLeft:120, position: 'absolute'}} onPress={handleRedeemAndFetchVoucher}>
-                        {isMaxRedeemed || voucherEmpty ?
+                        <Text style={{fontWeight:900, fontSize:16, marginLeft:-40}}>{title}</Text>
+                    </View>
+                    {isMaxRedeemed || voucherEmpty || vouchersLeft==='0' || isExpired || loyaltyPoint < points ?
+                        <TouchableOpacity style={{marginTop:80, marginLeft:120, position: 'absolute'}} onPress={handleRedeemAndFetchVoucher} disabled={true}>
                             <View style={[styles.button, {backgroundColor: theme.grey}]}>
-                                <Text style={{textAlign:"center", color:"white"}}>Redeem</Text>
+                                <Text style={{textAlign:"center", color:"white"}}>{isExpired?`Expired`: `Redeemed`}</Text>
                             </View>
-                            :
+                        </TouchableOpacity> :
+                        <TouchableOpacity style={{marginTop:80, marginLeft:120, position: 'absolute'}} onPress={handleRedeemAndFetchVoucher} disabled={false}>
                             <View style={[styles.button, {backgroundColor: "#F08D18"}]}>
                                 <Text style={{textAlign:"center", color:"white"}}>Redeem</Text>
                             </View>
-                        }
-                    </TouchableOpacity>
-
+                        </TouchableOpacity>
+                    }
                 </View>
 
 

@@ -229,7 +229,7 @@ const Home = ({ navigation }) => {
                             style={{ width: 20, height: 20 }}
                             source={require('../assets/icons/dollar.png')}
                         />
-                        <Text>{loyaltyPoints.loyaltyPointAmount}</Text>
+                        <Text>{loyaltyPoints?.loyaltyPointAmount}</Text>
                     </View>
                     <View style={styles.viewTitle}>
                         <Text style={styles.titleList}>

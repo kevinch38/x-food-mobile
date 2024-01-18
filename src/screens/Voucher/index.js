@@ -138,12 +138,12 @@ const Voucher = ({ navigation }) => {
                             height: 30,
                             marginTop: 25,
                             backgroundColor:
-                                loyaltyPoints.loyaltyPointAmount <= 0
+                                loyaltyPoints?.loyaltyPointAmount <= 0
                                     ? Color.disabled
                                     : Color.primary,
                         }}
                         title={'Reedem'}
-                        disabled={loyaltyPoints.loyaltyPointAmount <= 0}
+                        disabled={loyaltyPoints?.loyaltyPointAmount <= 0}
                         onPress={handleRedeemPress}
                     />
                 </View>

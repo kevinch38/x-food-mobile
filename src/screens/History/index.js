@@ -32,7 +32,7 @@ const History = () => {
     }
 
     return (
-        <SafeAreaView style={{backgroundColor:'#fff'}}>
+        <SafeAreaView>
             <View
                 style={{
                     flexDirection: 'row',
@@ -110,7 +110,7 @@ const History = () => {
                     <Text style={styles.font}>Payment</Text>
                 </TouchableOpacity>
             </View>
-            <View style={{ margin: 40, backgroundColor:'#fff'}}>{selectedComponent}</View>
+            <View style={{ margin: 40}}>{selectedComponent}</View>
         </SafeAreaView>
     );
 };

@@ -1,19 +1,17 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View, ScrollView, ActivityIndicator} from "react-native";
 import React, { useState, useEffect, useContext } from 'react';
 import RedeemCard from '../../components/RedeemCard';
-import Starbuck from '../../../assets/images/starbuck.png';
 import PromotionService from '../../services/PromotionService';
 import UserService from '../../services/UserService';
 import VoucherService from '../../services/VoucherService';
 import { loyaltyPointAction } from '../../slices/loyaltyPointSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
-import BackButton from '../../components/backButton';
-import { useNavigation } from '@react-navigation/native';
+import {formatIDRCurrency} from "../../utils/utils";
 
 const Redeem = ({ navigation }) => {
     const dispatch = useDispatch();
-    const { users } = useSelector((state) => state.user);
+    const {users}  = useSelector((state) => state.user);
     const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
     const { loyaltyPointService } = useContext(ServiceContext);
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
@@ -34,7 +32,6 @@ const Redeem = ({ navigation }) => {
             const fetchedPromotions = userData.data;
 
             setPromotions(fetchedPromotions);
-
             setVouchersLeftData((prevData) => {
                 const newData = {};
                 fetchedPromotions.forEach((promotion) => {
@@ -45,15 +42,19 @@ const Redeem = ({ navigation }) => {
 
             const promises = fetchedPromotions.map(async (promotion) => {
                 const voucher = await voucherService.getVoucherByAccountIDAndPromoID(id, promotion.promotionID);
-
+                console.log("ini panjangnya dan max redeem:", voucher.data.length, promotion.maxRedeem);
                 setIsMaxRedeemed((prev) => ({
                     ...prev,
                     [promotion.promotionID]: promotion.maxRedeem <= voucher.data.length,
                 }));
 
+                console.log("ini max redeem", promotion.maxRedeem);
+
+                console.log("ini quantity ", promotion.quantity);
+
                 setIsVoucherEmpty((prev) => ({
                     ...prev,
-                    [promotion.promotionID]: promotion.vouchersLeft <= 0,
+                    [promotion.promotionID]: promotion.quantity <= 0,
                 }));
             });
 
@@ -101,6 +102,9 @@ const Redeem = ({ navigation }) => {
     }, [id]);
 
     useEffect(() => {
+        promotions.map((p)=> {
+
+        })
         const onGetLoyaltyPointAmount = () => {
             try {
                 dispatch(
@@ -204,9 +208,11 @@ const Redeem = ({ navigation }) => {
                             items={promotion.quantity.toString()}
                             expired={promotion.expiredDate}
                             title={promotion.promotionName}
+                            maxRedeem = {promotion.maxRedeem}
                             isMaxRedeemed={isMaxRedeemed[promotion.promotionID] || false}
                             voucherEmpty={isVoucherEmpty[promotion.promotionID] || false}
-                            percenOff={promotion.promotionValue.toString()}
+                            percenOff={formatIDRCurrency(promotion.promotionValue)}
+                            loyaltyPoint = {loyaltyPoints.loyaltyPointAmount}
                             accountID={id}
                             promotionID={promotion.promotionID}
                             onRedeemPress={() => handleRedeemPress(promotion.promotionID)}
