@@ -1,26 +1,15 @@
-import {
-    Alert,
-    Image,
-    SafeAreaView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
-} from 'react-native';
-import BackButton from '../../components/backButton';
-import { theme } from '../../theme';
-import React, { useEffect, useRef, useState } from 'react';
-import Color from '../../assets/Color';
+import {Alert, Image, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, View} from "react-native";
+import BackButton from "../../components/backButton";
+import Color from "../../assets/Color";
+import React, {useEffect, useRef, useState} from "react";
+import {theme} from "../../theme";
 import {useSelector} from "react-redux";
 import PinService from "../../services/PinService";
 
-function ChangePin({ navigation }) {
+
+const SetupNewPin = ({navigation}) => {
+
     const [isFocused, setIsFocused] = useState(false);
-    const {users}  = useSelector((state) => state.user);
-    const pinService = PinService();
-
-
 
     const handleFocus = () => {
         setIsFocused(true);
@@ -44,28 +33,6 @@ function ChangePin({ navigation }) {
     const [input5, setInput5] = useState('');
     const [input6, setInput6] = useState('');
 
-    const checkPin = async () => {
-        try {
-            const verificationCode =
-                input1 + input2 + input3 + input4 + input5 + input6;
-            if (input6.length === 1){
-                const result = await pinService.pinCheck({
-                    pinID: users.pinID,
-                    pin: verificationCode,
-                });
-                if (result.data) {
-                    navigation.navigate("SetupNewPin");
-                } else {
-                    Alert.alert('Verifikasi gagal', 'Kode verifikasi salah.');
-                }
-            }
-
-        } catch (error) {
-            console.error("Error during pinCheck:", error);
-        }
-    };
-
-
     const handleTextChange = (
         text,
         nextInputRef,
@@ -81,6 +48,22 @@ function ChangePin({ navigation }) {
         }
     };
 
+
+    const handleInput = () => {
+        try {
+            const inputText = input1 + input2 + input3 + input4 +input5 + input6;
+            if (inputText.length === 6) {
+                navigation.navigate("UpdateNewPin", {dataInput : inputText});
+            }
+        }catch (error) {
+            console.error("Error during pinCheck:", error);
+        }
+    }
+
+    useEffect(() => {
+        handleInput();
+    }, [input6]);
+
     const renderHeader = () => {
         return (
             <View>
@@ -91,7 +74,7 @@ function ChangePin({ navigation }) {
                         style={styles.imageHeader}
                         source={require('../../assets/images/pin-image.png')}
                     />
-                    <Text style={styles.title}>Confirm Old PIN</Text>
+                    <Text style={styles.title}>Setup New Pin</Text>
                     <Text style={styles.subTitle}>
                         Verify 6-digit security PIN
                     </Text>
@@ -196,11 +179,9 @@ function ChangePin({ navigation }) {
                 />
             </View>
         );
-    };
 
-    useEffect(() => {
-        checkPin();
-    }, [input6]);
+}
+
     return (
         <SafeAreaView style={styles.controller}>
             <View>
@@ -209,8 +190,10 @@ function ChangePin({ navigation }) {
             </View>
         </SafeAreaView>
     );
-}
 
+
+
+};
 const styles = StyleSheet.create({
     controller: {
         flex: 1,
@@ -261,4 +244,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
 });
-export default ChangePin;
+
+
+export default SetupNewPin;

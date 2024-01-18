@@ -1,4 +1,3 @@
-import axios from 'axios';
 import axiosInstance from '../api/axiosInstance';
 
 const PinService = () => {
@@ -15,7 +14,16 @@ const PinService = () => {
         return data;
     };
 
-    return { getPin, pinCheck };
+    const updatePin = async (user) => {
+        const {data} = await axiosInstance.put(
+            `http://10.0.2.2:8087/api/pins`,
+            user,
+        );
+
+        return data;
+    }
+
+    return { getPin, pinCheck, updatePin };
 };
 
 export default PinService;
