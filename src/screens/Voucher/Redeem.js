@@ -42,16 +42,10 @@ const Redeem = ({ navigation }) => {
 
             const promises = fetchedPromotions.map(async (promotion) => {
                 const voucher = await voucherService.getVoucherByAccountIDAndPromoID(id, promotion.promotionID);
-                console.log("ini panjangnya dan max redeem:", voucher.data.length, promotion.maxRedeem);
                 setIsMaxRedeemed((prev) => ({
                     ...prev,
                     [promotion.promotionID]: promotion.maxRedeem <= voucher.data.length,
                 }));
-
-                console.log("ini max redeem", promotion.maxRedeem);
-
-                console.log("ini quantity ", promotion.quantity);
-
                 setIsVoucherEmpty((prev) => ({
                     ...prev,
                     [promotion.promotionID]: promotion.quantity <= 0,
