@@ -17,8 +17,6 @@ function SplitBillSuccess({ navigation, route }) {
         route.params?.requestPayment,
     );
 
-    console.log(requestPayment, 'requestPayment ===');
-
     const orderItems = route.params?.mergedOrderItems;
 
     const imageUrl =
@@ -26,6 +24,7 @@ function SplitBillSuccess({ navigation, route }) {
 
     const orderID = requestPayment[0].orderID;
     const date = requestPayment[0].createdAt.slice(0, 10);
+    const image = requestPayment[0].image;
 
     const groupedItems = {};
     requestPayment.forEach((request) => {
@@ -86,8 +85,14 @@ function SplitBillSuccess({ navigation, route }) {
                         </Text>
                     </Text>
                     <View style={styles.logoContainer}>
+                        {/*<Image*/}
+                        {/*    source={require('../../assets/images/mechant-logo.png')}*/}
+                        {/*    style={styles.imageLogo}*/}
+                        {/*/>*/}
                         <Image
-                            source={require('../../assets/images/mechant-logo.png')}
+                            source={{
+                                uri: `data:image/jpeg;base64,${image}`,
+                            }}
                             style={styles.imageLogo}
                         />
                         <Text style={styles.statusOrder}>Order Completed</Text>
@@ -215,7 +220,9 @@ const styles = StyleSheet.create({
     },
     imageLogo: {
         width: 100,
+        height: 100,
         marginBottom: 16,
+        borderRadius: 18,
     },
     statusOrder: {
         fontSize: 20,
