@@ -1,10 +1,10 @@
-import axios from 'axios';
 import axiosInstance from '../api/axiosInstance';
+import { apiBaseUrl } from '../api/xfood';
 
 const CityService = () => {
     const fetchCities = async () => {
         const { data } = await axiosInstance.get(
-            'http://10.0.2.2:8087/api/cities/jabodetabek',
+            `${apiBaseUrl}/api/cities/jabodetabek`,
         );
         return data;
     };

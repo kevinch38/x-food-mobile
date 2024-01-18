@@ -16,6 +16,7 @@ import axios from 'axios'; // Import UserService
 import { useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../api/axiosInstance';
+import { apiBaseUrl } from '../api/xfood';
 
 const VerificationCodeScreen = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
@@ -69,7 +70,7 @@ const VerificationCodeScreen = () => {
             if (isCodeComplete) {
                 if (otpID) {
                     const response = await axiosInstance.post(
-                        'http://10.0.2.2:8087/api/otp',
+                        `${apiBaseUrl}/api/otp`,
                         {
                             otpID: otpID,
                             enteredOtp: enteredCode,

@@ -38,12 +38,8 @@ const OrderHistoryCard = ({
                                     borderRadius: 18.214,
                                 }}
                                 resizeMode="cover"
-                                onLoadStart={() =>
-                                    console.log('Mulai memuat gambar')
-                                }
-                                onLoadEnd={() =>
-                                    console.log('Selesai memuat gambar')
-                                }
+                                // onLoadStart={() => console.log('Mulai memuat gambar')}
+                                // onLoadEnd={() => console.log('Selesai memuat gambar')}
                                 onError={(error) =>
                                     console.error('Error memuat gambar:', error)
                                 }

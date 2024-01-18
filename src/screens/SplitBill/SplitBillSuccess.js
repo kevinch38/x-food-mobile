@@ -10,6 +10,7 @@ import {
 import Color from '../../assets/Color';
 import Button from '../../components/button';
 import React, { useState } from 'react';
+import { request } from 'axios';
 
 function SplitBillSuccess({ navigation, route }) {
     const [requestPayment, setRequestPayment] = useState(
@@ -23,6 +24,55 @@ function SplitBillSuccess({ navigation, route }) {
 
     const orderID = requestPayment[0].orderID;
     const date = requestPayment[0].createdAt.slice(0, 10);
+    const image = requestPayment[0].image;
+
+    const groupedItems = {};
+    requestPayment.forEach((request) => {
+        request.orderItems.forEach((item) => {
+            const itemName = item.itemName;
+            if (!groupedItems[itemName]) {
+                groupedItems[itemName] = [];
+            }
+            groupedItems[itemName].push({
+                itemName: itemName,
+                price: item.newPrice,
+            });
+        });
+    });
+
+    const groupedFriends = {};
+    requestPayment.forEach((request) => {
+        const imageFriend = request.imageFriend;
+        request.orderItems.forEach((item) => {
+            const itemName = item.itemName;
+            if (!groupedFriends[itemName]) {
+                groupedFriends[itemName] = {};
+            }
+            if (!groupedFriends[itemName][imageFriend]) {
+                groupedFriends[itemName][imageFriend] = [];
+            }
+            groupedFriends[itemName][imageFriend].push({
+                itemName: itemName,
+                price: item.newPrice,
+            });
+        });
+    });
+
+    const result = Object.keys(groupedItems).map((itemName) => ({
+        itemName: itemName,
+        items: groupedItems[itemName],
+        friends: groupedFriends[itemName] || {},
+    }));
+
+    let totalItemPrice = 0;
+
+    Object.keys(groupedItems).forEach((itemName) => {
+        const group = groupedItems[itemName];
+        totalItemPrice += group.reduce(
+            (subtotal, item) => subtotal + item.price,
+            0,
+        );
+    });
 
     const renderStruct = () => {
         return (
@@ -35,51 +85,65 @@ function SplitBillSuccess({ navigation, route }) {
                         </Text>
                     </Text>
                     <View style={styles.logoContainer}>
+                        {/*<Image*/}
+                        {/*    source={require('../../assets/images/mechant-logo.png')}*/}
+                        {/*    style={styles.imageLogo}*/}
+                        {/*/>*/}
                         <Image
-                            source={require('../../assets/images/mechant-logo.png')}
+                            source={{
+                                uri: `data:image/jpeg;base64,${image}`,
+                            }}
                             style={styles.imageLogo}
                         />
                         <Text style={styles.statusOrder}>Order Completed</Text>
                     </View>
-                    {requestPayment?.map((request, index) =>
-                        request.orderItems?.map((r) => (
-                            <View style={styles.itemOrderContainer} key={index}>
-                                <View style={styles.itemOrder}>
-                                    <Text style={styles.item}>
-                                        {r.itemName}
-                                    </Text>
-                                    <Text style={styles.priceTotal}>
-                                        Rp.{' '}
-                                        {request.paymentAmount.toLocaleString()}
-                                    </Text>
-                                </View>
-                                <View style={styles.priceContainer}>
-                                    <Text style={styles.price}>
-                                        Rp{' '}
-                                        {request.paymentAmount.toLocaleString()}
-                                    </Text>
-                                    <Text style={styles.price}>1x</Text>
-                                </View>
-                                <View style={styles.avatarContainer}>
-                                    {request.imageFriend ? (
-                                        <Image
-                                            source={{
-                                                uri: `data:image/jpeg;base64,${request.imageFriend}`,
-                                            }}
-                                            style={styles.avatar}
-                                        />
-                                    ) : (
-                                        <Image
-                                            source={{
-                                                uri: imageUrl,
-                                            }}
-                                            style={styles.avatar}
-                                        />
+                    {result.map((group, index) => (
+                        <View style={styles.itemOrderContainer} key={index}>
+                            <View style={styles.itemOrder}>
+                                <Text style={styles.item}>
+                                    {group.itemName}
+                                </Text>
+                                <Text style={styles.priceTotal}>
+                                    Rp.{' '}
+                                    {group.items.reduce(
+                                        (total, item) => total + item.price,
+                                        0,
                                     )}
-                                </View>
+                                </Text>
                             </View>
-                        )),
-                    )}
+                            <View style={styles.priceContainer}>
+                                <Text style={styles.price}>
+                                    Rp. {group.items[0].price}
+                                </Text>
+                                <Text style={styles.price}>
+                                    {group.items.length}x
+                                </Text>
+                            </View>
+                            <View style={styles.avatarContainer}>
+                                {Object.keys(group.friends).map(
+                                    (imageFriend, friendIndex) => (
+                                        <View key={friendIndex}>
+                                            {imageFriend ? (
+                                                <Image
+                                                    source={{
+                                                        uri: `data:image/jpeg;base64,${imageFriend}`,
+                                                    }}
+                                                    style={styles.avatar}
+                                                />
+                                            ) : (
+                                                <Image
+                                                    source={{
+                                                        uri: imageUrl,
+                                                    }}
+                                                    style={styles.avatar}
+                                                />
+                                            )}
+                                        </View>
+                                    ),
+                                )}
+                            </View>
+                        </View>
+                    ))}
 
                     <View style={styles.btnTrack}>
                         <Button
@@ -93,7 +157,9 @@ function SplitBillSuccess({ navigation, route }) {
                             titleStyle={styles.trackTitleStyle}
                         />
                         <Text style={styles.textTotal}>Total:</Text>
-                        <Text style={styles.priceTotal}>Rp 155,000</Text>
+                        <Text style={styles.priceTotal}>
+                            Rp {totalItemPrice}
+                        </Text>
                     </View>
                 </View>
                 <View style={styles.circleContainer}>
@@ -137,6 +203,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 24,
         borderRadius: 20,
+        marginBottom: 100,
     },
     ticketStruck: {
         fontSize: 16,
@@ -153,7 +220,9 @@ const styles = StyleSheet.create({
     },
     imageLogo: {
         width: 100,
+        height: 100,
         marginBottom: 16,
+        borderRadius: 18,
     },
     statusOrder: {
         fontSize: 20,

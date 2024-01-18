@@ -102,8 +102,8 @@ function SplitBill({ navigation, route }) {
             <View style={styles.sendToContainer}>
                 <Text style={styles.titleSendTo}>Send to</Text>
                 <View style={styles.avatarSendToContainer}>
-                    {avatarData.map((avatar) => (
-                        <View style={styles.avatarSendTo} key={avatar.friendID}>
+                    {avatarData.map((avatar, i) => (
+                        <View style={styles.avatarSendTo} key={i}>
                             {avatar.imageAccount2 ? (
                                 <Image
                                     source={{
@@ -155,8 +155,8 @@ function SplitBill({ navigation, route }) {
     const renderContact = () => {
         return (
             <View style={styles.contactContainer}>
-                {friends.map((contact) => (
-                    <View style={styles.contact} key={contact.id}>
+                {friends.map((contact, i) => (
+                    <View style={styles.contact} key={i}>
                         <View style={styles.nameContact}>
                             {contact.imageAccount2 ? (
                                 <Image

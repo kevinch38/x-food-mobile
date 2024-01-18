@@ -1,12 +1,11 @@
-import axios from "axios";
-import axiosInstance from "../api/axiosInstance";
+import axiosInstance from '../api/axiosInstance';
+import { apiBaseUrl } from '../api/xfood';
 
 const PromotionService = () => {
-
     const getPromotions = async () => {
         try {
             const { data } = await axiosInstance.get(
-                `http://10.0.2.2:8087/api/promotions/active`,
+                `${apiBaseUrl}/api/promotions/active`,
             );
             return data;
         } catch (error) {
@@ -16,7 +15,9 @@ const PromotionService = () => {
 
     const getPromotionById = async (id) => {
         try {
-            const { data } = await axiosInstance.get(`http://10.0.2.2:8087/api/promotions/${id}`);
+            const { data } = await axiosInstance.get(
+                `${apiBaseUrl}/api/promotions/${id}`,
+            );
             return data;
         } catch (error) {
             throw error;
@@ -25,10 +26,8 @@ const PromotionService = () => {
 
     return {
         getPromotions,
-        getPromotionById
-    }
-}
+        getPromotionById,
+    };
+};
 
-export default PromotionService
-
-
+export default PromotionService;

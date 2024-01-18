@@ -31,7 +31,35 @@ function SplitBillPosition({ navigation, route }) {
     const handleSubmit = () => {
         let request = JSON.parse(JSON.stringify(requestPayment));
 
-        request = request.map((req) => {
+        const itemInfo = uniqueFriendAccountID.map((friendAccID) => {
+            return requestPayment
+                .filter((request) => request.friendAccountID === friendAccID)
+                .reduce((acc, request) => {
+                    request.orderItems?.forEach((r) => {
+                        const existingItem = acc.find(
+                            (item) => item.itemName === r.itemName,
+                        );
+
+                        if (existingItem) {
+                            existingItem.quantity += 1;
+                        } else {
+                            acc.push({
+                                itemName: r.itemName,
+                                newPrice: r.newPrice,
+                                quantity: 1,
+                            });
+                        }
+                    });
+
+                    return acc;
+                }, []);
+        });
+
+        request = request.map((req, index) => {
+            const totalPrice = itemInfo[index].reduce((total, item) => {
+                return total + item.newPrice * item.quantity;
+            }, 0);
+
             delete req.friendName;
             delete req.imageFriend;
             delete req.imageAccount;
@@ -41,7 +69,9 @@ function SplitBillPosition({ navigation, route }) {
             delete req.imageAccount;
             delete req.pointAmount;
 
+            req.paymentAmount = totalPrice;
             req.orderItems = req.orderItems?.map((r) => r.orderItemID);
+
             return req;
         });
 
@@ -164,29 +194,49 @@ function SplitBillPosition({ navigation, route }) {
                                     (request) =>
                                         request.friendAccountID === friendAccID,
                                 )
-                                ?.map((request) =>
-                                    request.orderItems?.map((r, index) => (
-                                        <View
-                                            key={index}
-                                            style={styles.itemContainer}
-                                        >
-                                            <Text style={styles.item}>
-                                                {r.itemName}
+                                .reduce((acc, request) => {
+                                    request.orderItems?.forEach((r) => {
+                                        const existingItem = acc.find(
+                                            (item) =>
+                                                item.itemName === r.itemName,
+                                        );
+
+                                        if (existingItem) {
+                                            existingItem.quantity += 1;
+                                        } else {
+                                            acc.push({
+                                                itemName: r.itemName,
+                                                newPrice: r.newPrice,
+                                                quantity: 1,
+                                            });
+                                        }
+                                    });
+
+                                    return acc;
+                                }, [])
+                                .map((groupedItem, index) => (
+                                    <View
+                                        key={index}
+                                        style={styles.itemContainer}
+                                    >
+                                        <Text style={styles.item}>
+                                            {groupedItem.itemName}
+                                        </Text>
+                                        <View style={styles.priceContainer}>
+                                            <Text style={styles.price}>
+                                                Rp {groupedItem.newPrice}
                                             </Text>
-                                            <View style={styles.priceContainer}>
-                                                <Text style={styles.price}>
-                                                    Rp 55,000
-                                                </Text>
-                                                <Text style={styles.price}>
-                                                    1x
-                                                </Text>
-                                                <Text style={styles.priceTotal}>
-                                                    Rp 55,000
-                                                </Text>
-                                            </View>
+                                            <Text style={styles.price}>
+                                                {groupedItem.quantity}x
+                                            </Text>
+                                            <Text style={styles.priceTotal}>
+                                                Rp{' '}
+                                                {groupedItem.newPrice *
+                                                    groupedItem.quantity}
+                                            </Text>
                                         </View>
-                                    )),
-                                )}
+                                    </View>
+                                ))}
                         </View>
                     </View>
                 </View>

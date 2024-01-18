@@ -160,8 +160,8 @@ function SplitBillAddPosition({ navigation, route }) {
                             </Text>
                         </View>
                     </View>
-                    {orderItems.map((item) => (
-                        <View style={styles.itemContainer}>
+                    {orderItems.map((item, i) => (
+                        <View style={styles.itemContainer} key={i}>
                             <Text style={styles.item}>{item.itemName}</Text>
                             <View style={styles.priceContainer}>
                                 <Text style={styles.price}>

@@ -27,6 +27,7 @@ export const selectUserByPhoneNumberAction = createAsyncThunk(
 );
 
 export const checkKtpAction = createAsyncThunk('user/checkKtp', RequestHelper);
+
 const userSlice = createSlice({
     name: 'user',
     initialState: {

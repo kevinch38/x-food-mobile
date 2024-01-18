@@ -1,12 +1,11 @@
-import axios from 'axios';
-import token from './Token';
 import axiosInstance from '../api/axiosInstance';
+import { apiBaseUrl } from '../api/xfood';
 
 const SplitBillService = () => {
     const saveSplitBill = async (requestPayment) => {
         try {
             const { data } = await axiosInstance.post(
-                'http://10.0.2.2:8087/api/payments',
+                `${apiBaseUrl}/api/payments`,
                 requestPayment,
             );
             return data;

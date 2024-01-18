@@ -299,7 +299,7 @@ export default function Register({ navigation }) {
                             placeholder="johndoe@address.com"
                             onChangeText={handleChange('accountEmail')}
                             onBlur={handleBlur('accountEmail')}
-                            value={values.accountEmail}
+                            value={values.accountEmail.toLowerCase}
                             keyboardType="email-address"
                         />
                         {touched.accountEmail && errors.accountEmail && (

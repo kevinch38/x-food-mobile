@@ -128,7 +128,7 @@ function CompleteProfile({ navigation }) {
         try {
             dispatch(
                 checkKtpAction(async () => {
-                    const result = await userService.checkKtp(idKtp);
+                    const result = await userService.ktpCheck(idKtp);
 
                     if (result.data === null) {
                         Alert.alert('Success', 'NIK Verified', [
@@ -258,7 +258,17 @@ function CompleteProfile({ navigation }) {
                             onPress={() => handleVerifyKtp(ktpID)}
                             disabled={isVerify}
                         />
-                    ) : null}
+                    ) : (
+                        <Button
+                            title={'Verify'}
+                            buttonStyle={[
+                                styles.customButtonVerify,
+                                { opacity: 0.5 },
+                            ]}
+                            titleStyle={styles.customTitle}
+                            disabled={true}
+                        />
+                    )}
                 </View>
 
                 <View>
@@ -273,7 +283,23 @@ function CompleteProfile({ navigation }) {
                         />
                     )}
 
-                    {!showPicker && (
+                    {!showPicker ? (
+                        <Pressable onPress={toggleDatepicker}>
+                            <InputText
+                                label={'Date of Birth'}
+                                labelRequired={'*'}
+                                placeholder={'1990-02-24'}
+                                keyboardType={'numeric'}
+                                onChangeText={(value) => {
+                                    setDOB(value);
+                                    handleChange('dateOfBirth')(value);
+                                }}
+                                value={dob}
+                                editable={false}
+                                textInputStyleCustom={{ color: 'black' }}
+                            />
+                        </Pressable>
+                    ) : (
                         <Pressable onPress={toggleDatepicker}>
                             <InputText
                                 label={'Date of Birth'}

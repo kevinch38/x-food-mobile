@@ -1,10 +1,11 @@
 import axiosInstance from '../api/axiosInstance';
+import { apiBaseUrl } from '../api/xfood';
 
 const VoucherService = () => {
     const getVoucherByAccountIDAndPromoID = async (accountID, promoID) => {
         try {
             const response = await axiosInstance.get(
-                `http://10.0.2.2:8087/api/vouchers?promotionID=${promoID}&accountID=${accountID}`,
+                `${apiBaseUrl}/api/vouchers?promotionID=${promoID}&accountID=${accountID}`,
             );
             return response.data;
         } catch (error) {
@@ -16,7 +17,7 @@ const VoucherService = () => {
     const createVoucher = async (promotionID, accountID) => {
         try {
             const response = await axiosInstance.post(
-                `http://10.0.2.2:8087/api/vouchers`,
+                `${apiBaseUrl}/api/vouchers`,
                 {
                     promotionID: promotionID,
                     accountID: accountID,
@@ -31,7 +32,7 @@ const VoucherService = () => {
     const deleteVoucher = async (voucherID) => {
         try {
             const response = await axiosInstance.delete(
-                `http://10.0.2.2:8087/api/vouchers/${voucherID}`,
+                `${apiBaseUrl}/api/vouchers/${voucherID}`,
             );
             return response.data;
         } catch (error) {

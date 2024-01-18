@@ -69,8 +69,6 @@ function EReceipt({ navigation }) {
         });
     };
 
-    // console.log("data order ====>", dataOrder);
-
     const orderItemsAssign = Object.values(
         (dataOrder?.orderItems || []).reduce((groupedItems, order) => {
             const key = order?.itemName;
@@ -112,8 +110,6 @@ function EReceipt({ navigation }) {
         createdAt: dataOrder?.createdAt,
         updatedAt: dataOrder?.updatedAt,
     };
-
-    // console.log("data assign", dataAssigned);
 
     const handleToHome = () => {
         navigation.navigate('Tabs');
