@@ -30,7 +30,7 @@ import { fetchBalanceAction } from '../../slices/balanceSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../../api/axiosInstance';
 import { formatIDRCurrency } from '../../utils/utils';
-
+import { logout } from '../../slices/userSlice';
 function Profile({ navigation }) {
     const dispatch = useDispatch();
     const { users } = useSelector((state) => state.user);
@@ -210,6 +210,7 @@ function Profile({ navigation }) {
                     onPress: async () => {
                         await authService.logout();
                         await AsyncStorage.removeItem('phoneNumber');
+                        dispatch(logout());
                         navigation.replace('Login');
                     },
                 },

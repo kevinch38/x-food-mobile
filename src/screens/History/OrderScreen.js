@@ -1,9 +1,15 @@
-import {View, ScrollView, BackHandler, TouchableOpacity, Pressable} from "react-native";
-import OrderHistoryCard from "../../components/card/OrderHistoryCard";
-import {useSelector} from "react-redux";
-import UserService from "../../services/UserService";
-import React, {useEffect, useState} from "react";
-import HistoryService from "../../services/HistoryService";
+import {
+    View,
+    ScrollView,
+    BackHandler,
+    TouchableOpacity,
+    Pressable,
+} from 'react-native';
+import OrderHistoryCard from '../../components/card/OrderHistoryCard';
+import { useSelector } from 'react-redux';
+import UserService from '../../services/UserService';
+import React, { useEffect, useState } from 'react';
+import HistoryService from '../../services/HistoryService';
 import { format } from 'date-fns';
 import { useNavigation } from '@react-navigation/native';
 
@@ -50,72 +56,74 @@ const OrderScreen = () => {
     };
 
     const getAllOrderHistoriesWithStatus = async () => {
-        order.forEach((or)=> {
-            let status = "";
-            if (or.orderStatus === "WAITING_FOR_PAYMENT") {
-                status = "Waiting for payment";
-            } else if (or.orderStatus === "DONE") {
-                status = "Order Done";
-            } else if (or.orderStatus === "REJECTED"){
-                status = "Order Rejected";
+        order.forEach((or) => {
+            let status = '';
+            if (or.orderStatus === 'WAITING_FOR_PAYMENT') {
+                status = 'Waiting for payment';
+            } else if (or.orderStatus === 'DONE') {
+                status = 'Order Done';
+            } else if (or.orderStatus === 'REJECTED') {
+                status = 'Order Rejected';
             } else {
-                status = "Order Failed";
+                status = 'Order Failed';
             }
 
-            setStatus(prevState => ({
+            setStatus((prevState) => ({
                 ...prevState,
-                [or.orderID] : status
-            }))
-        })
+                [or.orderID]: status,
+            }));
+        });
+    };
 
-
-    }
-
-    useEffect(()=> {
-        getAllOrderHistoriesWithStatus()
+    useEffect(() => {
+        getAllOrderHistoriesWithStatus();
     }, [order]);
 
     return (
-        <View style={{ margin: 5 }}>
-            <ScrollView style={{marginBottom:250}}>
-                    {order.map((orderItem, index) => (
-                        <Pressable
-                            key={index}
-                            onPress={() => {
-                                navigation.navigate('EReceipt', {
-                                    orderID: orderItem.orderID,
-                                    image : orderItem.image,
-                                    date : format(
-                                        new Date(orderItem.createdAt),
-                                        'dd MMM, HH:mm',
-                                    ),
-                                    total : orderItem.orderValue,
-                                    orderItems : orderItem.orderItems,
-                                    isSplit : orderItem.isSplit
-                                });
-                            }}
-
-                            disabled={orderItem.orderStatus === "WAITING_FOR_PAYMENT" || orderItem.orderStatus === "REJECTED"}
-                        >
-
-                            <OrderHistoryCard
-                                image={orderItem.image}
-                                items={orderItem.quantity}
-                                title={orderItem.merchantName}
-                                date={format(
-                                    new Date(orderItem.createdAt),
-                                    'dd MMM, HH:mm',
-                                )}
-                                status={status[orderItem.orderID]}
-                                orderValue={orderItem.orderValue}
-                                isSplit={orderItem.isSplit}
-                            />
-
-                        </Pressable>
-                    ))}
-
-            </ScrollView>
-        </View>
+        <ScrollView
+            style={{
+                marginHorizontal: '10%',
+                width: '100%',
+                marginBottom: '10%',
+                paddingTop: '5%',
+            }}
+        >
+            {order.map((orderItem, index) => (
+                <Pressable
+                    key={index}
+                    onPress={() => {
+                        navigation.navigate('EReceipt', {
+                            orderID: orderItem.orderID,
+                            image: orderItem.image,
+                            date: format(
+                                new Date(orderItem.createdAt),
+                                'dd MMM, HH:mm',
+                            ),
+                            total: orderItem.orderValue,
+                            orderItems: orderItem.orderItems,
+                            isSplit: orderItem.isSplit,
+                        });
+                    }}
+                    disabled={
+                        orderItem.orderStatus === 'WAITING_FOR_PAYMENT' ||
+                        orderItem.orderStatus === 'REJECTED'
+                    }
+                >
+                    <OrderHistoryCard
+                        image={orderItem.image}
+                        items={orderItem.quantity}
+                        title={orderItem.merchantName}
+                        date={format(
+                            new Date(orderItem.createdAt),
+                            'dd MMM, HH:mm',
+                        )}
+                        status={status[orderItem.orderID]}
+                        orderValue={orderItem.orderValue}
+                        isSplit={orderItem.isSplit}
+                    />
+                </Pressable>
+            ))}
+        </ScrollView>
     );
 };
 

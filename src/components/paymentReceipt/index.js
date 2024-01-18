@@ -1,6 +1,8 @@
 import React from 'react';
 import { Image, Text, View } from 'react-native';
 import Button from '../button';
+import Color from '../../assets/Color';
+import { formatIDRCurrency } from '../../utils/utils';
 
 function PaymentReceipt({
     title,
@@ -10,7 +12,9 @@ function PaymentReceipt({
     titleButton,
     order,
     onPress,
+    disabled,
 }) {
+    const isDisabled = disabled ? 0.5 : 1;
     return (
         <View
             style={{
@@ -67,7 +71,9 @@ function PaymentReceipt({
                     {title}
                 </Text>
 
-                <Text style={{ fontSize: 36, fontWeight: '400' }}>{name}</Text>
+                <Text style={{ fontSize: 36, fontWeight: '400' }}>
+                    {name.toUpperCase()}
+                </Text>
                 <View style={{ marginVertical: '10%' }}>{order}</View>
                 <Text style={{ fontWeight: '700', fontSize: 20 }}>
                     {' '}
@@ -75,12 +81,13 @@ function PaymentReceipt({
                 </Text>
                 <Text style={{ fontWeight: '600', fontSize: 20 }}>
                     {' '}
-                    Rp. {totalAmount}
+                    {formatIDRCurrency(totalAmount)}
                 </Text>
                 <Button
                     onPress={onPress}
                     buttonStyle={{
                         backgroundColor: '#FFE500',
+                        opacity: isDisabled,
                         height: 85,
                         width: 291,
                         marginVertical: '15%',
@@ -91,6 +98,7 @@ function PaymentReceipt({
                         fontWeight: '700',
                         color: '#000',
                     }}
+                    disabled={disabled}
                 />
             </View>
         </View>

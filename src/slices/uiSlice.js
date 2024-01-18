@@ -6,7 +6,7 @@ const uiSlice = createSlice({
         error: null,
         errorKey: 0,
         isLoading: false,
-        phoneNumber: '+6285201205272',
+        phoneNumber: '',
     },
     reducers: {
         loading: (state) => {

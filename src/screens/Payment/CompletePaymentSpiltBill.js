@@ -13,6 +13,7 @@ import { ServiceContext } from '../../context/ServiceContext';
 import { userAction } from '../../slices/userSlice';
 import PaymentService from '../../services/PaymentService';
 import Loading from '../../components/loading/index';
+import { formatIDRCurrency } from '../../utils/utils';
 
 function CompletePaymentSpiltBill({ navigation, route }) {
     const dispatch = useDispatch();
@@ -58,11 +59,10 @@ function CompletePaymentSpiltBill({ navigation, route }) {
 
                 console.log('Fetching data for paymentID:', paymentID);
 
-                // Only fetch data if paymentID is available
                 if (paymentID) {
                     const result =
                         await completePayment.completePaymentSplit(paymentID);
-                    console.log('Fetched data:', result.data);
+                    // console.log('Fetched data:', result.data);
                     setSplitBill(result.data);
                 }
 
@@ -117,7 +117,7 @@ function CompletePaymentSpiltBill({ navigation, route }) {
                         style={styles.avatarStyle}
                     />
                     <Text style={styles.textStyle}>
-                        {splitBill.paymentAmount}
+                        {splitBill?.friend?.accountFirstName1}
                     </Text>
                 </View>
             </View>
@@ -130,7 +130,7 @@ function CompletePaymentSpiltBill({ navigation, route }) {
                 <Text style={styles.textStyle}>Amount Sent</Text>
                 <Text style={styles.textStyle}>
                     {' '}
-                    Rp. {splitBill.paymentAmount}
+                    {formatIDRCurrency(splitBill.paymentAmount)}
                 </Text>
             </View>
         );

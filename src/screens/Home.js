@@ -1,20 +1,18 @@
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
-    View,
-    Text,
-    SafeAreaView,
-    StyleSheet,
-    StatusBar,
     Image,
     Pressable,
+    SafeAreaView,
     ScrollView,
-    TouchableOpacity,
+    StatusBar,
+    StyleSheet,
+    Text,
+    View,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
 import Card from '../components/card/Card';
 import { SearchBar } from '@rneui/base';
 import Color from '../assets/Color';
 import { useDispatch, useSelector } from 'react-redux';
-import { useContext } from 'react';
 import { ServiceContext } from '../context/ServiceContext';
 import { merchantAction } from '../slices/merchantSlice';
 import { cityAction } from '../slices/citySlice';
@@ -24,13 +22,14 @@ import { loyaltyPointAction } from '../slices/loyaltyPointSlice';
 import { userAction } from '../slices/userSlice';
 import { fetchBalanceAction } from '../slices/balanceSlice';
 import { formatIDRCurrency } from '../utils/utils';
+import Loading from '../components/loading';
 
 const Home = ({ navigation }) => {
     const dispatch = useDispatch();
+    const cities = useSelector((state) => state.city.cities);
     const merchants = useSelector((state) => state.merchant.merchants);
-    const { cities } = useSelector((state) => state.city);
     const users = useSelector((state) => state.user.users);
-    const { phoneNumber } = useSelector((state) => state.ui);
+    const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const { loyaltyPoints } = useSelector((state) => state.loyaltyPoint);
     const { balance } = useSelector((state) => state.balance);
     const {
@@ -40,9 +39,67 @@ const Home = ({ navigation }) => {
         userService,
         balanceService,
     } = useContext(ServiceContext);
-    const [cityId, setCityId] = useState('8a8ae40b8d0d54bd018d0d54cdc80114');
+
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
+    const [cityId, setCityId] = useState(() => {
+        const findCityID = items.find(
+            (item) => item.cityName === 'Kota Administrasi Jakarta Selatan',
+        );
+        return findCityID ? findCityID.cityID : '';
+    });
+    const [isLoading, setIsLoading] = useState(false);
+    const [userLoad, setUserLoad] = useState(false);
+
+    useEffect(() => {
+        if (users) {
+            fetchData();
+            setUserLoad(true);
+        }
+    }, [fetchData, users]);
+
+    useEffect(() => {
+        if (userLoad) {
+            const onFocusListener = navigation.addListener('focus', () => {
+                fetchData();
+            });
+
+            return () => {
+                onFocusListener();
+            };
+        }
+    }, [navigation, fetchData, userLoad]);
+
+    useEffect(() => {
+        setItems(cities);
+    }, [cities]);
+
+    useEffect(() => {
+        const onGetCities = async () => {
+            await dispatch(cityAction(() => cityService.fetchCities()));
+        };
+        onGetCities();
+    }, [dispatch, cityService]);
+
+    useEffect(() => {
+        const onGetUserByPhoneNumber = async () => {
+            try {
+                dispatch(
+                    userAction(async () => {
+                        const result =
+                            await userService.fetchUserByPhoneNumber(
+                                phoneNumber,
+                            );
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetching user data: ', e);
+            }
+        };
+
+        onGetUserByPhoneNumber();
+    }, [dispatch, userService, phoneNumber]);
 
     const filteredMerchants = merchants.filter((merchant) => {
         const branches = merchant.merchantBranches || [];
@@ -51,6 +108,12 @@ const Home = ({ navigation }) => {
         );
         return hasMatchingBranch;
     });
+
+    // items.filter((item) =>
+    //     item.cityName === ' Kota Administrasi Jakarta Selatan'
+    //         ? setCityId(item.cityID)
+    //         : setCityId(''),
+    // );
 
     const handleNotification = () => {
         navigation.navigate('Notification');
@@ -69,43 +132,19 @@ const Home = ({ navigation }) => {
         navigation.navigate('Merchant', { id });
     };
 
-    useEffect(() => {
-        setItems(cities);
-    }, [cities]);
+    const handleTopUp = () => {
+        navigation.navigate('TopUp');
+    };
 
-    useEffect(() => {
-        const onGetCities = async () => {
-            await dispatch(cityAction(() => cityService.fetchCities()));
-        };
-        onGetCities();
-    }, [dispatch, cityService]);
-
-    useEffect(() => {
-        const onGetUserByPhoneNumber = () => {
-            try {
-                dispatch(
-                    userAction(async () => {
-                        const result =
-                            await userService.fetchUserByPhoneNumber(
-                                phoneNumber,
-                            );
-                        return result;
-                    }),
-                );
-            } catch (e) {
-                console.error('Error fetching user data: ', e);
-            }
-        };
-
-        const onGetMerchants = async () => {
+    const fetchData = useCallback(async () => {
+        try {
+            setIsLoading(true);
             await dispatch(
                 merchantAction(() => merchantService.fetchMerchants()),
             );
-        };
 
-        const onGetBalanceUser = async () => {
-            try {
-                dispatch(
+            if (users && users.balance) {
+                await dispatch(
                     fetchBalanceAction(async () => {
                         const result = balanceService.fetchBalance(
                             users.balance.balanceID,
@@ -113,16 +152,7 @@ const Home = ({ navigation }) => {
                         return result;
                     }),
                 );
-            } catch (e) {
-                console.error('Error fetchin balance data: ', e);
-            }
-        };
-
-        console.log('ini users===>', users);
-
-        const onGetLoyaltyPointAmount = () => {
-            try {
-                dispatch(
+                await dispatch(
                     loyaltyPointAction(async () => {
                         const result =
                             loyaltyPointService.fetchLoyaltyPointById(
@@ -131,129 +161,143 @@ const Home = ({ navigation }) => {
                         return result;
                     }),
                 );
-            } catch (e) {
-                console.error('Error fetching loyalty point data: ', e);
             }
-        };
-
-        onGetUserByPhoneNumber();
-        onGetMerchants();
-        onGetLoyaltyPointAmount();
-        onGetBalanceUser();
+        } catch (e) {
+            console.error('Error fetching data: ', e);
+        } finally {
+            setIsLoading(false);
+        }
     }, [
         dispatch,
+        cityService,
         merchantService,
-        loyaltyPointService,
         userService,
         balanceService,
-        Object.keys(users).length,
+        loyaltyPointService,
+        phoneNumber,
+        users,
+        cities,
     ]);
-
-    const handleTopUp = () => {
-        navigation.navigate('TopUp');
-    };
 
     return (
         <SafeAreaView style={styles.wrapper}>
-            <ScrollView>
-                <View style={styles.container}>
-                    <View style={styles.notifBell}>
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('Notification')}
-                        >
-                            <Image
-                                style={{ height: 34, width: 34 }}
-                                source={require('../assets/icons/Bell.png')}
+            {isLoading ? (
+                <Loading />
+            ) : (
+                <ScrollView>
+                    <View style={styles.container}>
+                        <View style={styles.notifBell}>
+                            {/*<TouchableOpacity onPress={handleNotification}>*/}
+
+                            {/*<Image*/}
+                            {/*    style={{ height: 34, width: 34 }}*/}
+                            {/*    source={require('../assets/icons/Bell.png')}*/}
+                            {/*/>*/}
+                            {/*</TouchableOpacity>*/}
+                            <Icon
+                                color={Color.primary}
+                                containerStyle={{}}
+                                disabledStyle={{}}
+                                iconProps={{}}
+                                iconStyle={{}}
+                                name="notifications"
+                                onPress={handleNotification}
+                                size={40}
+                                type="material"
                             />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.topArea}>
-                        <View style={styles.dropdownArea}>
-                            <View style={styles.viewLocation}>
-                                <Text style={styles.textLocation}>
-                                    Location
-                                </Text>
-                                <Icon
-                                    color="#989CA3"
-                                    name="chevron-down"
-                                    size={10}
-                                    type="font-awesome-5"
+                        </View>
+                        <View style={styles.topArea}>
+                            <View style={styles.dropdownArea}>
+                                <View style={styles.viewLocation}>
+                                    <Text style={styles.textLocation}>
+                                        Location
+                                    </Text>
+                                    {/*<Icon*/}
+                                    {/*    color="#989CA3"*/}
+                                    {/*    name="chevron-down"*/}
+                                    {/*    size={10}*/}
+                                    {/*    type="font-awesome-5"*/}
+                                    {/*/>*/}
+                                </View>
+
+                                <Dropdown
+                                    style={styles.dropdown}
+                                    placeholderStyle={styles.placeholderStyle}
+                                    selectedTextStyle={styles.selectedTextStyle}
+                                    inputSearchStyle={styles.inputSearchStyle}
+                                    iconStyle={styles.iconStyle}
+                                    data={items}
+                                    search
+                                    maxHeight={400}
+                                    labelField="cityName"
+                                    valueField="cityID"
+                                    placeholder="Select city"
+                                    searchPlaceholder="Search..."
+                                    value={cityId}
+                                    onChange={(item) => {
+                                        setCityId(item.cityID);
+                                    }}
                                 />
                             </View>
-
-                            <Dropdown
-                                style={styles.dropdown}
-                                placeholderStyle={styles.placeholderStyle}
-                                selectedTextStyle={styles.selectedTextStyle}
-                                inputSearchStyle={styles.inputSearchStyle}
-                                iconStyle={styles.iconStyle}
-                                data={items}
-                                search
-                                maxHeight={400}
-                                labelField="cityName"
-                                valueField="cityID"
-                                placeholder="Select city"
-                                searchPlaceholder="Search..."
-                                value={cityId}
-                                onChange={(item) => {
-                                    setCityId(item.cityID);
-                                }}
-                            />
                         </View>
-                    </View>
-                    <Text style={styles.title}>
-                        Where would you like to eat
-                    </Text>
-                    <View style={styles.areaSearchBar}>
-                        <View style={styles.searchBar}>
-                            <SearchBar
-                                platform="android"
-                                onChangeText={(newVal) => setSearch(newVal)}
-                                onClearText={() => console.log(onClearText())}
-                                placeholder="Find for food or restaurant..."
-                                placeholderTextColor="#888"
-                                cancelButtonTitle="Cancel"
-                                fontSize={14}
-                                value={search}
-                                round={true}
-                            />
-                        </View>
-                    </View>
-                    <View style={styles.summary}>
-                        <Image
-                            style={{ width: 33, height: 19 }}
-                            source={require('../assets/images/card.png')}
-                        />
-                        <Text>{formatIDRCurrency(balance.totalBalance)}</Text>
-                        <Pressable onPress={handleTopUp}>
-                            <Text style={{ color: '#5681A5' }}>TOP UP</Text>
-                        </Pressable>
-                        <Image
-                            style={{ width: 20, height: 20 }}
-                            source={require('../assets/icons/dollar.png')}
-                        />
-                        <Text>{loyaltyPoints.loyaltyPointAmount}</Text>
-                    </View>
-                    <View style={styles.viewTitle}>
-                        <Text style={styles.titleList}>
-                            Featured Restaurants
+                        <Text style={styles.title}>
+                            Where would you like to eat
                         </Text>
-                    </View>
-
-                    {Array.isArray(filteredSearchMerchants) &&
-                        filteredSearchMerchants.length > 0 &&
-                        filteredSearchMerchants.map((m, idx) => {
-                            return (
-                                <Card
-                                    key={idx}
-                                    onPress={() => handleCard(m.merchantID)}
-                                    image={m.image}
-                                    title={m.merchantName}
+                        <View style={styles.areaSearchBar}>
+                            <View style={styles.searchBar}>
+                                <SearchBar
+                                    platform="android"
+                                    onChangeText={(newVal) => setSearch(newVal)}
+                                    onClearText={() =>
+                                        console.log(onClearText())
+                                    }
+                                    placeholder="Find for food or restaurant..."
+                                    placeholderTextColor="#888"
+                                    cancelButtonTitle="Cancel"
+                                    fontSize={14}
+                                    value={search}
+                                    round={true}
                                 />
-                            );
-                        })}
-                </View>
-            </ScrollView>
+                            </View>
+                        </View>
+                        <View style={styles.summary}>
+                            <Image
+                                style={{ width: 33, height: 19 }}
+                                source={require('../assets/images/card.png')}
+                            />
+                            <Text>
+                                {formatIDRCurrency(balance.totalBalance)}
+                            </Text>
+                            <Pressable onPress={handleTopUp}>
+                                <Text style={{ color: '#5681A5' }}>TOP UP</Text>
+                            </Pressable>
+                            <Image
+                                style={{ width: 20, height: 20 }}
+                                source={require('../assets/icons/dollar.png')}
+                            />
+                            <Text>{loyaltyPoints.loyaltyPointAmount}</Text>
+                        </View>
+                        <View style={styles.viewTitle}>
+                            <Text style={styles.titleList}>
+                                Featured Restaurants
+                            </Text>
+                        </View>
+
+                        {Array.isArray(filteredSearchMerchants) &&
+                            filteredSearchMerchants.length > 0 &&
+                            filteredSearchMerchants.map((m, idx) => {
+                                return (
+                                    <Card
+                                        key={idx}
+                                        onPress={() => handleCard(m.merchantID)}
+                                        image={m.image}
+                                        title={m.merchantName}
+                                    />
+                                );
+                            })}
+                    </View>
+                </ScrollView>
+            )}
         </SafeAreaView>
     );
 };
@@ -271,7 +315,7 @@ const styles = StyleSheet.create({
     },
     notifBell: {
         position: 'absolute',
-        top: '1%',
+        top: '3%',
         right: '10%',
     },
     viewLocation: {

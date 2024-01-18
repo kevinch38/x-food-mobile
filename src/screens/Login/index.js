@@ -29,7 +29,7 @@ export default function Login({ navigation }) {
     const { userService } = useContext(ServiceContext);
     const [isRegistered, setIsRegistered] = useState(false);
     const phoneNumberRedux = useSelector((state) => state.ui.phoneNumber);
-    
+
     const {
         values: { phoneNumber },
         handleBlur,
@@ -47,7 +47,8 @@ export default function Login({ navigation }) {
                     values.phoneNumber,
                 );
                 await AsyncStorage.setItem('phoneNumber', values.phoneNumber);
-                const phoneNumberStorage = await AsyncStorage.getItem('phoneNumber');
+                const phoneNumberStorage =
+                    await AsyncStorage.getItem('phoneNumber');
                 const user = userResponse.data;
                 if (user && user.otpID !== null) {
                     setIsRegistered(true);
@@ -82,6 +83,7 @@ export default function Login({ navigation }) {
                         style={styles.phoneNumberInput}
                         placeholder="(+62)"
                         keyboardType="phone-pad"
+                        maxLength={15}
                         onChangeText={(text) => {
                             let formattedText = text;
                             if (text.startsWith('08')) {

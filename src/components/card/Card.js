@@ -51,13 +51,14 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 10,
     },
     title: {
-        fontSize: 15,
+        fontSize: 17,
         fontWeight: 'bold',
-        padding: 10,
+        padding: 15,
+        textAlign: 'left',
     },
     checklist: {
-        height: 10,
-        width: 10,
+        height: 15,
+        width: 15,
     },
 });
 

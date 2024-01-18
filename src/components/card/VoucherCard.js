@@ -1,6 +1,8 @@
 import { View, Image, Text } from 'react-native';
+import { format } from 'date-fns';
 
 const VoucherCard = ({ image, title, content, expired }) => {
+    const formattedExpiredDate = format(new Date(expired), 'dd/MM/yyyy');
     return (
         <View style={{ flexDirection: 'row', width: '100%', padding: 20 }}>
             <Image
@@ -34,7 +36,7 @@ const VoucherCard = ({ image, title, content, expired }) => {
                         fontWeight: '400',
                     }}
                 >
-                    {expired}
+                    Will Expire on {formattedExpiredDate}
                 </Text>
             </View>
         </View>

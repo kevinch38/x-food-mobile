@@ -19,6 +19,7 @@ import { selectedMerchantBranchAction } from '../../slices/merchantBranch';
 import Loading from '../../components/loading';
 import CardMenu from '../../components/card/CardMenu';
 import { selectCartTotal } from '../../slices/cartSlice';
+import { formatIDRCurrency } from '../../utils/utils';
 
 const Menu = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -70,7 +71,7 @@ const Menu = ({ navigation }) => {
                 <Loading />
             ) : (
                 <View style={styles.container}>
-                    <ScrollView style={{ marginBottom: '25%' }}>
+                    <ScrollView style={{ marginBottom: '21%' }}>
                         <BackButton onPress={handleBack} />
                         <View style={styles.wrapperProfile}>
                             <View style={styles.outerCircle}>
@@ -93,7 +94,7 @@ const Menu = ({ navigation }) => {
                             }}
                         >
                             <Text style={{ fontSize: 40, fontWeight: '700' }}>
-                                {branch.branchName}
+                                {merchant.merchantName}
                             </Text>
                             <Text
                                 style={{
@@ -106,25 +107,8 @@ const Menu = ({ navigation }) => {
                                 {branch.address}
                             </Text>
                         </View>
-                        {/*<View*/}
-                        {/*    style={{*/}
-                        {/*        width: '90%',*/}
-                        {/*        marginHorizontal: '5%',*/}
-                        {/*    }}*/}
-                        {/*>*/}
-                        {/*    <Text*/}
-                        {/*        style={{*/}
-                        {/*            fontWeight: '900',*/}
-                        {/*            fontSize: 30,*/}
-                        {/*            textAlign: 'right',*/}
-                        {/*        }}*/}
-                        {/*    >*/}
-                        {/*        Menu*/}
-                        {/*    </Text>*/}
-                        {/*</View>*/}
-
                         <View
-                            style={{ width: '100%', marginVertical: '10%' }}
+                            style={{ width: '100%', marginVertical: '5%' }}
                         ></View>
                         {Array.isArray(branch.items) &&
                             branch.items.length > 0 &&
@@ -146,7 +130,7 @@ const Menu = ({ navigation }) => {
                     </ScrollView>
                     <View
                         style={{
-                            height: 87,
+                            height: 'max-content',
                             width: '100%',
                             display: 'flex',
                             flexDirection: 'row',
@@ -173,13 +157,17 @@ const Menu = ({ navigation }) => {
                                 />
                             </TouchableOpacity>
                         </View>
-                        <View style={{ display: 'flex', flexDirection: 'row' }}>
+                        <View
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                            }}
+                        >
                             <View
                                 style={{
                                     height: '100%',
                                     width: 83,
                                     marginTop: '15%',
-                                    marginRight: '5%',
                                 }}
                             >
                                 <Text
@@ -189,7 +177,7 @@ const Menu = ({ navigation }) => {
                                         fontSize: 16,
                                     }}
                                 >
-                                    Rp {cartTotal}
+                                    {formatIDRCurrency(cartTotal)}
                                 </Text>
                             </View>
                             <TouchableOpacity

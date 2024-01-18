@@ -1,28 +1,27 @@
-import {View, ScrollView, TouchableOpacity} from "react-native";
-import HistoryCard from "../../components/HistoryCard";
-import React, {useEffect, useState} from "react";
-import UserService from "../../services/UserService";
-import HistoryService from "../../services/HistoryService";
-import {useSelector} from "react-redux";
-import {format} from "date-fns";
+import { View, ScrollView, TouchableOpacity } from 'react-native';
+import HistoryCard from '../../components/HistoryCard';
+import React, { useEffect, useState } from 'react';
+import UserService from '../../services/UserService';
+import HistoryService from '../../services/HistoryService';
+import { useSelector } from 'react-redux';
+import { format } from 'date-fns';
 
 const PaymentScreen = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const users = useSelector((state) => state.user.users);
     const userService = UserService();
     const historyService = HistoryService();
-    const [id, setId] = useState("");
+    const [id, setId] = useState('');
     const [payments, setPayments] = useState([]);
     const [paymentStatus, setPaymentStatus] = useState({});
     const [paymentContet, setPaymentContent] = useState({});
 
     const fetchUserData = async (phoneNumber) => {
         try {
-            const userData = await userService.fetchUserByPhoneNumber(phoneNumber);
+            const userData =
+                await userService.fetchUserByPhoneNumber(phoneNumber);
             const accountID = userData.data.accountID;
             setId(accountID);
-            console.log(id);
-
         } catch (error) {
             console.error('Error fetching user data1:', error);
         }
@@ -38,7 +37,6 @@ const PaymentScreen = () => {
             console.error('Error fetching user data2:', error);
         }
     };
-
 
     const getAllHistoriesWithStatus = async () => {
         // console.log("+++++++++++++++++++++++++>",payments);
@@ -107,49 +105,50 @@ const PaymentScreen = () => {
                 [payment.paymentID]: content,
             }));
         });
-    }
+    };
 
     useEffect(() => {
-        fetchUserData(phoneNumber)
+        fetchUserData(phoneNumber);
     }, [phoneNumber]);
 
     useEffect(() => {
-        if (id !== "") {
-            getAllOrderHistories()
+        if (id !== '') {
+            getAllOrderHistories();
         }
     }, [id]);
 
     useEffect(() => {
-        if (id !== ""){
-            getAllHistoriesWithStatus()
+        if (id !== '') {
+            getAllHistoriesWithStatus();
         }
     }, [id, payments]);
 
-
     return (
-        <View>
-            <ScrollView>
-                {payments.map((payment, index) => (
-                    <TouchableOpacity key={index}>
-                        <HistoryCard
-                            date={format(
-                                new Date(payment.createdAt),
-                                'dd MMM, HH:mm',
-                            )}
-                            title={paymentStatus[payment.paymentID]}
-                            content={paymentContet[payment.paymentID]}
-                            amount={payment.paymentAmount}
-                            image={
-                                payment.accountID === users.accountID
-                                    ? payment.friend.imageAccount2
-                                    : payment.friend.imageAccount1
-                            }
-                        />
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
-        </View>
+        <ScrollView style={{ height: 'min-height' }}>
+            {payments.map((payment, index) => (
+                <TouchableOpacity key={index}>
+                    <HistoryCard
+                        date={format(
+                            new Date(payment.createdAt),
+                            'dd MMM, HH:mm',
+                        )}
+                        title={paymentStatus[payment.paymentID]}
+                        content={paymentContet[payment.paymentID]}
+                        amount={payment.paymentAmount}
+                        image={
+                            payment.accountID === users.accountID
+                                ? {
+                                      uri: `data:image/jpeg;base64,${payment.friend.imageAccount2}`,
+                                  }
+                                : {
+                                      uri: `data:image/jpeg;base64,${payment.friend.imageAccount1}`,
+                                  }
+                        }
+                    />
+                </TouchableOpacity>
+            ))}
+        </ScrollView>
     );
-}
+};
 
-export default PaymentScreen
+export default PaymentScreen;

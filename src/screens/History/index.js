@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { TouchableOpacity, View, Text, StyleSheet, Image } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import OrderScreen from "./OrderScreen";
-import PaymentScreen from "./PaymentScreen";
-import TopUpScreen from "./TopUpScreen";
+import React, { useState } from 'react';
+import { TouchableOpacity, View, Text, StyleSheet, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import OrderScreen from './OrderScreen';
+import PaymentScreen from './PaymentScreen';
+import TopUpScreen from './TopUpScreen';
 import { useSelector } from 'react-redux';
 
 const History = () => {
@@ -34,7 +34,7 @@ const History = () => {
     }
 
     return (
-        <View>
+        <View style={{ backgroundColor: '#fff' }}>
             <View
                 style={{
                     flexDirection: 'row',
@@ -112,7 +112,7 @@ const History = () => {
                     <Text style={styles.font}>Payment</Text>
                 </TouchableOpacity>
             </View>
-            <View style={{ margin: 40 }}>{selectedComponent}</View>
+            <View>{selectedComponent}</View>
         </View>
     );
 };
@@ -127,12 +127,12 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 10,
         margin: 20,
-
         borderRadius: 30,
     },
     imageStyle: {
-        height: 40,
-        width: 40,
+        flex: 1,
+        padding: 10,
+        margin: 20,
         borderRadius: 10,
     },
 

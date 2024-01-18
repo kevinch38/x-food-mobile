@@ -1,6 +1,5 @@
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import React from 'react';
-import MenuOne from '../../assets/images/menu-1.png';
 
 const CardMenu = ({
     onPress,
@@ -22,37 +21,12 @@ const CardMenu = ({
 
     return (
         <TouchableOpacity onPress={onPress} disabled={itemStock <= 0}>
-            <View
-                style={{
-                    width: '90%',
-                    height: 240,
-                    marginHorizontal: '5%',
-                    backgroundColor: isOutOfStock,
-                    borderRadius: 10,
-                    shadowColor: '#000',
-                    shadowOffset: {
-                        width: 0,
-                        height: 3,
-                    },
-                    shadowOpacity: 0.4,
-                    shadowRadius: 2,
-                    elevation: 5,
-                    marginBottom: 10,
-                    marginTop: 10,
-                }}
-            >
+            <View style={[styles.card, { backgroundColor: isOutOfStock }]}>
                 <View
-                    style={{
-                        position: 'absolute',
-                        top: 10,
-                        left: 5,
-                        zIndex: 1,
-                        width: 120,
-                        height: 45,
-                        backgroundColor: isOutOfStock,
-                        borderRadius: 104 / 2,
-                        marginLeft: '2%',
-                    }}
+                    style={[
+                        styles.wrapperPrice,
+                        { backgroundColor: isOutOfStock },
+                    ]}
                 >
                     <View
                         style={{
@@ -60,28 +34,8 @@ const CardMenu = ({
                             marginLeft: '15%',
                         }}
                     >
-                        <Text
-                            style={{
-                                fontSize: 20,
-                                fontWeight: '900',
-                                marginTop: '7%',
-                                marginRight: '5%',
-                                textAlign: 'center',
-                                textAlignVertical: 'center',
-                                color: '#F08D18',
-                            }}
-                        >
-                            Rp
-                        </Text>
-                        <Text
-                            style={{
-                                fontSize: 20,
-                                fontWeight: '900',
-                                marginTop: '7%',
-                                textAlign: 'center',
-                                textAlignVertical: 'center',
-                            }}
-                        >
+                        <Text style={styles.price}>Rp</Text>
+                        <Text style={styles.itemPrice}>
                             {isDiscount
                                 ? discountedPrice.toLocaleString()
                                 : initialPrice.toLocaleString()}
@@ -89,18 +43,10 @@ const CardMenu = ({
                     </View>
 
                     <View
-                        style={{
-                            height: '100%',
-                            borderRadius: 30 / 2,
-                            backgroundColor: isOutOfStock,
-                            marginTop: '15%',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            opacity: 1,
-                            display: display,
-                            top: '50%',
-                            left: '90%',
-                        }}
+                        style={[
+                            styles.stock,
+                            { backgroundColor: isOutOfStock, display: display },
+                        ]}
                     >
                         <Text style={{ fontWeight: '700' }}>
                             {itemStock <= 0 ? 'Out of Stock' : ''}
@@ -126,20 +72,18 @@ const CardMenu = ({
                     }}
                 >
                     <Text
-                        style={{
-                            fontWeight: '900',
-                            fontSize: 18,
-                            backgroundColor: isOutOfStock,
-                        }}
+                        style={[
+                            styles.itemName,
+                            { backgroundColor: isOutOfStock },
+                        ]}
                     >
                         {itemName}
                     </Text>
                     <Text
-                        style={{
-                            fontWeight: '400',
-                            fontSize: 15,
-                            backgroundColor: isOutOfStock,
-                        }}
+                        style={[
+                            styles.itemDescription,
+                            { backgroundColor: isOutOfStock },
+                        ]}
                     >
                         {itemDescription}
                     </Text>
@@ -150,3 +94,66 @@ const CardMenu = ({
 };
 
 export default CardMenu;
+
+const styles = StyleSheet.create({
+    card: {
+        width: '90%',
+        height: 240,
+        marginHorizontal: '5%',
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.4,
+        shadowRadius: 2,
+        elevation: 5,
+        marginBottom: 10,
+        marginTop: 10,
+    },
+    wrapperPrice: {
+        position: 'absolute',
+        top: 10,
+        left: 5,
+        zIndex: 1,
+        width: 'max-content',
+        height: 45,
+        borderRadius: 104 / 2,
+        marginLeft: '2%',
+    },
+    price: {
+        fontSize: 20,
+        fontWeight: '900',
+        marginTop: '7%',
+        marginRight: '5%',
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        color: '#F08D18',
+    },
+    itemPrice: {
+        fontSize: 20,
+        fontWeight: '900',
+        marginTop: '7%',
+        textAlign: 'center',
+        textAlignVertical: 'center',
+    },
+    stock: {
+        height: '100%',
+        borderRadius: 30 / 2,
+        marginTop: '15%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        opacity: 1,
+        top: '50%',
+        left: '90%',
+    },
+    itemName: {
+        fontWeight: '900',
+        fontSize: 18,
+    },
+    itemDescription: {
+        fontWeight: '400',
+        fontSize: 15,
+    },
+});

@@ -33,6 +33,7 @@ import { createOrderAction } from '../../slices/orderSlice';
 import { fetchBalanceAction } from '../../slices/balanceSlice';
 import Color from '../../assets/Color';
 import ErrorText from '../../components/errorText';
+import VoucherService from '../../services/VoucherService';
 
 function Cart({ navigation }) {
     const dispatch = useDispatch();
@@ -47,10 +48,17 @@ function Cart({ navigation }) {
     const [nameVoucher, setNameVoucher] = useState('');
     const { userService, orderService, balanceService } =
         useContext(ServiceContext);
+    const voucherService = VoucherService();
     const [vouchers, setVouchers] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [balanceUser, setBalanceUser] = useState(0);
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
+    const { selectedMerchant } = useSelector((state) => state.merchant);
+    const [voucherID, setVoucherID] = useState('');
+
+    // const filteredVoucher = vouchers.filter(
+    //     (voucher) => voucher.merchantID === selectedMerchant.merchantID,
+    // );
 
     const validationButton =
         balanceUser <= 0 || cartItems.length === 0 || isValid || dirty
@@ -64,25 +72,6 @@ function Cart({ navigation }) {
     useEffect(() => {
         setBalanceUser(balance.totalBalance);
     }, [balance.totalBalance]);
-
-    const groupCartItems = (cartItems) => {
-        const groupedItems = cartItems.reduce((group, item) => {
-            const key = item.mergeID;
-            if (!group[key]) {
-                group[key] = [];
-            }
-            group[key].push(item);
-            return group;
-        }, {});
-        const groupsWithMergeId = Object.entries(groupedItems).map(
-            ([mergeId, items]) => ({
-                mergeId,
-                items,
-            }),
-        );
-
-        return groupsWithMergeId;
-    };
 
     useEffect(() => {
         const groupedCartItems = groupCartItems(cartItems);
@@ -126,6 +115,25 @@ function Cart({ navigation }) {
         onGetUserByPhoneNumber();
         onGetBalanceUser();
     }, [dispatch, userService]);
+
+    const groupCartItems = (cartItems) => {
+        const groupedItems = cartItems.reduce((group, item) => {
+            const key = item.mergeID;
+            if (!group[key]) {
+                group[key] = [];
+            }
+            group[key].push(item);
+            return group;
+        }, {});
+        const groupsWithMergeId = Object.entries(groupedItems).map(
+            ([mergeId, items]) => ({
+                mergeId,
+                items,
+            }),
+        );
+
+        return groupsWithMergeId;
+    };
 
     const Schema = yup.object().shape({
         tableNumber: yup
@@ -213,6 +221,11 @@ function Cart({ navigation }) {
                                             destination: 'Payment',
                                         });
                                         dispatch(emptyCart());
+                                        if (voucherID) {
+                                            await voucherService.deleteVoucher(
+                                                voucherID,
+                                            );
+                                        }
                                         return result;
                                     }
                                     return null;
@@ -403,6 +416,7 @@ function Cart({ navigation }) {
                         setSale(item.voucherValue);
                         dispatch(setPiece(item.voucherValue));
                         setNameVoucher(item.label);
+                        setVoucherID(item.voucherID);
                     }}
                 />
             </View>
@@ -464,6 +478,7 @@ function Cart({ navigation }) {
                         titleStyle={styles.titleStyle}
                         buttonStyle={{ backgroundColor: validationButton }}
                         onPress={() => {
+                            setFieldValue(voucherID);
                             handleSubmit();
                         }}
                         disabled={

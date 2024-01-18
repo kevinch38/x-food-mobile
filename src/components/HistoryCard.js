@@ -1,14 +1,20 @@
-import {Text, View, StyleSheet, Image} from "react-native";
-import React from "react";
+import { Text, View, StyleSheet, Image } from 'react-native';
+import React from 'react';
+import { formatIDRCurrency } from '../utils/utils';
 
-const HistoryCard = ({image, date, title, content, amount}) => {
+const HistoryCard = ({ image, date, title, content, amount }) => {
     return (
         <>
             <View style={styles.card}>
-                <View>
+                <View style={styles.image}>
                     <Image
-                        source={{ uri: `data:image/jpeg;base64,${image}` }}
-                        style={styles.image}
+                        source={image}
+                        style={{
+                            height: '100%',
+                            width: '100%',
+                            resizeMode: 'cover',
+                            borderRadius: 12,
+                        }}
                     />
                 </View>
                 <View
@@ -41,14 +47,14 @@ const HistoryCard = ({image, date, title, content, amount}) => {
                                 fontSize: 15,
                             }}
                         >
-                            {amount}
+                            {amount ? formatIDRCurrency(amount) : ''}
                         </Text>
                     </View>
                 </View>
             </View>
         </>
     );
-}
+};
 
 const styles = StyleSheet.create({
     card: {
@@ -74,9 +80,8 @@ const styles = StyleSheet.create({
         margin: '1%',
         width: 60,
         height: 60,
-        borderRadius: 18.214,
+        borderRadius: 12,
         backgroundColor: '#FFF',
-        elevation: 10,
         shadowColor: '#D3D1D8',
         shadowOffset: {
             width: 18.214,
@@ -84,7 +89,8 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.25,
         shadowRadius: 36.42,
+        elevation: 6,
     },
 });
 
-export default HistoryCard
+export default HistoryCard;

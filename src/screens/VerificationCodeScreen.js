@@ -80,23 +80,22 @@ const VerificationCodeScreen = () => {
 
                     // console.log(data , 'in data')
 
-
                     if (data.statusCode == 200) {
                         await AsyncStorage.setItem('token', data.data.token);
                     }
 
                     // console.log('Check OTP response:', data);
-                    console.log(firstName);
+                    // console.log(firstName);
                     if (data.data.check && firstName === '') {
                         setIsValidCode(true);
-                        console.log('Code is valid. Navigating to Register.');
+                        // console.log('Code is valid. Navigating to Register.');
                         navigation.navigate('Register');
                     } else if (data.data.check && firstName !== '') {
                         setIsValidCode(true);
                         navigation.navigate('Tabs');
                     } else {
                         setIsValidCode(false);
-                        console.log('Code is invalid.');
+                        // console.log('Code is invalid.');
                     }
                 } else {
                     console.error('otpID is null');

@@ -18,7 +18,7 @@ const CardBranch = ({ onPress, image, branchName, branchAddress }) => {
                 >
                     <Text
                         style={{
-                            fontSize: 18,
+                            fontSize: 20,
                             marginTop: '1%',
                             fontWeight: '900',
                         }}
