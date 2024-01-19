@@ -73,11 +73,11 @@ const RedeemCard = ({image, title, percenOff, vouchersLeft, expired, points, isM
 
 const styles = StyleSheet.create({
     card : {
-        width: 323,
-        height: 168 ,
+        width: '100%',
+        height: '28%' ,
         flexDirection:"row",
-        marginBottom :20,
-        padding :20,
+        marginBottom :'6%',
+        padding :'6%',
         alignItems:"center",
         borderRadius: 18.214,
         backgroundColor: '#FFF',
