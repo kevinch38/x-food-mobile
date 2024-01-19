@@ -78,15 +78,10 @@ const VerificationCodeScreen = () => {
 
                     const data = response.data;
 
-                    // console.log(data , 'in data')
-
-
                     if (data.statusCode == 200) {
                         await AsyncStorage.setItem('token', data.data.token);
                     }
 
-                    // console.log('Check OTP response:', data);
-                    console.log(firstName);
                     if (data.data.check && firstName === '') {
                         setIsValidCode(true);
                         console.log('Code is valid. Navigating to Register.');

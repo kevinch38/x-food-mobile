@@ -1,7 +1,7 @@
 import { CommonActions } from '@react-navigation/native';
 import React, { useContext, useEffect } from 'react';
 import { StyleSheet, View, Image, Text } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import color from '../../assets/Color';
 import image from '../../assets/images/logo-splash.png';
 import { ServiceContext } from '../../context/ServiceContext';

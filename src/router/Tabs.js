@@ -4,9 +4,8 @@ import Profile from '../screens/Profile';
 import { Image } from 'react-native';
 import History from '../screens/History';
 import Voucher from '../screens/Voucher';
-import AddFriend from '../screens/AddFriend';
-import Home from '../screens/Home';
 import PinCreationScreen from '../screens/PinCreationScreen';
+import AddFriend from '../screens/AddFriend';
 
 const Tab = createBottomTabNavigator();
 

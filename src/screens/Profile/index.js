@@ -25,11 +25,12 @@ import dollar from '../../assets/icons/dollar.png';
 import basket from '../../assets/icons/basket.png';
 import Color from '../../assets/Color';
 import camera from '../../assets/icons/camera.png';
-import axios from 'axios';
 import { fetchBalanceAction } from '../../slices/balanceSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../../api/axiosInstance';
 import { formatIDRCurrency } from '../../utils/utils';
+import { setPhoneNumber } from '../../slices/uiSlice';
+import ExpiredToken from '../../components/expirdToken';
 
 function Profile({ navigation }) {
     const dispatch = useDispatch();
@@ -194,7 +195,7 @@ function Profile({ navigation }) {
         }
     };
 
-    const handleLogout = () => {
+    const handleLogout = async() => {
         Alert.alert(
             'Log out',
             'Do you want to logout?',
@@ -210,6 +211,7 @@ function Profile({ navigation }) {
                     onPress: async () => {
                         await authService.logout();
                         await AsyncStorage.removeItem('phoneNumber');
+                        dispatch(setPhoneNumber(''));
                         navigation.replace('Login');
                     },
                 },
@@ -431,6 +433,7 @@ function Profile({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
+            <ExpiredToken navigation = {navigation}/>
             <ScrollView
                 showsHorizontalScrollIndicator={false}
                 showsVerticalScrollIndicator={false}

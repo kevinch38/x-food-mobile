@@ -79,7 +79,7 @@ const PinCreationScreen = ({ navigation }) => {
 
             setPinID(userData.data.pinID);
         } catch (error) {
-            console.error('Error fetching user data1:', error);
+            // console.error('Error fetching user data1:', error);
         }
     };
     const fetchPinID = async () => {
@@ -96,7 +96,7 @@ const PinCreationScreen = ({ navigation }) => {
 
             setPinIDFetched(true); // Menandakan bahwa fetchPinID sudah selesai
         } catch (error) {
-            console.error('Error fetching user data2:', error);
+            // console.error('Error fetching user data2:', error);
         }
     };
 

@@ -29,7 +29,7 @@ export default function Login({ navigation }) {
     const { userService } = useContext(ServiceContext);
     const [isRegistered, setIsRegistered] = useState(false);
     const phoneNumberRedux = useSelector((state) => state.ui.phoneNumber);
-    
+
     const {
         values: { phoneNumber },
         handleBlur,
@@ -47,7 +47,8 @@ export default function Login({ navigation }) {
                     values.phoneNumber,
                 );
                 await AsyncStorage.setItem('phoneNumber', values.phoneNumber);
-                const phoneNumberStorage = await AsyncStorage.getItem('phoneNumber');
+                const phoneNumberStorage =
+                    await AsyncStorage.getItem('phoneNumber');
                 const user = userResponse.data;
                 if (user && user.otpID !== null) {
                     setIsRegistered(true);
@@ -92,6 +93,8 @@ export default function Login({ navigation }) {
                         }}
                         onBlur={handleBlur('phoneNumber')}
                         value={phoneNumber}
+                        defaultValue=""
+                        maxLength={16}
                     ></TextInput>
                     {errors.phoneNumber && (
                         <Text style={styles.errorText}>
@@ -99,8 +102,20 @@ export default function Login({ navigation }) {
                         </Text>
                     )}
                     <TouchableOpacity
-                        style={styles.button}
+                        style={[
+                            styles.button,
+                            {
+                                opacity:
+                                    phoneNumber.length < 10 ||
+                                    phoneNumber.length > 16
+                                        ? 0.5
+                                        : 1,
+                            },
+                        ]}
                         onPress={handleSubmit}
+                        disabled={
+                            phoneNumber.length < 10 || phoneNumber.length > 16
+                        }
                     >
                         <Text style={styles.textButton}>
                             Receive OTP via SMS

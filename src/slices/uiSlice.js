@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createSlice } from '@reduxjs/toolkit';
 
 const uiSlice = createSlice({
@@ -6,7 +7,7 @@ const uiSlice = createSlice({
         error: null,
         errorKey: 0,
         isLoading: false,
-        phoneNumber: '+6285201205272',
+        phoneNumber: '',
     },
     reducers: {
         loading: (state) => {

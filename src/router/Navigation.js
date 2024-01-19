@@ -1,6 +1,6 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import React from 'react';
+import React, {useEffect} from 'react';
 import Profile from '../screens/Profile';
 import EditProfile from '../screens/Profile/EditProfile';
 import Tabs from './Tabs';
@@ -34,10 +34,15 @@ import SplitBillAddPosition from '../screens/SplitBill/SplitBillAddPosition';
 import SplitBillPosition from '../screens/SplitBill/SplitBillPosition';
 import SplitBillSuccess from '../screens/SplitBill/SplitBillSuccess';
 import SplitBillTrack from '../screens/SplitBill/SplitBillTrack';
+import ExpiredToken from '../components/expirdToken';
 
 const Stack = createStackNavigator();
 
-const Navigation = () => {
+const Navigation = ({navigation}) => {
+    useEffect(() => {
+        <ExpiredToken navigation={navigation}/>
+    }, [])
+
     return (
         <NavigationContainer>
             <Stack.Navigator

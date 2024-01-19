@@ -24,6 +24,7 @@ import { loyaltyPointAction } from '../slices/loyaltyPointSlice';
 import { userAction } from '../slices/userSlice';
 import { fetchBalanceAction } from '../slices/balanceSlice';
 import { formatIDRCurrency } from '../utils/utils';
+import ExpiredToken from '../components/expirdToken';
 
 const Home = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -118,8 +119,6 @@ const Home = ({ navigation }) => {
             }
         };
 
-        console.log('ini users===>', users);
-
         const onGetLoyaltyPointAmount = () => {
             try {
                 dispatch(
@@ -152,6 +151,8 @@ const Home = ({ navigation }) => {
     const handleTopUp = () => {
         navigation.navigate('TopUp');
     };
+
+    useEffect(() => {return (<ExpiredToken/>)}, [])
 
     return (
         <SafeAreaView style={styles.wrapper}>
