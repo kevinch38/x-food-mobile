@@ -123,9 +123,9 @@ const styles = StyleSheet.create({
     },
     button: {
         flex: 1,
-        padding: 10,
-        margin: 20,
-
+        padding: '1%', // Adjust this percentage as needed
+        margin: '6%',
+        height:'50%',
         borderRadius: 30,
     },
     imageStyle: {
