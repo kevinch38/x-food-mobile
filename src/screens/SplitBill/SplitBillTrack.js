@@ -87,7 +87,7 @@ function SplitBillTrack({ navigation, route }) {
                                 ) : (
                                     <Image
                                         source={{
-                                            uri: imageUrl,
+                                            uri: `https://ui-avatars.com/api/?name=${friendRequestsWithSameFriendID[0].friendName}+${friendRequestsWithSameFriendID[0].friendLastName}`,
                                         }}
                                         style={styles.avatar}
                                     />

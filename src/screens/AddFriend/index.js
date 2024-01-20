@@ -25,267 +25,243 @@ import lnImage from '../../assets/icons/ln.png';
 import closeIcon from '../../assets/icons/close.png';
 import { useSelector } from 'react-redux';
 
-    const AddFriend = ({ navigation, route }) => {
-        // const dispatch = useDispatch();
-        // const order = route.params?.order;
-        const phoneNumberRedux = useSelector((state) => state.ui.phoneNumber);
-        const { userService, friendService } = useContext(ServiceContext);
-        const [user, setUser] = useState();
-        const [image, setImage] = useState();
-        const [isAddFriend, setIsAddFriend] = useState(false);
-        const [friendPhoneNumber, setFriendPhoneNumber] = useState();
-        const [modalVisible, setModalVisible] = useState(false);
-        const [friendId, setFriendId] = useState();
-        const [userId, setUserId] = useState();
-        const [isMessage, setIsMessage] = useState(false);
-        const [isInvitationSuccess, setIsInvitationSuccess] = useState(false);
-        const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+const AddFriend = ({ navigation, route }) => {
+    // const dispatch = useDispatch();
+    // const order = route.params?.order;
+    const phoneNumberRedux = useSelector((state) => state.ui.phoneNumber);
+    const { userService, friendService } = useContext(ServiceContext);
+    const [user, setUser] = useState();
+    const [image, setImage] = useState();
+    const [isAddFriend, setIsAddFriend] = useState(false);
+    const [friendPhoneNumber, setFriendPhoneNumber] = useState();
+    const [modalVisible, setModalVisible] = useState(false);
+    const [friendId, setFriendId] = useState();
+    const [userId, setUserId] = useState();
+    const [isMessage, setIsMessage] = useState(false);
+    const [isInvitationSuccess, setIsInvitationSuccess] = useState(false);
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
-        const schema = Yup.object({
-            phoneNumber: Yup.string().test(
-                'phoneNumber',
-                'User Not Found',
-                function (value) {
-                    return value !== undefined && value !== null;
-                },
-            ),
-        });
-
-        const imageUrl =
-            'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
-
-        const {
-            values: { phoneNumber },
-            handleBlur,
-            handleSubmit,
-            setFieldValue,
-            errors,
-            setFieldError,
-        } = useFormik({
-            initialValues: {
-                phoneNumber: friendPhoneNumber,
+    const schema = Yup.object({
+        phoneNumber: Yup.string().test(
+            'phoneNumber',
+            'User Not Found',
+            function (value) {
+                return value !== undefined && value !== null;
             },
-            onSubmit: async (values) => {
-                try {
-                    const userResponse =
-                        await userService.fetchUserByPhoneNumber(
-                            values.phoneNumber,
-                        );
-                    if (!userResponse.data) {
-                        setFieldError('phoneNumber', 'User not found');
-                        return;
-                    }
-                    const user =
-                        await userService.fetchUserByPhoneNumber(
-                            phoneNumberRedux,
-                        );
-                    setUserId(user.data.accountID);
-                    setFriendPhoneNumber(phoneNumber);
-                    setUser(userResponse.data);
-                    setFriendId(userResponse.data.accountID);
-                    setImage(
-                        userResponse.data.profilePhoto
-                            ? `data:image/jpeg;base64,${userResponse.data.profilePhoto}`
-                            : imageUrl,
-                    );
-                } catch (error) {
-                    console.warn('Error during form submission:', error);
-                }
-            },
-            validationSchema: schema,
-        });
+        ),
+    });
 
-        const handleModalClose = () => {
-            setModalVisible(!modalVisible);
-            setIsInvitationSuccess(true);
-            setTimeout(() => {
-                setIsInvitationSuccess(false);
-            }, 2000);
-        };
+    const imageUrl = `https://ui-avatars.com/api/?name=${users?.firstName}+${users?.lastName}`;
 
-        const handleAddFriend = async () => {
+    const {
+        values: { phoneNumber },
+        handleBlur,
+        handleSubmit,
+        setFieldValue,
+        errors,
+        setFieldError,
+    } = useFormik({
+        initialValues: {
+            phoneNumber: friendPhoneNumber,
+        },
+        onSubmit: async (values) => {
             try {
-                setIsAddFriend(true);
-                await friendService.addFriend({ userId, friendId });
-
-                const update = { data: { ...result, temp: 'a' } };
-                return update;
-                // return result;
+                const userResponse = await userService.fetchUserByPhoneNumber(
+                    values.phoneNumber,
+                );
+                if (!userResponse.data) {
+                    setFieldError('phoneNumber', 'User not found');
+                    return;
+                }
+                const user =
+                    await userService.fetchUserByPhoneNumber(phoneNumberRedux);
+                setUserId(user.data.accountID);
+                setFriendPhoneNumber(phoneNumber);
+                setUser(userResponse.data);
+                setFriendId(userResponse.data.accountID);
+                setImage(
+                    userResponse.data.profilePhoto
+                        ? `data:image/jpeg;base64,${userResponse.data.profilePhoto}`
+                        : imageUrl,
+                );
             } catch (error) {
-                console.log(error);
-                setIsMessage(true);
+                console.warn('Error during form submission:', error);
             }
-        };
+        },
+        validationSchema: schema,
+    });
 
-        useEffect(() => {
-            setUser(null);
-            setImage(null);
-            setIsAddFriend(false);
-            setModalVisible(false);
-            setIsMessage(false);
-        }, [phoneNumber]);
+    const handleModalClose = () => {
+        setModalVisible(!modalVisible);
+        setIsInvitationSuccess(true);
+        setTimeout(() => {
+            setIsInvitationSuccess(false);
+        }, 2000);
+    };
 
-        return (
-            <SafeAreaView style={styles.container}>
-                <Template />
-                <BackButton onPress={() => navigation.navigate('SplitBill')} />
+    const handleAddFriend = async () => {
+        try {
+            setIsAddFriend(true);
+            await friendService.addFriend({ userId, friendId });
 
-                {modalVisible && (
-                    <BlurView
-                        intensity={20}
-                        tint="light"
-                        style={styles.blurView}
-                    />
-                )}
+            const update = { data: { ...result, temp: 'a' } };
+            return update;
+            // return result;
+        } catch (error) {
+            console.log(error);
+            setIsMessage(true);
+        }
+    };
 
-                <Modal
-                    animationType="slide"
-                    transparent={true}
-                    visible={modalVisible}
-                    onRequestClose={handleModalClose}
-                >
-                    <View style={styles.centeredView}>
-                        <View style={styles.modalView}>
-                            <View style={styles.modalHeader}>
-                                <Text style={styles.modalText}>
-                                    Invite Friend Via
-                                </Text>
-                                <TouchableOpacity onPress={handleModalClose}>
-                                    <Image
-                                        source={closeIcon}
-                                        style={styles.closeIcon}
-                                    />
-                                </TouchableOpacity>
-                            </View>
+    useEffect(() => {
+        setUser(null);
+        setImage(null);
+        setIsAddFriend(false);
+        setModalVisible(false);
+        setIsMessage(false);
+    }, [phoneNumber]);
 
-                            <View style={styles.socialIcons}>
-                                <TouchableOpacity onPress={handleModalClose}>
-                                    <Image
-                                        source={waImage}
-                                        style={styles.icon}
-                                    />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={handleModalClose}>
-                                    <Image
-                                        source={igImage}
-                                        style={styles.icon}
-                                    />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={handleModalClose}>
-                                    <Image
-                                        source={lnImage}
-                                        style={styles.icon}
-                                    />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={handleModalClose}>
-                                    <Image
-                                        source={fbImage}
-                                        style={styles.icon}
-                                    />
-                                </TouchableOpacity>
-                            </View>
+    return (
+        <SafeAreaView style={styles.container}>
+            <Template />
+            <BackButton onPress={() => navigation.navigate('SplitBill')} />
+
+            {modalVisible && (
+                <BlurView intensity={20} tint="light" style={styles.blurView} />
+            )}
+
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={handleModalClose}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalText}>
+                                Invite Friend Via
+                            </Text>
+                            <TouchableOpacity onPress={handleModalClose}>
+                                <Image
+                                    source={closeIcon}
+                                    style={styles.closeIcon}
+                                />
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={styles.socialIcons}>
+                            <TouchableOpacity onPress={handleModalClose}>
+                                <Image source={waImage} style={styles.icon} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={handleModalClose}>
+                                <Image source={igImage} style={styles.icon} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={handleModalClose}>
+                                <Image source={lnImage} style={styles.icon} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={handleModalClose}>
+                                <Image source={fbImage} style={styles.icon} />
+                            </TouchableOpacity>
                         </View>
                     </View>
-                </Modal>
-
-                <View style={styles.content}>
-                    <View>
-                        <Text style={styles.heading}>Friend Search</Text>
-                        <Text style={styles.subHeading}>
-                            Enter friend's phone number
-                        </Text>
-
-                        <TextInput
-                            style={styles.input}
-                            placeholder="(+62)"
-                            keyboardType="phone-pad"
-                            onChangeText={(text) => {
-                                let formattedText = text;
-                                if (text.startsWith('08')) {
-                                    formattedText = `+62${text.substr(1)}`;
-                                }
-                                setFieldValue('phoneNumber', formattedText);
-                            }}
-                            onBlur={handleBlur('phoneNumber')}
-                            value={phoneNumber}
-                        />
-
-                        {errors.phoneNumber && (
-                            <Text style={styles.errorText}>
-                                {errors.phoneNumber}
-                            </Text>
-                        )}
-
-                        {user == undefined ? (
-                            <View>
-                                {errors.phoneNumber ? (
-                                    <TouchableOpacity
-                                        style={styles.button}
-                                        onPress={() => setModalVisible(true)}
-                                    >
-                                        <Text style={styles.buttonText}>
-                                            Invite
-                                        </Text>
-                                    </TouchableOpacity>
-                                ) : (
-                                    <TouchableOpacity
-                                        style={styles.button}
-                                        onPress={handleSubmit}
-                                    >
-                                        <Text style={styles.buttonText}>
-                                            Search
-                                        </Text>
-                                    </TouchableOpacity>
-                                )}
-                            </View>
-                        ) : (
-                            <View style={styles.center}>
-                                <View style={styles.outerCircle}>
-                                    {image ? (
-                                        <Image
-                                            source={{ uri: image }}
-                                            style={styles.photo}
-                                        />
-                                    ) : (
-                                        <Text style={styles.loadingText}>
-                                            Loading ...
-                                        </Text>
-                                    )}
-                                </View>
-
-                                <Text style={styles.name}>
-                                    {user.firstName}
-                                </Text>
-
-                                {isAddFriend ? (
-                                    <Text style={styles.addedText}>
-                                        {isMessage
-                                            ? 'Friend already exists'
-                                            : 'Added to your Friend List'}
-                                    </Text>
-                                ) : (
-                                    <TouchableOpacity
-                                        style={styles.button}
-                                        onPress={handleAddFriend}
-                                    >
-                                        <Text style={styles.buttonText}>
-                                            Add as Friend
-                                        </Text>
-                                    </TouchableOpacity>
-                                )}
-                            </View>
-                        )}
-                    </View>
                 </View>
+            </Modal>
 
-                {isInvitationSuccess && (
-                    <Text style={styles.successMessage}>
-                        Successfully invited
+            <View style={styles.content}>
+                <View>
+                    <Text style={styles.heading}>Friend Search</Text>
+                    <Text style={styles.subHeading}>
+                        Enter friend's phone number
                     </Text>
-                )}
-            </SafeAreaView>
-        );
-    };
+
+                    <TextInput
+                        style={styles.input}
+                        placeholder="(+62)"
+                        keyboardType="phone-pad"
+                        onChangeText={(text) => {
+                            let formattedText = text;
+                            if (text.startsWith('08')) {
+                                formattedText = `+62${text.substr(1)}`;
+                            }
+                            setFieldValue('phoneNumber', formattedText);
+                        }}
+                        onBlur={handleBlur('phoneNumber')}
+                        value={phoneNumber}
+                    />
+
+                    {errors.phoneNumber && (
+                        <Text style={styles.errorText}>
+                            {errors.phoneNumber}
+                        </Text>
+                    )}
+
+                    {user == undefined ? (
+                        <View>
+                            {errors.phoneNumber ? (
+                                <TouchableOpacity
+                                    style={styles.button}
+                                    onPress={() => setModalVisible(true)}
+                                >
+                                    <Text style={styles.buttonText}>
+                                        Invite
+                                    </Text>
+                                </TouchableOpacity>
+                            ) : (
+                                <TouchableOpacity
+                                    style={styles.button}
+                                    onPress={handleSubmit}
+                                >
+                                    <Text style={styles.buttonText}>
+                                        Search
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    ) : (
+                        <View style={styles.center}>
+                            <View style={styles.outerCircle}>
+                                {image ? (
+                                    <Image
+                                        source={{ uri: image }}
+                                        style={styles.photo}
+                                    />
+                                ) : (
+                                    <Text style={styles.loadingText}>
+                                        Loading ...
+                                    </Text>
+                                )}
+                            </View>
+
+                            <Text style={styles.name}>{user.firstName}</Text>
+
+                            {isAddFriend ? (
+                                <Text style={styles.addedText}>
+                                    {isMessage
+                                        ? 'Friend already exists'
+                                        : 'Added to your Friend List'}
+                                </Text>
+                            ) : (
+                                <TouchableOpacity
+                                    style={styles.button}
+                                    onPress={handleAddFriend}
+                                >
+                                    <Text style={styles.buttonText}>
+                                        Add as Friend
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    )}
+                </View>
+            </View>
+
+            {isInvitationSuccess && (
+                <Text style={styles.successMessage}>Successfully invited</Text>
+            )}
+        </SafeAreaView>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {

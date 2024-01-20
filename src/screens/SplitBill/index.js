@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import { friendAction } from '../../slices/friendSlice';
 import { RoundedCheckbox } from 'react-native-rounded-checkbox';
+import Loading from '../../components/loading';
 
 function SplitBill({ navigation, route }) {
     const dispatch = useDispatch();
@@ -87,12 +88,7 @@ function SplitBill({ navigation, route }) {
                         style={styles.imageProfile}
                     />
                 ) : (
-                    <Image
-                        source={{
-                            uri: imageUrl,
-                        }}
-                        style={styles.imageProfile}
-                    />
+                    <Image source={imageUrl} style={styles.imageProfile} />
                 )}
             </View>
         );
@@ -114,7 +110,7 @@ function SplitBill({ navigation, route }) {
                             ) : (
                                 <Image
                                     source={{
-                                        uri: imageUrl,
+                                        uri: `https://ui-avatars.com/api/?name=${avatar.accountFirstName2}+${avatar.accountLastName2}`,
                                     }}
                                     style={styles.avatar}
                                 />
@@ -168,7 +164,7 @@ function SplitBill({ navigation, route }) {
                             ) : (
                                 <Image
                                     source={{
-                                        uri: imageUrl,
+                                        uri: `https://ui-avatars.com/api/?name=${contact.accountFirstName2}+${contact.accountLastName2}`,
                                     }}
                                     style={styles.avatar}
                                 />

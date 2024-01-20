@@ -184,7 +184,6 @@ const Voucher = () => {
 const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
-        paddingTop: StatusBar.currentHeight,
         backgroundColor: '#fff',
     },
     loadingContainer: {

@@ -23,6 +23,7 @@ import { userAction } from '../slices/userSlice';
 import { fetchBalanceAction } from '../slices/balanceSlice';
 import { formatIDRCurrency } from '../utils/utils';
 import Loading from '../components/loading';
+import { Sidebar } from 'react-native-feather';
 
 const Home = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -176,6 +177,7 @@ const Home = ({ navigation }) => {
 
     return (
         <SafeAreaView style={styles.wrapper}>
+            <StatusBar barStyle={'dark-content'} />
             {isLoading ? (
                 <Loading />
             ) : (
@@ -300,9 +302,7 @@ const Home = ({ navigation }) => {
 const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
-        paddingTop: StatusBar.currentHeight,
         backgroundColor: '#fff',
-        marginTop: 20,
     },
     container: {
         flex: 1,
