@@ -32,6 +32,8 @@ import axiosInstance from '../../api/axiosInstance';
 import { formatIDRCurrency } from '../../utils/utils';
 import { logout } from '../../slices/userSlice';
 import { apiBaseUrl } from '../../api/xfood';
+import { useIsFocused } from '@react-navigation/native';
+import Loading from '../../components/loading';
 
 function Profile({ navigation }) {
     const dispatch = useDispatch();
@@ -44,17 +46,25 @@ function Profile({ navigation }) {
     const [image, setImage] = useState();
     const [modalVisible, setModalVisible] = useState(false);
     const { authService } = useContext(ServiceContext);
+    const [isLoading, setIsLoading] = useState(false);
 
     const imageUrl =
         'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
 
+    const isFocused = useIsFocused();
+
     useEffect(() => {
-        const onGetLoyaltyPointAmount = () => {
+        onGetUserByPhoneNumber();
+    }, []);
+
+    useEffect(() => {
+        const onGetLoyaltyPointAmount = async () => {
             try {
+                setIsLoading(true);
                 dispatch(
                     loyaltyPointAction(async () => {
                         const result =
-                            loyaltyPointService.fetchLoyaltyPointById(
+                            await loyaltyPointService.fetchLoyaltyPointById(
                                 users.loyaltyPoint.loyaltyPointID,
                             );
                         return result;
@@ -62,37 +72,74 @@ function Profile({ navigation }) {
                 );
             } catch (e) {
                 console.error('Error fetching loyalty point data: ', e);
+            } finally {
+                setIsLoading(false);
             }
         };
 
         const onGetBalanceUser = async () => {
             try {
+                setIsLoading(true);
                 dispatch(
                     fetchBalanceAction(async () => {
-                        const result = balanceService.fetchBalance(
+                        const result = await balanceService.fetchBalance(
                             users.balance.balanceID,
                         );
                         return result;
                     }),
                 );
             } catch (e) {
-                console.error('Error fetchin balance data: ', e);
+                console.error('Error fetching balance data: ', e);
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        onGetBalanceUser();
-        onGetUserByPhoneNumber();
-        onGetLoyaltyPointAmount();
+        const onGetUserByPhoneNumber = async () => {
+            try {
+                setIsLoading(true);
+
+                dispatch(
+                    userAction(async () => {
+                        const result =
+                            await userService.fetchUserByPhoneNumber(
+                                phoneNumber,
+                            );
+
+                        if (users.profilePhoto) {
+                            setImage(
+                                `data:image/jpeg;base64,${result.data.profilePhoto}`,
+                            );
+                        } else {
+                            setImage(imageUrl);
+                        }
+                        return result;
+                    }),
+                );
+            } catch (e) {
+                console.error('Error fetching user data: ', e);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (isFocused) {
+            onGetBalanceUser();
+            onGetUserByPhoneNumber();
+            onGetLoyaltyPointAmount();
+        }
     }, [
         dispatch,
         userService,
         loyaltyPointService,
         balanceService,
+        isFocused,
         Object.keys(users).length,
     ]);
 
     const onGetUserByPhoneNumber = () => {
         try {
+            setIsLoading(true);
             dispatch(
                 userAction(async () => {
                     const result =
@@ -110,6 +157,8 @@ function Profile({ navigation }) {
             );
         } catch (e) {
             console.error('Error fetching user data: ', e);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -427,28 +476,35 @@ function Profile({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-            >
-                {renderHeader()}
-                {renderProfile()}
+            {isLoading ? (
+                <Loading />
+            ) : (
+                <ScrollView
+                    showsHorizontalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {renderHeader()}
+                    {renderProfile()}
 
-                <View style={styles.wrapper}>
-                    {renderEditProfile()}
-                    {renderTopUp()}
-                    {renderLogout()}
-                    {users?.ktpID ? (
-                        <></>
-                    ) : (
-                        <View
-                            style={{ alignItems: 'center', marginBottom: 50 }}
-                        >
-                            {renderCompleteProfile()}
-                        </View>
-                    )}
-                </View>
-            </ScrollView>
+                    <View style={styles.wrapper}>
+                        {renderEditProfile()}
+                        {renderTopUp()}
+                        {renderLogout()}
+                        {users?.ktpID ? (
+                            <></>
+                        ) : (
+                            <View
+                                style={{
+                                    alignItems: 'center',
+                                    marginBottom: 50,
+                                }}
+                            >
+                                {renderCompleteProfile()}
+                            </View>
+                        )}
+                    </View>
+                </ScrollView>
+            )}
         </SafeAreaView>
     );
 }

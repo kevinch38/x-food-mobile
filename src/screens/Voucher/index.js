@@ -62,27 +62,96 @@ const Voucher = () => {
         }
     };
 
-    useEffect(() => {
-        const onGetLoyaltyPointAmount = () => {
-            try {
-                dispatch(
-                    loyaltyPointAction(async () => {
-                        const result =
-                            loyaltyPointService.fetchLoyaltyPointById(
-                                users.loyaltyPoint.loyaltyPointID,
-                            );
-                        return result;
-                    }),
-                );
-            } catch (e) {
-                console.error('Error fetching loyalty point data: ', e);
-            }
-        };
+    const renderHeader = () => {
+        return (
+            <View>
+                <Image
+                    source={require('../../../assets/images/elipse3.png')}
+                    style={{ position: 'absolute', top: 0 }}
+                />
+                <Image
+                    source={require('../../../assets/images/elipse.png')}
+                    style={{ position: 'absolute', top: 0 }}
+                />
+                <Image
+                    source={require('../../../assets/images/elipse2.png')}
+                    style={{ position: 'absolute', top: 0, right: 0 }}
+                />
+            </View>
+        );
+    };
 
-        if (isFocused) {
-            onGetLoyaltyPointAmount();
-        }
-    }, [dispatch, loyaltyPointService, isFocused]);
+    const renderListVoucher = () => {
+        return (
+            <View style={{ marginHorizontal: '5%' }}>
+                <Text
+                    style={{
+                        marginTop: 100,
+                        fontSize: 18,
+                        fontWeight: '700',
+                    }}
+                >
+                    Points
+                </Text>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginTop: -30,
+                    }}
+                >
+                    <View style={{ flexDirection: 'row', marginTop: 25 }}>
+                        <Image
+                            source={require('../../../assets/images/Coin.png')}
+                        />
+                        <Text
+                            style={{
+                                alignSelf: 'center',
+                                fontSize: 18,
+                            }}
+                        >
+                            {loyaltyPoints.loyaltyPointAmount}
+                        </Text>
+                    </View>
+                    <Button
+                        buttonStyle={{
+                            width: 110,
+                            height: 30,
+                            marginTop: 25,
+                            backgroundColor:
+                                loyaltyPoints.loyaltyPointAmount <= 0
+                                    ? Color.disabled
+                                    : Color.primary,
+                        }}
+                        title={'Reedem'}
+                        disabled={loyaltyPoints.loyaltyPointAmount <= 0}
+                        onPress={handleRedeemPress}
+                    />
+                </View>
+                <View>
+                    <Text style={{ fontSize: 18, fontWeight: '700' }}>
+                        My Vouchers
+                    </Text>
+                    <ScrollView>
+                        {Array.isArray(userData.vouchers) &&
+                            userData.vouchers.length > 0 &&
+                            userData.vouchers.map((item, idx) => {
+                                return (
+                                    <VoucherCard
+                                        key={idx}
+                                        title={item.promotionName}
+                                        content={item.promotionDescription}
+                                        image={item.logoImage}
+                                        expired={item.expiredDate}
+                                    />
+                                );
+                            })}
+                    </ScrollView>
+                </View>
+            </View>
+        );
+    };
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -90,91 +159,8 @@ const Voucher = () => {
                 <Loading />
             ) : (
                 <View>
-                    <View>
-                        <Image
-                            source={require('../../../assets/images/elipse3.png')}
-                            style={{ position: 'absolute', top: 0 }}
-                        />
-                        <Image
-                            source={require('../../../assets/images/elipse.png')}
-                            style={{ position: 'absolute', top: 0 }}
-                        />
-                        <Image
-                            source={require('../../../assets/images/elipse2.png')}
-                            style={{ position: 'absolute', top: 0, right: 0 }}
-                        />
-                    </View>
-                    <View style={{ marginHorizontal: '5%' }}>
-                        <Text
-                            style={{
-                                marginTop: 100,
-                                fontSize: 18,
-                                fontWeight: '700',
-                            }}
-                        >
-                            Points
-                        </Text>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                marginTop: -30,
-                            }}
-                        >
-                            <View
-                                style={{ flexDirection: 'row', marginTop: 25 }}
-                            >
-                                <Image
-                                    source={require('../../../assets/images/Coin.png')}
-                                />
-                                <Text
-                                    style={{
-                                        alignSelf: 'center',
-                                        fontSize: 18,
-                                    }}
-                                >
-                                    {loyaltyPoints.loyaltyPointAmount}
-                                </Text>
-                            </View>
-                            <Button
-                                buttonStyle={{
-                                    width: 110,
-                                    height: 30,
-                                    marginTop: 25,
-                                    backgroundColor:
-                                        loyaltyPoints.loyaltyPointAmount <= 0
-                                            ? Color.disabled
-                                            : Color.primary,
-                                }}
-                                title={'Reedem'}
-                                disabled={loyaltyPoints.loyaltyPointAmount <= 0}
-                                onPress={handleRedeemPress}
-                            />
-                        </View>
-                        <View>
-                            <Text style={{ fontSize: 18, fontWeight: '700' }}>
-                                My Vouchers
-                            </Text>
-                            <ScrollView>
-                                {Array.isArray(userData.vouchers) &&
-                                    userData.vouchers.length > 0 &&
-                                    userData.vouchers.map((item, idx) => {
-                                        return (
-                                            <VoucherCard
-                                                key={idx}
-                                                title={item.promotionName}
-                                                content={
-                                                    item.promotionDescription
-                                                }
-                                                image={item.logoImage}
-                                                expired={item.expiredDate}
-                                            />
-                                        );
-                                    })}
-                            </ScrollView>
-                        </View>
-                    </View>
+                    {renderHeader()}
+                    {renderListVoucher()}
                 </View>
             )}
         </SafeAreaView>

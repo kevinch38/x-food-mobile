@@ -59,7 +59,16 @@ const Merchant = ({ navigation }) => {
             ) : (
                 <ScrollView>
                     <BackButton onPress={handleBack} />
-                    <View style={{ alignItems: 'center' }}>
+                    <View
+                        style={{
+                            alignItems: 'center',
+                            width: '90%',
+                            height: 180,
+                            marginHorizontal: '5%',
+                            marginTop: '2%',
+                            position: 'absolute',
+                        }}
+                    >
                         <Image
                             source={{
                                 uri: `data:image/jpeg;base64,${merchant?.image}`,
@@ -111,18 +120,24 @@ const Merchant = ({ navigation }) => {
 
                     {Array.isArray(merchant.merchantBranches) &&
                         merchant.merchantBranches.length > 0 &&
-                        merchant.merchantBranches.map((b, idx) => {
-                            return (
-                                <CardBranch
-                                    key={idx}
-                                    image={b.image}
-                                    onPress={() => handleToMenu(b.branchID)}
-                                    branchName={b.branchName}
-                                    image={b.image}
-                                    branchAddress={b.address}
-                                />
-                            );
-                        })}
+                        merchant.merchantBranches
+                            .filter((branch) => branch.status === 'ACTIVE')
+                            .map((branch, idx) => {
+                                return (
+                                    <CardBranch
+                                        key={idx}
+                                        image={branch.image}
+                                        onPress={() =>
+                                            handleToMenu(branch.branchID)
+                                        }
+                                        branchName={branch.branchName}
+                                        branchAddress={branch.address}
+                                        branchWorkingHours={
+                                            branch.branchWorkingHours
+                                        }
+                                    />
+                                );
+                            })}
                 </ScrollView>
             )}
         </SafeAreaView>
@@ -139,7 +154,7 @@ const styles = StyleSheet.create({
     wrapperProfile: {
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 200,
+        marginTop: 180,
     },
     outerCircle: {
         position: 'absolute',
@@ -162,6 +177,7 @@ const styles = StyleSheet.create({
         width: 70,
         borderRadius: 70 / 2,
         margin: 9,
+        resizeMode: 'contain',
     },
     wrapperCamera: {
         position: 'absolute',
@@ -179,11 +195,11 @@ const styles = StyleSheet.create({
         height: 19,
     },
     bgProfile: {
-        marginTop: -35,
-        resizeMode: 'contain',
-        width: 378,
-        height: 285,
-        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        // marginTop: -35,
+        resizeMode: 'cover',
+        borderRadius: 10,
     },
 });
 

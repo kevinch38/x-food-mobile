@@ -36,12 +36,14 @@ import SplitBillSuccess from '../screens/SplitBill/SplitBillSuccess';
 import SplitBillTrack from '../screens/SplitBill/SplitBillTrack';
 import SetupNewPin from "../screens/Pin/SetupNewPin";
 import UpdateNewPin from "../screens/Pin/UpdateNewPin";
+import ExpiredToken from '../components/expiredToken';
 
 const Stack = createStackNavigator();
 
 const Navigation = () => {
     return (
         <NavigationContainer>
+            {/* <ExpiredToken /> */}
             <Stack.Navigator
                 initialRouteName="InitialScreen"
                 screenOptions={{ headerShown: false }}
@@ -118,7 +120,7 @@ const Navigation = () => {
                     name="SplitBillTrack"
                     component={SplitBillTrack}
                 />
-                 <Stack.Screen name="AddFriend" component={AddFriend} />
+                <Stack.Screen name="AddFriend" component={AddFriend} />
             </Stack.Navigator>
         </NavigationContainer>
     );

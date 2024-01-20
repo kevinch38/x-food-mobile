@@ -136,11 +136,12 @@ const PaymentScreen = () => {
                             title={paymentStatus[payment.paymentID]}
                             content={paymentContet[payment.paymentID]}
                             amount={formatIDRCurrency(payment.paymentAmount)}
-                            image={
-                                payment.accountID === users.accountID
-                                    ? payment.friend.imageAccount2
-                                    : payment.friend.imageAccount1
-                            }
+                            image={{
+                                uri:
+                                    payment.accountID === users.accountID
+                                        ? `data:image/jpeg;base64,${payment.friend.imageAccount2}`
+                                        : `data:image/jpeg;base64,${payment.friend.imageAccount1}`,
+                            }}
                         />
                     </TouchableOpacity>
                 ))}

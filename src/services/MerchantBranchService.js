@@ -4,7 +4,7 @@ import { apiBaseUrl } from '../api/xfood';
 const MerchantBranchService = () => {
     const fetchMerchantBranchs = async (id) => {
         const { data } = await axiosInstance.get(
-            `${apiBaseUrl}/api/merchants/branches?merchantId=${id}`,
+            `${apiBaseUrl}/api/merchants/branches/active?merchantId=${id}`,
         );
         return data;
     };

@@ -47,7 +47,7 @@ const HistoryCard = ({ image, date, title, content, amount }) => {
                                 fontSize: 15,
                             }}
                         >
-                            {amount ? formatIDRCurrency(amount) : ''}
+                            {amount ? amount : ''}
                         </Text>
                     </View>
                 </View>

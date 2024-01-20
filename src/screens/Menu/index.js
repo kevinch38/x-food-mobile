@@ -96,13 +96,14 @@ const Menu = ({ navigation }) => {
                             </Text>
                             <Text
                                 style={{
+                                    width: 'min-content',
                                     marginTop: 10,
                                     fontSize: 19,
                                     fontWeight: '400',
                                     color: '#9796A1',
                                 }}
                             >
-                                {branch.address}
+                                {branch.branchName}
                             </Text>
                         </View>
                         <View
@@ -164,12 +165,14 @@ const Menu = ({ navigation }) => {
                             <View
                                 style={{
                                     height: '100%',
-                                    width: 83,
+                                    width: 'min-content',
                                     marginTop: '15%',
+                                    marginRight: '3%',
                                 }}
                             >
                                 <Text
                                     style={{
+                                        width: 'min-content',
                                         textAlign: 'center',
                                         fontWeight: '500',
                                         fontSize: 16,
@@ -244,6 +247,7 @@ const styles = StyleSheet.create({
         elevation: 16,
     },
     logo: {
+        resizeMode: 'contain',
         height: 190,
         width: 190,
         borderRadius: 190 / 2,

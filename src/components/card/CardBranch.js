@@ -1,11 +1,34 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
 
-const CardBranch = ({ onPress, image, branchName, branchAddress }) => {
+const CardBranch = ({
+    onPress,
+    image,
+    branchName,
+    branchAddress,
+    branchWorkingHours,
+}) => {
     const base64StringImage = `data:image/jpeg;base64,${image}`;
+
+    const now = new Date();
+    const today = now.toLocaleDateString('en-US', { weekday: 'long' });
+
+    const isOpen = branchWorkingHours.some(({ days, openHour, closeHour }) => {
+        const openTime = new Date(`2000-01-01T${openHour}`);
+        const closeTime = new Date(`2000-01-01T${closeHour}`);
+
+        return today === days && now >= openTime && now <= closeTime;
+    });
+
+    const bgIsOpen = isOpen ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,1)';
+
     return (
         <View style={styles.card}>
-            <TouchableOpacity onPress={onPress}>
+            <TouchableOpacity
+                onPress={onPress}
+                disabled={isOpen}
+                style={(backgroundColor = bgIsOpen)}
+            >
                 <Image
                     source={{ uri: base64StringImage }}
                     style={styles.image}

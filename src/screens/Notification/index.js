@@ -263,7 +263,7 @@ function Notification() {
                         paymentData.orderItems,
                         paymentData.orderItemSplits,
                     )}
-                    totalAmount={formatIDRCurrency(paymentData.paymentAmount)}
+                    totalAmount={paymentData.paymentAmount}
                     titleButton={paymentTitleButton[paymentData.paymentID]}
                     onPress={
                         paymentTitleButton[paymentData.paymentID] === 'Pay'

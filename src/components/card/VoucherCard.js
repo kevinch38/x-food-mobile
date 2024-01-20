@@ -9,7 +9,13 @@ const VoucherCard = ({ image, title, content, expired }) => {
                 source={{ uri: `data:image/jpeg;base64,${image}` }}
                 style={{ height: 70, width: 70 }}
             />
-            <View style={{ flexDirection: 'column', marginLeft: 20 }}>
+            <View
+                style={{
+                    flexDirection: 'column',
+                    marginLeft: 20,
+                    width: '80%',
+                }}
+            >
                 <Text
                     style={{
                         color: '#454545',
