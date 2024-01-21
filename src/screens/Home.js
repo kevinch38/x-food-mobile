@@ -79,28 +79,35 @@ const Home = ({ navigation }) => {
         const onGetCities = async () => {
             await dispatch(cityAction(() => cityService.fetchCities()));
         };
-        onGetCities();
-    }, [dispatch, cityService]);
 
-    useEffect(() => {
-        const onGetUserByPhoneNumber = async () => {
-            try {
-                dispatch(
-                    userAction(async () => {
-                        const result =
-                            await userService.fetchUserByPhoneNumber(
-                                phoneNumber,
-                            );
-                        return result;
-                    }),
-                );
-            } catch (e) {
-                console.error('Error fetching user data: ', e);
-            }
+        const onGetMerchants = async () => {
+            await dispatch(
+                merchantAction(() => merchantService.fetchMerchants()),
+            );
         };
+        onGetCities();
+        onGetMerchants();
+    }, [dispatch, cityService, merchantService]);
 
-        onGetUserByPhoneNumber();
-    }, [dispatch, userService, phoneNumber]);
+    // useEffect(() => {
+    //     const onGetUserByPhoneNumber = async () => {
+    //         try {
+    //             dispatch(
+    //                 userAction(async () => {
+    //                     const result =
+    //                         await userService.fetchUserByPhoneNumber(
+    //                             phoneNumber,
+    //                         );
+    //                     return result;
+    //                 }),
+    //             );
+    //         } catch (e) {
+    //             console.error('Error fetching user data: ', e);
+    //         }
+    //     };
+
+    //     onGetUserByPhoneNumber();
+    // }, [dispatch, userService, phoneNumber]);
 
     const filteredMerchants = merchants.filter((merchant) => {
         const branches = merchant.merchantBranches || [];
@@ -134,8 +141,13 @@ const Home = ({ navigation }) => {
     const fetchData = useCallback(async () => {
         try {
             setIsLoading(true);
-            await dispatch(
-                merchantAction(() => merchantService.fetchMerchants()),
+
+            dispatch(
+                userAction(async () => {
+                    const result =
+                        await userService.fetchUserByPhoneNumber(phoneNumber);
+                    return result;
+                }),
             );
 
             if (users && users.balance) {

@@ -1,4 +1,4 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import VoucherService from "../services/VoucherService";
 import {theme} from "../theme";
@@ -31,33 +31,33 @@ const RedeemCard = ({image, title, percenOff, vouchersLeft, expired, points, isM
     };
 
     return (
-        <>
+        // <>
             <View style={styles.card}>
                 <View style={{flexDirection:"row"}}>
-                    <View style={{marginTop:5}}>
+                    <View style={{marginTop:"3%"}}>
                         <View style={styles.image}>
                             <Image source={{ uri: `data:image/jpeg;base64,${image}` }}/>
                         </View>
-                        <Text style={{marginTop:-36, fontSize:13}}>Vouchers Left : {vouchersLeft}</Text>
-                        <Text style={{marginTop:30, fontSize:11}}>Expired Date:{formattedExpiredDate}</Text>
+                        <Text style={{marginTop:"-22%", fontSize:13}}>Vouchers Left : {vouchersLeft}</Text>
+                        <Text style={{marginTop:"20%", fontSize:11}}>Expired Date:{formattedExpiredDate}</Text>
                     </View>
                     <View>
-                    <View style={{flexDirection:"row", marginLeft:-40, marginTop:10}}>
+                    <View style={{flexDirection:"row", marginLeft:"-22%", marginTop:"6%"}}>
                         <View style={{flexDirection:'row'}}>
                             <Text style={{fontSize:12, color:'#9796A1'}}>{percenOff} Off</Text>
-                            <Text style={{marginLeft:20, fontSize:12, color:'#9796A1'}}>{maxRedeem} Items</Text>
+                            <Text style={{marginLeft:"6%", fontSize:12, color:'#9796A1'}}>{maxRedeem} Items</Text>
                         </View>
-                            <Text style={{marginLeft:60, color:'#4EE476'}}>{points}</Text>
+                            <Text style={{marginLeft:"19%", color:'#4EE476'}}>{points}</Text>
                     </View>
-                        <Text style={{fontWeight:900, fontSize:16, marginLeft:-40}}>{title}</Text>
+                        <Text style={{fontWeight:900, fontSize:16, marginLeft:"-22%"}}>{title}</Text>
                     </View>
                     {isMaxRedeemed || voucherEmpty || vouchersLeft==='0' || isExpired || loyaltyPoint < points ?
-                        <TouchableOpacity style={{marginTop:80, marginLeft:120, position: 'absolute'}} onPress={handleRedeemAndFetchVoucher} disabled={true}>
+                        <TouchableOpacity style={{marginTop:"25%", marginLeft:'50%', position: 'absolute'}} onPress={handleRedeemAndFetchVoucher} disabled={true}>
                             <View style={[styles.button, {backgroundColor: theme.grey}]}>
                                 <Text style={{textAlign:"center", color:"white"}}>{isExpired?`Expired`: `Redeemed`}</Text>
                             </View>
                         </TouchableOpacity> :
-                        <TouchableOpacity style={{marginTop:80, marginLeft:120, position: 'absolute'}} onPress={handleRedeemAndFetchVoucher} disabled={false}>
+                        <TouchableOpacity style={{marginTop:"25%", marginLeft:'50%', position: 'absolute'}} onPress={handleRedeemAndFetchVoucher} disabled={false}>
                             <View style={[styles.button, {backgroundColor: "#F08D18"}]}>
                                 <Text style={{textAlign:"center", color:"white"}}>Redeem</Text>
                             </View>
@@ -67,14 +67,14 @@ const RedeemCard = ({image, title, percenOff, vouchersLeft, expired, points, isM
 
 
             </View>
-        </>
+        // </>
     )
 }
 
 const styles = StyleSheet.create({
     card : {
         width: '100%',
-        height: '28%' ,
+        height: 170 ,
         flexDirection:"row",
         marginBottom :'6%',
         padding :'6%',

@@ -1,6 +1,5 @@
-import { Text, View, StyleSheet, Image } from 'react-native';
+import { Text, View, StyleSheet, Image, ScrollView } from 'react-native';
 import React from 'react';
-import { formatIDRCurrency } from '../utils/utils';
 
 const HistoryCard = ({ image, date, title, content, amount }) => {
     return (
@@ -36,18 +35,23 @@ const HistoryCard = ({ image, date, title, content, amount }) => {
                     <Text style={{ fontWeight: 900, fontSize: 16 }}>
                         {title}
                     </Text>
-                    <View style={{ flexDirection: 'row' }}>
-                        <Text style={{ fontWeight: 500, fontSize: 15 }}>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', width:"95%"}}>
+                        <Text
+                            style={{
+                                fontWeight: 500,
+                                fontSize: 15,
+                                marginRight: 3,
+                            }}
+                        >
                             {content}
                         </Text>
                         <Text
                             style={{
-                                marginLeft: 3,
                                 fontWeight: 500,
                                 fontSize: 15,
                             }}
                         >
-                            {amount ? amount : ''}
+                            {amount}
                         </Text>
                     </View>
                 </View>

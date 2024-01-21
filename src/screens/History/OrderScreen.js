@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 import HistoryService from '../../services/HistoryService';
 import { format } from 'date-fns';
 import { useNavigation } from '@react-navigation/native';
-import {formatIDRCurrency} from "../../utils/utils";
+import { formatIDRCurrency} from "../../utils/utils";
 
 const OrderScreen = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
@@ -83,7 +83,11 @@ const OrderScreen = () => {
 
     return (
         <View style={{ margin: 5 }}>
-            <ScrollView style={{marginBottom:250}}>
+            <ScrollView
+                style={{marginBottom:250}}
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+            >
                     {order.map((orderItem, index) => (
                         <Pressable
                             key={index}

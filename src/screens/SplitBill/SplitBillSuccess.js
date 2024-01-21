@@ -10,6 +10,7 @@ import {
 import Color from '../../assets/Color';
 import Button from '../../components/button';
 import React, { useState } from 'react';
+import { formatIDRCurrency } from '../../utils/utils';
 
 function SplitBillSuccess({ navigation, route }) {
     const [requestPayment, setRequestPayment] = useState(
@@ -123,7 +124,7 @@ function SplitBillSuccess({ navigation, route }) {
                             </View>
                             <View style={styles.priceContainer}>
                                 <Text style={styles.price}>
-                                    Rp. {group.items[0].price}
+                                    {formatIDRCurrency(group.items[0].price)}
                                 </Text>
                                 <Text style={styles.price}>
                                     {group.items.length}x
@@ -169,7 +170,7 @@ function SplitBillSuccess({ navigation, route }) {
                         />
                         <Text style={styles.textTotal}>Total:</Text>
                         <Text style={styles.priceTotal}>
-                            Rp {totalItemPrice}
+                            {formatIDRCurrency(totalItemPrice)}
                         </Text>
                     </View>
                 </View>
@@ -261,7 +262,7 @@ const styles = StyleSheet.create({
     },
     price: {
         fontSize: 14,
-        fontWeight: '200',
+        fontWeight: '400',
         marginRight: 40,
     },
     avatarContainer: {

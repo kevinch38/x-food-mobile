@@ -12,6 +12,7 @@ import Button from '../../components/button';
 import React, { useState } from 'react';
 import * as Icon from 'react-native-feather';
 import Color from '../../assets/Color';
+import { formatIDRCurrency } from '../../utils/utils';
 
 function SplitBillAddPosition({ navigation, route }) {
     const friends = route.params?.avatarData;
@@ -167,7 +168,7 @@ function SplitBillAddPosition({ navigation, route }) {
                             <Text style={styles.item}>{item.itemName}</Text>
                             <View style={styles.priceContainer}>
                                 <Text style={styles.price}>
-                                    Rp. {item.newPrice}
+                                    {formatIDRCurrency(item.newPrice)}
                                 </Text>
                                 <Text style={styles.price}>
                                     {item.quantity}x
@@ -367,7 +368,7 @@ const styles = StyleSheet.create({
     },
     price: {
         fontSize: 14,
-        fontWeight: '200',
+        fontWeight: '400',
     },
     counterContainer: {
         flexDirection: 'row',
