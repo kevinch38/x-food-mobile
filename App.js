@@ -11,7 +11,7 @@ const service = ServiceFactory();
 export default function App() {
     return (
         <Provider store={store}>
-            <StatusBar barStyle={'dark-content'} />
+            <StatusBar barStyle={'light-content'} />
             <ServiceProvider service={service}>
                 <Navigation />
             </ServiceProvider>

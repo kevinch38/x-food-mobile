@@ -316,7 +316,7 @@ function Profile({ navigation }) {
                     }}
                 >
                     <Text style={styles.name}>
-                        {users?.firstName} {users?.lastName}
+                        {users?.firstName} {users?.la}
                     </Text>
                     <View
                         style={{

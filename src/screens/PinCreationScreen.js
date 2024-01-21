@@ -116,7 +116,7 @@ const PinCreationScreen = ({ navigation }) => {
         <View style={styles.centeredView}>
             <Home navigation={navigation} />
             {isLoading && (
-                <Loading />
+                <Loading style={{ zIndex: -11 }} />
                 // <ActivityIndicator
                 //     style={{
                 //         position: 'absolute',

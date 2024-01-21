@@ -174,7 +174,6 @@ const Home = ({ navigation }) => {
         cities,
     ]);
 
-
     const renderNotification = () => {
         return (
             <View style={styles.notifBell}>
@@ -272,7 +271,7 @@ const Home = ({ navigation }) => {
         <SafeAreaView style={styles.wrapper}>
             <StatusBar barStyle={'light-content'} />
             {isLoading ? (
-                <Loading />
+                <Loading style={{ zIndex: 999 }} />
             ) : (
                 <ScrollView>
                     <View style={styles.container}>
@@ -313,7 +312,7 @@ const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
         backgroundColor: '#fff',
-        marginTop:'3%'
+        paddingTop: '3%',
     },
     container: {
         flex: 1,

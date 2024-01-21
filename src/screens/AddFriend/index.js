@@ -203,21 +203,8 @@ const AddFriend = ({ navigation, route }) => {
                                 </TouchableOpacity>
                             ) : (
                                 <TouchableOpacity
-                                    style={[
-                                        styles.button,
-                                        {
-                                            opacity:
-                                                phoneNumber.length < 10 ||
-                                                phoneNumber.length > 16
-                                                    ? 0.5
-                                                    : 1,
-                                        },
-                                    ]}
+                                    style={[styles.button]}
                                     onPress={handleSubmit}
-                                    disabled={
-                                        phoneNumber.length < 10 ||
-                                        phoneNumber.length > 16
-                                    }
                                 >
                                     <Text style={styles.buttonText}>
                                         Search
