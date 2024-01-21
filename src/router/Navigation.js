@@ -43,7 +43,6 @@ const Stack = createStackNavigator();
 const Navigation = () => {
     return (
         <NavigationContainer>
-            {/* <ExpiredToken /> */}
             <Stack.Navigator
                 initialRouteName="InitialScreen"
                 screenOptions={{ headerShown: false }}

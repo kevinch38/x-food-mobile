@@ -174,6 +174,100 @@ const Home = ({ navigation }) => {
         cities,
     ]);
 
+
+    const renderNotification = () => {
+        return (
+            <View style={styles.notifBell}>
+                <Icon
+                    color={Color.primary}
+                    containerStyle={{}}
+                    disabledStyle={{}}
+                    iconProps={{}}
+                    iconStyle={{}}
+                    name="notifications"
+                    onPress={handleNotification}
+                    size={40}
+                    type="material"
+                />
+            </View>
+        );
+    };
+
+    const renderLocation = () => {
+        return (
+            <View style={styles.topArea}>
+                <View style={styles.dropdownArea}>
+                    <View style={styles.viewLocation}>
+                        <Text style={styles.textLocation}>Location</Text>
+                        {/*<Icon*/}
+                        {/*    color="#989CA3"*/}
+                        {/*    name="chevron-down"*/}
+                        {/*    size={10}*/}
+                        {/*    type="font-awesome-5"*/}
+                        {/*/>*/}
+                    </View>
+
+                    <Dropdown
+                        style={styles.dropdown}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        inputSearchStyle={styles.inputSearchStyle}
+                        iconStyle={styles.iconStyle}
+                        data={items}
+                        search
+                        maxHeight={400}
+                        labelField="cityName"
+                        valueField="cityID"
+                        placeholder="Select city"
+                        searchPlaceholder="Search..."
+                        value={cityId}
+                        onChange={(item) => {
+                            setCityId(item.cityID);
+                        }}
+                    />
+                </View>
+            </View>
+        );
+    };
+
+    const renderSearch = () => {
+        <View style={styles.areaSearchBar}>
+            <View style={styles.searchBar}>
+                <SearchBar
+                    platform="android"
+                    onChangeText={(newVal) => setSearch(newVal)}
+                    onClearText={() => console.log(onClearText())}
+                    placeholder="Find for food or restaurant..."
+                    placeholderTextColor="#888"
+                    cancelButtonTitle="Cancel"
+                    fontSize={14}
+                    value={search}
+                    round={true}
+                />
+            </View>
+        </View>;
+    };
+
+    const renderAccountSummary = () => {
+        return (
+            <View style={styles.summary}>
+                <Image
+                    style={{ width: 33, height: 19 }}
+                    source={require('../assets/images/card.png')}
+                />
+                <Text>{formatIDRCurrency(balance.totalBalance)}</Text>
+                <Pressable onPress={handleTopUp}>
+                    <Text style={{ color: '#5681A5' }}>TOP UP</Text>
+                </Pressable>
+                <Image
+                    style={{ width: 20, height: 20 }}
+                    source={require('../assets/icons/dollar.png')}
+                />
+                <Text>{loyaltyPoints.loyaltyPointAmount}</Text>
+            </View>
+        );
+    };
+
     return (
         <SafeAreaView style={styles.wrapper}>
             <StatusBar style={'dark'} />
@@ -182,102 +276,19 @@ const Home = ({ navigation }) => {
             ) : (
                 <ScrollView>
                     <View style={styles.container}>
-                        <View style={styles.notifBell}>
-                            {/*<TouchableOpacity onPress={handleNotification}>*/}
-
-                            {/*<Image*/}
-                            {/*    style={{ height: 34, width: 34 }}*/}
-                            {/*    source={require('../assets/icons/Bell.png')}*/}
-                            {/*/>*/}
-                            {/*</TouchableOpacity>*/}
-                            <Icon
-                                color={Color.primary}
-                                containerStyle={{}}
-                                disabledStyle={{}}
-                                iconProps={{}}
-                                iconStyle={{}}
-                                name="notifications"
-                                onPress={handleNotification}
-                                size={40}
-                                type="material"
-                            />
-                        </View>
-                        <View style={styles.topArea}>
-                            <View style={styles.dropdownArea}>
-                                <View style={styles.viewLocation}>
-                                    <Text style={styles.textLocation}>
-                                        Location
-                                    </Text>
-                                    {/*<Icon*/}
-                                    {/*    color="#989CA3"*/}
-                                    {/*    name="chevron-down"*/}
-                                    {/*    size={10}*/}
-                                    {/*    type="font-awesome-5"*/}
-                                    {/*/>*/}
-                                </View>
-
-                                <Dropdown
-                                    style={styles.dropdown}
-                                    placeholderStyle={styles.placeholderStyle}
-                                    selectedTextStyle={styles.selectedTextStyle}
-                                    inputSearchStyle={styles.inputSearchStyle}
-                                    iconStyle={styles.iconStyle}
-                                    data={items}
-                                    search
-                                    maxHeight={400}
-                                    labelField="cityName"
-                                    valueField="cityID"
-                                    placeholder="Select city"
-                                    searchPlaceholder="Search..."
-                                    value={cityId}
-                                    onChange={(item) => {
-                                        setCityId(item.cityID);
-                                    }}
-                                />
-                            </View>
-                        </View>
+                        {renderNotification()}
+                        {renderLocation()}
                         <Text style={styles.title}>
                             Where would you like to eat
                         </Text>
-                        <View style={styles.areaSearchBar}>
-                            <View style={styles.searchBar}>
-                                <SearchBar
-                                    platform="android"
-                                    onChangeText={(newVal) => setSearch(newVal)}
-                                    onClearText={() =>
-                                        console.log(onClearText())
-                                    }
-                                    placeholder="Find for food or restaurant..."
-                                    placeholderTextColor="#888"
-                                    cancelButtonTitle="Cancel"
-                                    fontSize={14}
-                                    value={search}
-                                    round={true}
-                                />
-                            </View>
-                        </View>
-                        <View style={styles.summary}>
-                            <Image
-                                style={{ width: 33, height: 19 }}
-                                source={require('../assets/images/card.png')}
-                            />
-                            <Text>
-                                {formatIDRCurrency(balance.totalBalance)}
-                            </Text>
-                            <Pressable onPress={handleTopUp}>
-                                <Text style={{ color: '#5681A5' }}>TOP UP</Text>
-                            </Pressable>
-                            <Image
-                                style={{ width: 20, height: 20 }}
-                                source={require('../assets/icons/dollar.png')}
-                            />
-                            <Text>{loyaltyPoints.loyaltyPointAmount}</Text>
-                        </View>
+                        {renderSearch()}
+
                         <View style={styles.viewTitle}>
                             <Text style={styles.titleList}>
                                 Featured Restaurants
                             </Text>
                         </View>
+                        {renderAccountSummary()}
 
                         {Array.isArray(filteredSearchMerchants) &&
                             filteredSearchMerchants.length > 0 &&

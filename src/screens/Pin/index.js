@@ -299,6 +299,8 @@ const styles = StyleSheet.create({
         marginBottom: 44,
     },
     title: {
+        width: '100%',
+        textAlign: 'center',
         fontWeight: '300',
         fontSize: 30,
     },

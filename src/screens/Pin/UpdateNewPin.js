@@ -1,55 +1,71 @@
-import React, {useEffect, useRef, useState} from "react";
-import {useSelector} from "react-redux";
-import PinService from "../../services/PinService";
-import {Image, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, View} from "react-native";
-import BackButton from "../../components/backButton";
-import Color from "../../assets/Color";
-import {theme} from "../../theme";
-import {useRoute} from "@react-navigation/native";
+import React, { useState, useEffect, useRef } from 'react';
+import {
+    Alert,
+    Image,
+    SafeAreaView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from 'react-native';
+import BackButton from '../../components/backButton';
+import Color from '../../assets/Color';
+import { theme } from '../../theme';
+import { useSelector } from 'react-redux';
+import PinService from '../../services/PinService';
+import { useRoute } from '@react-navigation/native';
 
-const UpdateNewPin = ({navigation}) => {
+const UpdateNewPin = ({ navigation }) => {
     const [isFocused, setIsFocused] = useState(false);
-    const {users}  = useSelector((state) => state.user);
+    const { users } = useSelector((state) => state.user);
     const pinService = PinService();
     const route = useRoute();
     const inputPin = route.params?.dataInput;
 
+    const inputRefs = [
+        useRef(),
+        useRef(),
+        useRef(),
+        useRef(),
+        useRef(),
+        useRef(),
+    ];
 
-    const input1Ref = useRef();
-    const input2Ref = useRef();
-    const input3Ref = useRef();
-    const input4Ref = useRef();
-    const input5Ref = useRef();
-    const input6Ref = useRef();
+    const [pinInputs, setPinInputs] = useState(['', '', '', '', '', '']);
 
-    const [input1, setInput1] = useState('');
-    const [input2, setInput2] = useState('');
-    const [input3, setInput3] = useState('');
-    const [input4, setInput4] = useState('');
-    const [input5, setInput5] = useState('');
-    const [input6, setInput6] = useState('');
+    useEffect(() => {
+        if (inputRefs[0].current) {
+            inputRefs[0].current.focus();
+        }
+    }, []);
 
-    const handleTextChange = (
-        text,
-        nextInputRef,
-        prevInputRef,
-        currentStateSetter,
-    ) => {
-        currentStateSetter(text);
+    const handleFocus = (index) => {
+        setIsFocused(index);
+    };
 
-        if (text.length === 0 && prevInputRef && prevInputRef.current) {
-            prevInputRef.current.focus();
-        } else if (text.length === 1 && nextInputRef && nextInputRef.current) {
-            nextInputRef.current.focus();
+    const handleBlur = () => {
+        setIsFocused(null);
+    };
+
+    const handleTextChange = (text, index) => {
+        const newPinInputs = [...pinInputs];
+        newPinInputs[index] = text;
+        setPinInputs(newPinInputs);
+
+        if (text.length === 1 && index < inputRefs.length - 1) {
+            inputRefs[index + 1].current.focus();
+        } else if (text.length === 0 && index > 0) {
+            inputRefs[index - 1].current.focus();
         }
     };
 
     useEffect(() => {
-        handleInput()
-    }, [input6]);
+        checkPin();
+    }, [pinInputs[5]]);
 
-    const handleInput = async () => {
-        const input = input1 + input2 + input3 + input4 + input5 + input6;
+    const checkPin = async () => {
+        const input = pinInputs.join('');
         try {
             if (input.length === 6) {
                 if (input === inputPin) {
@@ -57,25 +73,17 @@ const UpdateNewPin = ({navigation}) => {
                         pinID: users.pinID,
                         pin: input,
                     });
-                    if (result.statusCode === 200){
-                        alert("Success Change PIN");
-                        navigation.navigate("Tabs");
+                    if (result.statusCode === 200) {
+                        Alert.alert('Success Change PIN');
+                        navigation.navigate('Tabs');
                     }
                 } else {
-                    alert("Pin Doesn't Match");
+                    Alert.alert("Pin Doesn't Match");
                 }
             }
         } catch (error) {
-            console.error("Error during pinCheck:", error);
+            console.error('Error during pinCheck:', error);
         }
-    }
-
-    const handleFocus = () => {
-        setIsFocused(true);
-    };
-
-    const handleBlur = () => {
-        setIsFocused(false);
     };
 
     const renderHeader = () => {
@@ -100,101 +108,31 @@ const UpdateNewPin = ({navigation}) => {
     const renderPin = () => {
         return (
             <View style={styles.inputPin}>
-                <TextInput
-                    ref={input1Ref}
-                    style={[
-                        styles.textInputStyle,
-                        { borderColor: isFocused ? Color.primary : Color.gray },
-                    ]}
-                    secureTextEntry={true}
-                    maxLength={1}
-                    autoFocus={true}
-                    keyboardType={'numeric'}
-                    onChangeText={(text) =>
-                        handleTextChange(text, input2Ref, null, setInput1)
-                    }
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                />
-                <TextInput
-                    ref={input2Ref}
-                    style={[
-                        styles.textInputStyle,
-                        { borderColor: isFocused ? Color.primary : Color.gray },
-                    ]}
-                    secureTextEntry={true}
-                    maxLength={1}
-                    keyboardType={'numeric'}
-                    onChangeText={(text) =>
-                        handleTextChange(text, input3Ref, input1Ref, setInput2)
-                    }
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                />
-                <TextInput
-                    ref={input3Ref}
-                    style={[
-                        styles.textInputStyle,
-                        { borderColor: isFocused ? Color.primary : Color.gray },
-                    ]}
-                    secureTextEntry={true}
-                    maxLength={1}
-                    keyboardType={'numeric'}
-                    onChangeText={(text) =>
-                        handleTextChange(text, input4Ref, input2Ref, setInput3)
-                    }
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                />
-                <TextInput
-                    ref={input4Ref}
-                    style={[
-                        styles.textInputStyle,
-                        { borderColor: isFocused ? Color.primary : Color.gray },
-                    ]}
-                    secureTextEntry={true}
-                    maxLength={1}
-                    keyboardType={'numeric'}
-                    onChangeText={(text) =>
-                        handleTextChange(text, input5Ref, input3Ref, setInput4)
-                    }
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                />
-                <TextInput
-                    ref={input5Ref}
-                    style={[
-                        styles.textInputStyle,
-                        { borderColor: isFocused ? Color.primary : Color.gray },
-                    ]}
-                    secureTextEntry={true}
-                    maxLength={1}
-                    keyboardType={'numeric'}
-                    onChangeText={(text) =>
-                        handleTextChange(text, input6Ref, input4Ref, setInput5)
-                    }
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                />
-                <TextInput
-                    ref={input6Ref}
-                    style={[
-                        styles.textInputStyle,
-                        { borderColor: isFocused ? Color.primary : Color.gray },
-                    ]}
-                    secureTextEntry={true}
-                    maxLength={1}
-                    keyboardType={'numeric'}
-                    onChangeText={(text) =>
-                        handleTextChange(text, null, input5Ref, setInput6)
-                    }
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                />
+                {pinInputs.map((value, index) => (
+                    <TextInput
+                        key={index}
+                        ref={inputRefs[index]}
+                        style={[
+                            styles.textInputStyle,
+                            {
+                                borderColor:
+                                    isFocused === index
+                                        ? Color.primary
+                                        : Color.gray,
+                            },
+                        ]}
+                        secureTextEntry={true}
+                        maxLength={1}
+                        keyboardType={'numeric'}
+                        onChangeText={(text) => handleTextChange(text, index)}
+                        onFocus={() => handleFocus(index)}
+                        onBlur={handleBlur}
+                        autoFocus={isFocused === index}
+                    />
+                ))}
             </View>
         );
-
-    }
+    };
 
     return (
         <SafeAreaView style={styles.controller}>
@@ -204,8 +142,7 @@ const UpdateNewPin = ({navigation}) => {
             </View>
         </SafeAreaView>
     );
-}
-
+};
 
 const styles = StyleSheet.create({
     controller: {
@@ -257,6 +194,5 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
 });
-
 
 export default UpdateNewPin;

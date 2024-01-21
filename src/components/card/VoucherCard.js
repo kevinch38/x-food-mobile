@@ -13,14 +13,14 @@ const VoucherCard = ({ image, title, content, expired }) => {
                 style={{
                     flexDirection: 'column',
                     marginLeft: 20,
-                    width: '80%',
+                    width: '70%',
                 }}
             >
                 <Text
                     style={{
                         color: '#454545',
                         fontSize: 16,
-                        fontWeight: '700',
+                        fontWeight: '900',
                         marginBottom: 5,
                     }}
                 >
@@ -29,7 +29,7 @@ const VoucherCard = ({ image, title, content, expired }) => {
                 <Text
                     style={{
                         color: '#454545',
-                        fontSize: 16,
+                        fontSize: 15,
                         fontWeight: '400',
                     }}
                 >

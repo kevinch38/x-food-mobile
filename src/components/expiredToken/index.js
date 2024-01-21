@@ -35,7 +35,7 @@ export default function ExpiredToken({ navigation }) {
     }, []);
 
     return (
-        true &&
+        isValid &&
         Alert.alert(
             'Log out',
             'Token has expired',

@@ -22,13 +22,13 @@ const VerificationCodeScreen = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
     const [focusedInput, setFocusedInput] = useState(null);
-    const [isValidCode, setIsValidCode] = useState(true);
+    const [isValidCode, setIsValidCode] = useState(false);
     const [otpID, setOtpID] = useState(null);
     const [firstName, setFirstName] = useState('');
     const navigation = useNavigation();
     const route = useRoute();
     const userService = UserService();
-    const inputRefs = [useRef(),useRef(), useRef(), useRef()];
+    const inputRefs = [useRef(), useRef(), useRef(), useRef()];
 
     useEffect(() => {
         inputRefs.forEach((ref, index) => {
@@ -67,7 +67,6 @@ const VerificationCodeScreen = () => {
             setVerificationCode(updatedCode);
         }
     };
-
 
     const handleInputChange = (text, index) => {
         const updatedCode = [...verificationCode];
@@ -121,7 +120,8 @@ const VerificationCodeScreen = () => {
                 setIsValidCode(true);
             }
         } catch (error) {
-            console.error('Error fetching OTP data:', error);
+            // console.error('Error fetching OTP data:', error);
+            setIsValidCode(true);
         }
     };
 
@@ -187,10 +187,11 @@ const VerificationCodeScreen = () => {
                         onChangeText={(text) => handleInputChange(text, index)}
                         onFocus={() => handleInputFocus(index)}
                         onBlur={handleInputBlur}
+                        // editable={focusedInput === index}
                     />
                 ))}
             </View>
-            {!isValidCode && (
+            {isValidCode && (
                 <Text
                     style={{ color: 'red', marginTop: 10, textAlign: 'center' }}
                 >

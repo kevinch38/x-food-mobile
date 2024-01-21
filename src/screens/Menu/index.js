@@ -91,7 +91,7 @@ const Menu = ({ navigation }) => {
                                 left: '10%',
                             }}
                         >
-                            <Text style={{ fontSize: 40, fontWeight: '700' }}>
+                            <Text style={{ fontSize: 40, fontWeight: '900' }}>
                                 {merchant.merchantName}
                             </Text>
                             <Text
@@ -99,7 +99,7 @@ const Menu = ({ navigation }) => {
                                     width: 'min-content',
                                     marginTop: 10,
                                     fontSize: 19,
-                                    fontWeight: '400',
+                                    fontWeight: '900',
                                     color: '#9796A1',
                                 }}
                             >

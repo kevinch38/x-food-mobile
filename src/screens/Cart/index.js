@@ -34,6 +34,8 @@ import { fetchBalanceAction } from '../../slices/balanceSlice';
 import Color from '../../assets/Color';
 import ErrorText from '../../components/errorText';
 import VoucherService from '../../services/VoucherService';
+import { formatIDRCurrency } from '../../utils/utils';
+import Logo from '../../assets/images/mechant-logo.png';
 
 function Cart({ navigation }) {
     const dispatch = useDispatch();
@@ -61,7 +63,11 @@ function Cart({ navigation }) {
     });
 
     const validationButton =
-        balanceUser <= 0 || cartItems.length === 0 || isValid || dirty
+        balanceUser <= 0 ||
+        cartItems.length === 0 ||
+        isValid ||
+        dirty ||
+        balanceUser < cartTotal
             ? Color.disabled
             : Color.primary;
 
@@ -234,7 +240,7 @@ function Cart({ navigation }) {
     };
 
     const handleBack = () => {
-        navigation.goBack();
+        navigation.navigate('Menu');
     };
 
     const handleClose = (item) => {
@@ -429,12 +435,11 @@ function Cart({ navigation }) {
                         >{`(${cartItems.length} items)`}</Text>
                     </View>
                     <Text style={styles.textSubtotal}>
-                        Rp.{' '}
                         {(sale ? cartTotal - sale : cartTotal) < 0
                             ? 0
                             : sale
-                              ? cartTotal - sale
-                              : cartTotal.toLocaleString()}
+                              ? formatIDRCurrency(cartTotal - sale)
+                              : formatIDRCurrency(cartTotal)}
                     </Text>
                 </View>
             </View>
@@ -464,7 +469,8 @@ function Cart({ navigation }) {
                             balanceUser <= 0 ||
                             cartItems.length === 0 ||
                             !isValid ||
-                            !dirty
+                            !dirty ||
+                            balanceUser < cartTotal
                         }
                     />
                 </View>

@@ -15,7 +15,7 @@ const CardMenu = ({
 
     // const display = itemStock <= 0 ? '' : 'none';
 
-    const opacity = itemStock <= 0 ? 0.7 : 1;
+    const opacity = itemStock <= 0 ? 0.4 : 1;
     const isOutOfStock =
         itemStock <= 0 ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,1)';
 
@@ -44,17 +44,6 @@ const CardMenu = ({
                                 : initialPrice.toLocaleString()}
                         </Text>
                     </View>
-
-                    {/*<View*/}
-                    {/*    style={[*/}
-                    {/*        styles.stock,*/}
-                    {/*        { backgroundColor: isOutOfStock, display: display },*/}
-                    {/*    ]}*/}
-                    {/*>*/}
-                    {/*    <Text style={{ fontWeight: '700' }}>*/}
-                    {/*        {itemStock <= 0 ? 'Out of Stock' : ''}*/}
-                    {/*    </Text>*/}
-                    {/*</View>*/}
                 </View>
 
                 <Image

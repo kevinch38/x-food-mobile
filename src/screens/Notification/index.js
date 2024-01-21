@@ -1,4 +1,5 @@
 import {
+    Image,
     ScrollView,
     StatusBar,
     StyleSheet,
@@ -189,7 +190,7 @@ function Notification() {
         });
     };
 
-    const handleFilteredOrderItems = (orderItems, orderItemSplits) => {
+    const handleFilteredOrderItems = (orderItems, orderItemSplits, image) => {
         const filteredOrderItems = orderItems.filter((item) => {
             return orderItemSplits.includes(item.orderItemID);
         });
@@ -197,11 +198,13 @@ function Notification() {
         const groupedItems = filteredOrderItems.reduce((groups, item) => {
             const itemName = item.itemName;
             const itemPrice = item.price;
+            const itemImage = image;
 
-            const key = `${itemName}-${itemPrice}`;
+            const key = `${itemName}-${itemPrice}-${itemImage}`;
 
             if (!groups[key]) {
                 groups[key] = {
+                    itemImage,
                     itemName,
                     itemPrice,
                     count: 0,
@@ -214,7 +217,7 @@ function Notification() {
         }, {});
 
         return Object.keys(groupedItems).map((key) => {
-            const { itemName, itemPrice, count } = groupedItems[key];
+            const { itemName, itemPrice, itemImage, count } = groupedItems[key];
 
             return (
                 <View
@@ -222,20 +225,35 @@ function Notification() {
                     style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '3%',
                     }}
                 >
-                    <Text
-                        style={{
-                            fontSize: 24,
-                            fontWeight: '400',
-                            marginHorizontal: '10%',
-                        }}
-                    >
-                        {itemName}
-                    </Text>
-                    {/*<Text style={{ fontSize: 24, fontWeight: '400' }}>*/}
-                    {/*    {itemPrice}*/}
-                    {/*</Text>*/}
+                    <Image
+                        source={{ uri: `data:image/jpeg;base64,${itemImage}` }}
+                        style={{ height: 30, width: 30, borderRadius: 5 }}
+                    />
+                    <View style={{ flexDirection: 'column' }}>
+                        <Text
+                            style={{
+                                width: '100%',
+                                fontSize: 20,
+                                fontWeight: '400',
+                                marginHorizontal: '5%',
+                            }}
+                        >
+                            {itemName}
+                        </Text>
+                        {/* <Text
+                            style={{
+                                fontSize: 24,
+                                marginHorizontal: '5%',
+                                fontWeight: '400',
+                            }}
+                        >
+                            {itemPrice}
+                        </Text> */}
+                    </View>
                     <Text style={{ fontSize: 18, fontWeight: '400' }}>
                         {count}x
                     </Text>
@@ -246,7 +264,7 @@ function Notification() {
 
     const renderDetailNotification = () => {
         return (
-            <View>
+            <ScrollView>
                 <PaymentReceipt
                     title={paymentTitle[paymentData.paymentID]}
                     name={
@@ -262,6 +280,7 @@ function Notification() {
                     order={handleFilteredOrderItems(
                         paymentData.orderItems,
                         paymentData.orderItemSplits,
+                        paymentData.order.image,
                     )}
                     totalAmount={paymentData.paymentAmount}
                     titleButton={paymentTitleButton[paymentData.paymentID]}
@@ -272,7 +291,7 @@ function Notification() {
                     }
                     disabled={totalBalance <= 0}
                 />
-            </View>
+            </ScrollView>
         );
     };
 

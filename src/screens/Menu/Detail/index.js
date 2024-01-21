@@ -1,5 +1,6 @@
 import {
     Image,
+    Pressable,
     SafeAreaView,
     ScrollView,
     StatusBar,
@@ -23,6 +24,7 @@ import {
     removeFromTempCart,
     updateItem,
 } from '../../../slices/cartSlice';
+import RoundCheckbox from 'rn-round-checkbox';
 
 const Detail = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -35,7 +37,6 @@ const Detail = ({ navigation }) => {
     const [itemVariety, setItemVariety] = useState([]);
     let [price, setPrice] = useState(defaultPrice);
     let [mergeID, setMergeID] = useState(item.itemID);
-
     const base64StringImage = `data:image/jpeg;base64,${item.image}`;
 
     useEffect(() => {
@@ -85,6 +86,7 @@ const Detail = ({ navigation }) => {
     };
 
     const handleVariety = (checked, varietyPrice, subVariety) => {
+        console.log(checked);
         setPrice((price) => price + (checked ? varietyPrice : -varietyPrice));
 
         if (checked) {
@@ -124,20 +126,6 @@ const Detail = ({ navigation }) => {
     const hasRequiredVarieties = item.itemVarieties.some(
         (v) => v.variety.isRequired,
     );
-
-    const handleRowClick = (index) => {
-        const updatedVarieties = [...itemVariety];
-        updatedVarieties[index] = {
-            ...updatedVarieties[index],
-            checked: true,
-        };
-        setItemVariety(updatedVarieties);
-
-        const updateMergeID = updatedVarieties
-            .map((sv) => `${item.itemID}_${sv.subVarietyID}`)
-            .join('.');
-        setMergeID(updateMergeID);
-    };
 
     return (
         <SafeAreaView style={styles.wrapper}>
@@ -216,106 +204,27 @@ const Detail = ({ navigation }) => {
                                 {v.variety.isRequired
                                     ? v.variety.varietySubVarieties.map(
                                           (s, idx) => {
-                                              return (
-                                                  <View
-                                                      key={idx}
-                                                      style={styles.lineVariety}
-                                                  >
-                                                      <View
-                                                          style={
-                                                              styles.wrapperNameVariaety
-                                                          }
-                                                      >
-                                                          <Text
-                                                              style={[
-                                                                  styles.textNameVariety,
-                                                                  {
-                                                                      color:
-                                                                          s
-                                                                              .subVariety
-                                                                              .subVarStock <=
-                                                                          0
-                                                                              ? 'rgba(0,0,0,0.5)'
-                                                                              : '#000',
-                                                                  },
-                                                              ]}
-                                                          >
-                                                              {
-                                                                  s.subVariety
-                                                                      .subVarName
-                                                              }
-                                                          </Text>
-                                                      </View>
-                                                      <View
-                                                          style={
-                                                              styles.wrapperPrice
-                                                          }
-                                                      >
-                                                          <Text
-                                                              style={
-                                                                  styles.textPrice
-                                                              }
-                                                          >
-                                                              + Rp{' '}
-                                                              {s.subVariety.subVarPrice.toLocaleString()}
-                                                          </Text>
-                                                      </View>
-                                                      <View
-                                                          style={
-                                                              styles.roundedCheckBox
-                                                          }
-                                                      >
-                                                          <RoundedCheckbox
-                                                              text={''}
-                                                              checkedColor={
-                                                                  Color.primary
-                                                              }
-                                                              uncheckedColor="#fff"
-                                                              outerStyle={[
-                                                                  styles.styleCheckBox,
-                                                                  {
-                                                                      display:
-                                                                          s
-                                                                              .subVariety
-                                                                              .subVarStock <=
-                                                                              0 ||
-                                                                          tempItems <=
-                                                                              0
-                                                                              ? 'none'
-                                                                              : undefined,
-                                                                  },
-                                                              ]}
-                                                              innerStyle={
-                                                                  styles.styleCheckBox
-                                                              }
-                                                              onPress={(
-                                                                  checked,
-                                                              ) =>
-                                                                  handleVariety(
-                                                                      checked,
-                                                                      s
-                                                                          .subVariety
-                                                                          .subVarPrice,
-                                                                      s.subVariety,
-                                                                      s.subVarStock,
-                                                                  )
-                                                              }
-                                                          />
-                                                      </View>
-                                                  </View>
-                                              );
-                                          },
-                                      )
-                                    : v.variety.varietySubVarieties.map(
-                                          (s, idx) => {
+                                              const [isChecked, setIsChecked] =
+                                                  useState(true);
+
                                               return (
                                                   <TouchableOpacity
-                                                      key={idx}
-                                                      onPress={() =>
-                                                          handleRowClick(idx)
-                                                      } // Tambahkan onPress handler untuk setiap baris
+                                                      onPress={() => {
+                                                          setIsChecked(
+                                                              !isChecked,
+                                                          );
+                                                          handleVariety(
+                                                              isChecked,
+                                                              s.subVariety
+                                                                  .subVarPrice,
+                                                              s.subVariety,
+                                                              s.subVarStock,
+                                                          );
+                                                      }}
+                                                      disabled={tempItems <= 0}
                                                   >
                                                       <View
+                                                          key={idx}
                                                           style={
                                                               styles.lineVariety
                                                           }
@@ -333,9 +242,7 @@ const Detail = ({ navigation }) => {
                                                                               s
                                                                                   .subVariety
                                                                                   .subVarStock <=
-                                                                                  0 ||
-                                                                              tempItems <=
-                                                                                  0
+                                                                              0
                                                                                   ? 'rgba(0,0,0,0.5)'
                                                                                   : '#000',
                                                                       },
@@ -367,56 +274,119 @@ const Detail = ({ navigation }) => {
                                                                   styles.roundedCheckBox
                                                               }
                                                           >
-                                                              <RoundedCheckbox
-                                                                  text={''}
-                                                                  checkedColor={
-                                                                      Color.primary
+                                                              <Pressable
+                                                                  disabled={
+                                                                      true
                                                                   }
-                                                                  uncheckedColor="#fff"
-                                                                  outerStyle={[
-                                                                      styles.styleCheckBox,
+                                                              >
+                                                                  <RoundCheckbox
+                                                                      size={24}
+                                                                      checked={
+                                                                          !isChecked
+                                                                      }
+                                                                      backgroundColor={
+                                                                          Color.primary
+                                                                      }
+                                                                      icon=""
+                                                                      borderColor={
+                                                                          Color.primary
+                                                                      }
+                                                                  />
+                                                              </Pressable>
+                                                          </View>
+                                                      </View>
+                                                  </TouchableOpacity>
+                                              );
+                                          },
+                                      )
+                                    : v.variety.varietySubVarieties.map(
+                                          (s, idx) => {
+                                              const [isChecked, setIsChecked] =
+                                                  useState(true);
+
+                                              return (
+                                                  <Pressable
+                                                      onPress={() => {
+                                                          setIsChecked(
+                                                              !isChecked,
+                                                          );
+                                                          handleVariety(
+                                                              isChecked,
+                                                              s.subVariety
+                                                                  .subVarPrice,
+                                                              s.subVariety,
+                                                              s.subVarStock,
+                                                          );
+                                                      }}
+                                                      disabled={tempItems <= 0}
+                                                  >
+                                                      <View
+                                                          key={idx}
+                                                          style={
+                                                              styles.lineVariety
+                                                          }
+                                                      >
+                                                          <View
+                                                              style={
+                                                                  styles.wrapperNameVariaety
+                                                              }
+                                                          >
+                                                              <Text
+                                                                  style={[
+                                                                      styles.textNameVariety,
                                                                       {
-                                                                          display:
+                                                                          color:
                                                                               s
                                                                                   .subVariety
                                                                                   .subVarStock <=
-                                                                                  0 ||
-                                                                              tempItems.length <=
-                                                                                  0
-                                                                                  ? 'none'
-                                                                                  : undefined,
+                                                                              0
+                                                                                  ? 'rgba(0,0,0,0.5)'
+                                                                                  : '#000',
                                                                       },
                                                                   ]}
-                                                                  innerStyle={
-                                                                      styles.styleCheckBox
+                                                              >
+                                                                  {
+                                                                      s
+                                                                          .subVariety
+                                                                          .subVarName
                                                                   }
-                                                                  checked={itemVariety.some(
-                                                                      (
-                                                                          variety,
-                                                                      ) =>
-                                                                          variety.subVarietyID ===
-                                                                              s
-                                                                                  .subVariety
-                                                                                  .subVarietyID &&
-                                                                          variety.checked,
-                                                                  )}
-                                                                  onPress={(
-                                                                      checked,
-                                                                  ) =>
-                                                                      handleVariety(
-                                                                          checked,
-                                                                          s
-                                                                              .subVariety
-                                                                              .subVarPrice,
-                                                                          s.subVariety,
-                                                                          s.subVarStock,
-                                                                          idx,
-                                                                      )
+                                                              </Text>
+                                                          </View>
+                                                          <View
+                                                              style={
+                                                                  styles.wrapperPrice
+                                                              }
+                                                          >
+                                                              <Text
+                                                                  style={
+                                                                      styles.textPrice
+                                                                  }
+                                                              >
+                                                                  + Rp{' '}
+                                                                  {s.subVariety.subVarPrice.toLocaleString()}
+                                                              </Text>
+                                                          </View>
+                                                          <View
+                                                              style={
+                                                                  styles.roundedCheckBox
+                                                              }
+                                                          >
+                                                              <RoundCheckbox
+                                                                  size={24}
+                                                                  checked={
+                                                                      !isChecked
+                                                                  }
+                                                                  backgroundColor={
+                                                                      Color.primary
+                                                                  }
+                                                                  icon=""
+                                                                  borderColor={
+                                                                      Color.primary
                                                                   }
                                                               />
                                                           </View>
                                                       </View>
-                                                  </TouchableOpacity>
+                                                  </Pressable>
                                               );
                                           },
                                       )}

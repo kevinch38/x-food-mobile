@@ -121,7 +121,11 @@ const Merchant = ({ navigation }) => {
                     {Array.isArray(merchant.merchantBranches) &&
                         merchant.merchantBranches.length > 0 &&
                         merchant.merchantBranches
-                            .filter((branch) => branch.status === 'ACTIVE')
+                            .filter(
+                                (branch) =>
+                                    branch.status === 'ACTIVE' &&
+                                    branch.items.length > 0,
+                            )
                             .map((branch, idx) => {
                                 return (
                                     <CardBranch
