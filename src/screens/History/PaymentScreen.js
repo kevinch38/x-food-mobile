@@ -125,7 +125,10 @@ const PaymentScreen = () => {
 
     return (
         <View>
-            <ScrollView>
+            <ScrollView
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+            >
                 {payments.map((payment, index) => (
                     <TouchableOpacity key={index}>
                         <HistoryCard

@@ -46,7 +46,10 @@ const TopUpScreen = () => {
     }, [id]);
     return(
        <View>
-           <ScrollView>
+           <ScrollView
+               showsHorizontalScrollIndicator={false}
+               showsVerticalScrollIndicator={false}
+           >
                {topUp.map((tu, index)=>(
                    <HistoryCard key={index} image={image} date={format(new Date(tu.createdAt), "dd MMM, HH:mm")} title={`Top Up`} content={`Top Up Success`} amount={formatIDRCurrency(tu.topUpAmount)}/>
                ))}

@@ -83,7 +83,11 @@ const OrderScreen = () => {
 
     return (
         <View style={{ margin: 5 }}>
-            <ScrollView style={{marginBottom:250}}>
+            <ScrollView
+                style={{marginBottom:250}}
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+            >
                     {order.map((orderItem, index) => (
                         <Pressable
                             key={index}

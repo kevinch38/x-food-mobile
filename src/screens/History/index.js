@@ -6,9 +6,12 @@ import PaymentScreen from "./PaymentScreen";
 import TopUpScreen from "./TopUpScreen";
 import { useSelector } from 'react-redux';
 
-const History = () => {
+const History = ({navigation}) => {
     const users = useSelector((state) => state.user.users);
     const [activeButton, setActiveButton] = useState('button1');
+    const handleBack = () => {
+        navigation.goBack();
+    };
 
     const handleButtonPress = (buttonName) => {
         setActiveButton(buttonName);
@@ -40,7 +43,7 @@ const History = () => {
                     marginBottom: -60,
                 }}
             >
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity style={styles.button} onPress={handleBack}>
                     <Image
                         source={require('../../../assets/images/button.png')}
                     />
