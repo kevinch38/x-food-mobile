@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 import HistoryService from '../../services/HistoryService';
 import { format } from 'date-fns';
 import { useNavigation } from '@react-navigation/native';
-import {formatIDRCurrency} from "../../utils/utils";
+import { formatIDRCurrency} from "../../utils/utils";
 
 const OrderScreen = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
