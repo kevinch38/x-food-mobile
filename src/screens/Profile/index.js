@@ -25,7 +25,6 @@ import dollar from '../../assets/icons/dollar.png';
 import basket from '../../assets/icons/basket.png';
 import Color from '../../assets/Color';
 import camera from '../../assets/icons/camera.png';
-import axios from 'axios';
 import { fetchBalanceAction } from '../../slices/balanceSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../../api/axiosInstance';
@@ -46,10 +45,9 @@ function Profile({ navigation }) {
     const [image, setImage] = useState();
     const [modalVisible, setModalVisible] = useState(false);
     const { authService } = useContext(ServiceContext);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const imageUrl =
-        'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
+    const imageUrl = `https://ui-avatars.com/api/?name=${users?.firstName}+${users?.lastName}`;
 
     const isFocused = useIsFocused();
 
@@ -511,7 +509,6 @@ function Profile({ navigation }) {
 
 const styles = StyleSheet.create({
     container: {
-        paddingTop: StatusBar.currentHeight,
         backgroundColor: '#fff',
     },
     wrapper: {

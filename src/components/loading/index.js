@@ -6,11 +6,10 @@ const Loading = () => {
     return (
         <View
             style={{
-                height: '100%',
-                width: '100%',
-                display: 'flex',
+                flex: 1,
                 justifyContent: 'center',
                 alignItems: 'center',
+                backgroundColor: '#fff',
             }}
         >
             <ActivityIndicator color={Color.primary} size={'large'} />

@@ -61,6 +61,7 @@ function SplitBillPosition({ navigation, route }) {
             }, 0);
 
             delete req.friendName;
+            delete req.friendLastName;
             delete req.imageFriend;
             delete req.imageAccount;
             delete req.image;
@@ -171,7 +172,7 @@ function SplitBillPosition({ navigation, route }) {
                             ) : (
                                 <Image
                                     source={{
-                                        uri: imageUrl,
+                                        uri: `https://ui-avatars.com/api/?name=${friendRequestsWithSameFriendID[0].friendName}+${friendRequestsWithSameFriendID[0].friendLastName}`,
                                     }}
                                     style={styles.avatar}
                                 />

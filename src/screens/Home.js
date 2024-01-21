@@ -270,7 +270,7 @@ const Home = ({ navigation }) => {
 
     return (
         <SafeAreaView style={styles.wrapper}>
-            <StatusBar style={'dark'} />
+            <StatusBar barStyle={'light-content'} />
             {isLoading ? (
                 <Loading />
             ) : (
@@ -311,10 +311,9 @@ const Home = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     wrapper: {
-        height: '100%',
-        width: '100%',
-        paddingTop: StatusBar.currentHeight,
+        flex: 1,
         backgroundColor: '#fff',
+        marginTop:'3%'
     },
     container: {
         flex: 1,

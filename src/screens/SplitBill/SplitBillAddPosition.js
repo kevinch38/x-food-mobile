@@ -19,6 +19,7 @@ function SplitBillAddPosition({ navigation, route }) {
     const orderItems = route.params?.order.orderItems;
     const [selectedFriend, setSelectedFriend] = useState({
         friendName: friends[0].accountFirstName2,
+        friendLasName: friends[0].accountLastName2,
         friendID: friends[0].accountID2,
         friendImage: friends[0].imageAccount2,
     });
@@ -40,6 +41,7 @@ function SplitBillAddPosition({ navigation, route }) {
             imageAccount: f.imageAccount1,
             friendAccountID: f.accountID2,
             friendName: f.accountFirstName2,
+            friendLastName: f.accountLastName2,
             imageFriend: f.imageAccount2,
             orderItems: [],
         })),
@@ -146,7 +148,7 @@ function SplitBillAddPosition({ navigation, route }) {
                         ) : (
                             <Image
                                 source={{
-                                    uri: imageUrl,
+                                    uri: `https://ui-avatars.com/api/?name=${selectedFriend.friendName}+${selectedFriend.friendLasName}`,
                                 }}
                                 style={styles.avatar}
                             />
@@ -236,7 +238,7 @@ function SplitBillAddPosition({ navigation, route }) {
                                     ) : (
                                         <Image
                                             source={{
-                                                uri: imageUrl,
+                                                uri: `https://ui-avatars.com/api/?name=${friend.accountFirstName2}+${friend.accountLastName2}`,
                                             }}
                                             style={styles.imageChoiceAvatar}
                                         />

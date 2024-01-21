@@ -10,17 +10,11 @@ import {
 import Color from '../../assets/Color';
 import Button from '../../components/button';
 import React, { useState } from 'react';
-import { request } from 'axios';
 
 function SplitBillSuccess({ navigation, route }) {
     const [requestPayment, setRequestPayment] = useState(
         route.params?.requestPayment,
     );
-
-    const orderItems = route.params?.mergedOrderItems;
-
-    const imageUrl =
-        'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
 
     const orderID = requestPayment[0].orderID;
     const date = requestPayment[0].createdAt.slice(0, 10);
@@ -42,19 +36,39 @@ function SplitBillSuccess({ navigation, route }) {
 
     const groupedFriends = {};
     requestPayment.forEach((request) => {
+        const friendName = request.friendName;
+        const friendLastName = request.friendLastName;
         const imageFriend = request.imageFriend;
+
         request.orderItems.forEach((item) => {
             const itemName = item.itemName;
+
             if (!groupedFriends[itemName]) {
-                groupedFriends[itemName] = {};
+                groupedFriends[itemName] = [];
             }
-            if (!groupedFriends[itemName][imageFriend]) {
-                groupedFriends[itemName][imageFriend] = [];
+
+            const friendEntry = groupedFriends[itemName].find(
+                (friendEntry) => friendEntry.imageFriend === imageFriend,
+            );
+
+            if (!friendEntry) {
+                groupedFriends[itemName].push({
+                    imageFriend: imageFriend,
+                    friendName: friendName,
+                    friendLastName: friendLastName,
+                    items: [
+                        {
+                            itemName: itemName,
+                            price: item.newPrice,
+                        },
+                    ],
+                });
+            } else {
+                friendEntry.items.push({
+                    itemName: itemName,
+                    price: item.newPrice,
+                });
             }
-            groupedFriends[itemName][imageFriend].push({
-                itemName: itemName,
-                price: item.newPrice,
-            });
         });
     });
 
@@ -85,10 +99,6 @@ function SplitBillSuccess({ navigation, route }) {
                         </Text>
                     </Text>
                     <View style={styles.logoContainer}>
-                        {/*<Image*/}
-                        {/*    source={require('../../assets/images/mechant-logo.png')}*/}
-                        {/*    style={styles.imageLogo}*/}
-                        {/*/>*/}
                         <Image
                             source={{
                                 uri: `data:image/jpeg;base64,${image}`,
@@ -120,27 +130,28 @@ function SplitBillSuccess({ navigation, route }) {
                                 </Text>
                             </View>
                             <View style={styles.avatarContainer}>
-                                {Object.keys(group.friends).map(
-                                    (imageFriend, friendIndex) => (
-                                        <View key={friendIndex}>
-                                            {imageFriend ? (
-                                                <Image
-                                                    source={{
-                                                        uri: `data:image/jpeg;base64,${imageFriend}`,
-                                                    }}
-                                                    style={styles.avatar}
-                                                />
-                                            ) : (
-                                                <Image
-                                                    source={{
-                                                        uri: imageUrl,
-                                                    }}
-                                                    style={styles.avatar}
-                                                />
-                                            )}
-                                        </View>
-                                    ),
-                                )}
+                                {groupedFriends[group.itemName] &&
+                                    groupedFriends[group.itemName].map(
+                                        (friendEntry, friendIndex) => (
+                                            <View key={friendIndex}>
+                                                {friendEntry.imageFriend ? (
+                                                    <Image
+                                                        source={{
+                                                            uri: `data:image/jpeg;base64,${friendEntry.imageFriend}`,
+                                                        }}
+                                                        style={styles.avatar}
+                                                    />
+                                                ) : (
+                                                    <Image
+                                                        source={{
+                                                            uri: `https://ui-avatars.com/api/?name=${friendEntry.friendName}+${friendEntry.friendLastName}`,
+                                                        }}
+                                                        style={styles.avatar}
+                                                    />
+                                                )}
+                                            </View>
+                                        ),
+                                    )}
                             </View>
                         </View>
                     ))}
