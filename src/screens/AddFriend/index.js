@@ -26,8 +26,6 @@ import closeIcon from '../../assets/icons/close.png';
 import { useSelector } from 'react-redux';
 
 const AddFriend = ({ navigation, route }) => {
-    // const dispatch = useDispatch();
-    // const order = route.params?.order;
     const phoneNumberRedux = useSelector((state) => state.ui.phoneNumber);
     const { userService, friendService } = useContext(ServiceContext);
     const [user, setUser] = useState();
@@ -50,8 +48,6 @@ const AddFriend = ({ navigation, route }) => {
             },
         ),
     });
-
-    const imageUrl = `https://ui-avatars.com/api/?name=${users?.firstName}+${users?.lastName}`;
 
     const {
         values: { phoneNumber },
@@ -82,7 +78,7 @@ const AddFriend = ({ navigation, route }) => {
                 setImage(
                     userResponse.data.profilePhoto
                         ? `data:image/jpeg;base64,${userResponse.data.profilePhoto}`
-                        : imageUrl,
+                        : `https://ui-avatars.com/api/?name=${user?.firstName}+${user?.lastName}`,
                 );
             } catch (error) {
                 console.warn('Error during form submission:', error);

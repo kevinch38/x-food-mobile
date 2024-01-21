@@ -18,6 +18,7 @@ import { useEffect, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
 import OrderService from '../../services/OrderService';
 import { formatIDRCurrency } from '../../utils/utils';
+import Loading from '../../components/loading';
 
 function EReceipt({ navigation }) {
     const orderService = OrderService();
@@ -26,6 +27,7 @@ function EReceipt({ navigation }) {
     const [order, setOrder] = useState();
     const sale = useSelector((state) => state.cart.sale);
     const [discounts, setDiscounts] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
         const backHandler = BackHandler.addEventListener(
             'hardwareBackPress',
@@ -46,10 +48,13 @@ function EReceipt({ navigation }) {
 
     const fetchOrderByID = async () => {
         try {
+            setIsLoading(true);
             const getOrder = await orderService.getOrderById(orderId);
             setOrder(getOrder);
         } catch (error) {
             console.error('Error fetching user data1:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
     const dataOrder = order?.data;
@@ -365,11 +370,14 @@ function EReceipt({ navigation }) {
 
     return (
         <SafeAreaView style={styles.controller}>
-            <View style={{ height: '100%', alignItems: 'center' }}>
-                {/*{renderHeader()}*/}
-                {renderContent()}
-                {renderFooter()}
-            </View>
+            {isLoading ? (
+                <Loading />
+            ) : (
+                <View style={{ height: '100%', alignItems: 'center' }}>
+                    {renderContent()}
+                    {renderFooter()}
+                </View>
+            )}
         </SafeAreaView>
     );
 }
@@ -377,7 +385,6 @@ function EReceipt({ navigation }) {
 const styles = StyleSheet.create({
     controller: {
         flex: 1,
-        paddingTop: StatusBar.currentHeight,
         backgroundColor: '#EC9D3F',
     },
     imageController: {

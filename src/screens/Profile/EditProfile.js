@@ -31,7 +31,7 @@ function EditProfile({ navigation }) {
     const route = useRoute();
     const phoneNumbers = route.params?.users.phoneNumber;
     const [image, setImage] = useState();
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const imageUrl = `https://ui-avatars.com/api/?name=${users?.firstName}+${users?.lastName}`;
 

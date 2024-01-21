@@ -26,16 +26,22 @@ function SplitBill({ navigation, route }) {
     const order = route.params?.dataAssigned;
     const [avatarData, setAvatarData] = useState([]);
     const [image, setImage] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
 
     const imageUrl =
         'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
 
     const img = async () => {
-        const i = await friends[0].imageAccount1;
-        setImage(i);
+        try {
+            setIsLoading(true);
+            const i = await friends[0].imageAccount1;
+            setImage(i);
+        } catch (e) {
+            console.log(e);
+        } finally {
+            setIsLoading(false);
+        }
     };
-
-    img();
 
     const handleCheck = (contact) => {
         let check = avatarData.find(
@@ -54,6 +60,7 @@ function SplitBill({ navigation, route }) {
 
     useEffect(() => {
         try {
+            setIsLoading(true);
             dispatch(
                 friendAction(async () => {
                     const result = friendService.fetchFriend(order.accountID);
@@ -62,7 +69,11 @@ function SplitBill({ navigation, route }) {
             );
         } catch (e) {
             console.error('Error fetching friend data: ', e);
+        } finally {
+            setIsLoading(false);
         }
+
+        img();
     }, [dispatch, friendService, Object.keys(friends).length]);
 
     const renderHeader = () => {
@@ -197,15 +208,20 @@ function SplitBill({ navigation, route }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-            >
-                {renderHeader()}
-                {renderSendTo()}
-                {renderAddContact()}
-                {renderContact()}
-            </ScrollView>
+            {isLoading ? (
+                <Loading />
+            ) : (
+                <ScrollView
+                    showsHorizontalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {renderHeader()}
+                    {renderSendTo()}
+                    {renderAddContact()}
+                    {renderContact()}
+                </ScrollView>
+            )}
+
             <View style={styles.btnContainer}>
                 {avatarData.length !== 0 ? (
                     <Button

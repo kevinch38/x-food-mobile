@@ -44,14 +44,13 @@ function Profile({ navigation }) {
     const [image, setImage] = useState();
     const [modalVisible, setModalVisible] = useState(false);
     const { authService } = useContext(ServiceContext);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const imageUrl = `https://ui-avatars.com/api/?name=${users?.firstName}+${users?.lastName}`;
 
     useEffect(() => {
         const onGetLoyaltyPointAmount = () => {
             try {
-                setIsLoading(true);
                 dispatch(
                     loyaltyPointAction(async () => {
                         const result =
@@ -63,14 +62,11 @@ function Profile({ navigation }) {
                 );
             } catch (e) {
                 console.error('Error fetching loyalty point data: ', e);
-            } finally {
-                setIsLoading(false);
             }
         };
 
         const onGetBalanceUser = async () => {
             try {
-                setIsLoading(true);
                 dispatch(
                     fetchBalanceAction(async () => {
                         const result = balanceService.fetchBalance(
@@ -81,8 +77,6 @@ function Profile({ navigation }) {
                 );
             } catch (e) {
                 console.error('Error fetching balance data: ', e);
-            } finally {
-                setIsLoading(false);
             }
         };
 
