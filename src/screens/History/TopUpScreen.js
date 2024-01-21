@@ -1,4 +1,4 @@
-import {ScrollView, View} from "react-native";
+import {ScrollView, TouchableOpacity, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import HistoryCard from "../../components/HistoryCard";
 import image from '../../assets/images/topupimage.png'
@@ -7,6 +7,7 @@ import UserService from "../../services/UserService";
 import {useSelector} from "react-redux";
 import {format} from "date-fns";
 import {formatIDRCurrency} from "../../utils/utils";
+import {useNavigation} from "@react-navigation/native";
 
 const TopUpScreen = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
@@ -14,6 +15,10 @@ const TopUpScreen = () => {
     const [id, setId] = useState('');
     const userService = UserService();
     const [topUp, setTopUp] = useState([]);
+    const navigation = useNavigation();
+    const handleCartPress = (amount) => {
+        navigation.navigate("TopUpDetail", {amount})
+    }
     const fetchUserData = async (phoneNumber) => {
         try {
             const userData =
@@ -51,7 +56,12 @@ const TopUpScreen = () => {
                showsVerticalScrollIndicator={false}
            >
                {topUp.map((tu, index)=>(
-                   <HistoryCard key={index} image={image} date={format(new Date(tu.createdAt), "dd MMM, HH:mm")} title={`Top Up`} content={`Top Up Success`} amount={formatIDRCurrency(tu.topUpAmount)}/>
+                   <TouchableOpacity
+                    key={index}
+                    onPress={()=>handleCartPress(tu.topUpAmount)}
+                   >
+                       <HistoryCard key={index} image={image} date={format(new Date(tu.createdAt), "dd MMM, HH:mm")} title={`Top Up`} content={`Top Up Success`} amount={formatIDRCurrency(tu.topUpAmount)}/>
+                   </TouchableOpacity>
                ))}
            </ScrollView>
        </View>
