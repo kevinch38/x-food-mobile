@@ -222,16 +222,17 @@ function EReceipt({ navigation }) {
                             Order Completed
                         </Text>
                         <View style={{height:"30%"}}>
-                            {dataAssigned?.orderItems.map((order, index) => (
-                                <ScrollView
-                                    showsHorizontalScrollIndicator={false}
-                                    showsVerticalScrollIndicator={false}
-                                >
+                            <ScrollView
+                                showsHorizontalScrollIndicator={false}
+                                showsVerticalScrollIndicator={false}
+                            >
+                                {dataAssigned?.orderItems.map((order, index) => (
                                     <View key={index} style={{ width: '100%', marginTop: '5%' }}>
                                         <View
                                             style={{
                                                 flexDirection: 'row',
                                                 justifyContent: 'space-evenly',
+                                                flexWrap: 'wrap'
                                             }}
                                         >
                                             <Text
@@ -242,10 +243,10 @@ function EReceipt({ navigation }) {
                                             >
                                                 {order.itemName}
                                             </Text>
-                                            <Text style={{ fontSize: 14, fontWeight: 400, marginLeft:10 }}>
+                                            <Text style={{ fontSize: 14, fontWeight: 400, marginLeft: 10 }}>
                                                 x{order.quantity}
                                             </Text>
-                                            <Text style={{ fontWeight: '700', fontSize: 16, marginLeft:10 }}>
+                                            <Text style={{ fontWeight: '700', fontSize: 16, marginLeft: 10 }}>
                                                 {formatIDRCurrency(order.newPrice)}
                                             </Text>
                                         </View>
@@ -271,9 +272,9 @@ function EReceipt({ navigation }) {
                                             )}
                                         </View>
                                     </View>
-                                </ScrollView>
+                                ))}
+                            </ScrollView>
 
-                            ))}
                         </View>
                         {/*<Text>{dataOrder?.orderValue - }</Text>*/}
                         {getDiscountValue() === 0 ? `` :

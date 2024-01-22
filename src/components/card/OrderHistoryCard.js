@@ -46,6 +46,7 @@ const OrderHistoryCard = ({
                             flexDirection: 'row',
                             marginLeft: -20,
                             marginTop: 25,
+                            flexWrap: 'wrap'
                         }}
                     >
                         <View>
@@ -76,8 +77,12 @@ const OrderHistoryCard = ({
                                 {status}
                             </Text>
                         </View>
-                        <Text style={{marginLeft:80, fontSize:12, color:'#9796A1', position:'absolute'}}>{items} Items</Text>
-                        <Text style={{marginLeft:125, color:'#FE724C',  position:'absolute'}}>{orderValue}</Text>
+                        <View style={{ flex: 1, flexWrap: 'wrap', marginLeft: 5 }}>
+                            <Text style={{ fontSize: 12, color: '#9796A1' }}>{items} Items</Text>
+                            <Text numberOfLines={2} ellipsizeMode="tail" style={{ color: '#FE724C', flexWrap: 'wrap' }}>
+                                {orderValue}
+                            </Text>
+                        </View>
                     </View>
                 </View>
             </View>

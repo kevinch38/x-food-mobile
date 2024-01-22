@@ -126,6 +126,7 @@ const PaymentScreen = () => {
     return (
         <View>
             <ScrollView
+                style={{marginBottom:250}}
                 showsHorizontalScrollIndicator={false}
                 showsVerticalScrollIndicator={false}
             >
