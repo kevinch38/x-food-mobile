@@ -86,8 +86,7 @@ const VerificationCodeScreen = () => {
 
     const checkOTP = async (enteredCode) => {
         try {
-            const isCodeComplete =
-                enteredCode.length === verificationCode.length;
+            const isCodeComplete = enteredCode.length === verificationCode.length;
 
             if (isCodeComplete) {
                 if (otpID) {
@@ -105,14 +104,12 @@ const VerificationCodeScreen = () => {
 
                     if (data.data.check && firstName === '') {
                         setIsValidCode(true);
-                        // console.log('Code is valid. Navigating to Register.');
                         navigation.navigate('Register');
                     } else if (data.data.check && firstName !== '') {
                         setIsValidCode(true);
                         navigation.navigate('Tabs');
                     } else {
                         setIsValidCode(false);
-                        // console.log('Code is invalid.');
                     }
                 } else {
                     console.error('otpID is null');
@@ -121,7 +118,8 @@ const VerificationCodeScreen = () => {
                 setIsValidCode(true);
             }
         } catch (error) {
-            console.error('Error fetching OTP data:', error);
+            // console.error('Error fetching OTP data:', error);
+            setIsValidCode(false);
         }
     };
 
