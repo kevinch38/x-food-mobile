@@ -20,7 +20,6 @@ import BackButton from '../../components/backButton';
 import Loading from '../../components/loading';
 import BalanceService from '../../services/BalanceService';
 import NotifCard from '../../components/card/NotifCard';
-import moment from 'moment/moment';
 
 function Notification() {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
@@ -310,9 +309,10 @@ function Notification() {
                         onPress={() => handleButtonPress('button1', payment)}
                     >
                         <NotifCard
-                            date={moment(new Date(payment.createdAt))
-                                .locale('id-ID')
-                                .format('DD MMM, HH:mm')}
+                            date={format(
+                                new Date(payment.createdAt),
+                                'dd MMM, HH:mm',
+                            )}
                             title={
                                 payment.accountID === users.accountID
                                     ? payment.friend.accountFirstName2
