@@ -7,74 +7,94 @@ import Voucher from '../screens/Voucher';
 import AddFriend from '../screens/AddFriend';
 import Home from '../screens/Home';
 import PinCreationScreen from '../screens/PinCreationScreen';
+import ExpiredToken from '../components/expiredToken';
 
 const Tab = createBottomTabNavigator();
 
-export default () => {
+export default ({ navigation }) => {
     return (
-        <Tab.Navigator
-            initialRouteName="Home"
-            screenOptions={{
-                tabBarActiveTintColor: '#e91e63',
-                tabBarHideOnKeyboard: 'true',
-            }}
-        >
-            <Tab.Screen
-                name="Home"
-                component={PinCreationScreen}
-                options={{
-                    headerShown: false,
-                    tabBarLabel: '',
-                    tabBarIcon: () => (
-                        <Image
-                            style={{ width: 38, height: 38, marginTop: '15%' }}
-                            source={require('../assets/icons/direction.png')}
-                        />
-                    ),
+        <>
+            <ExpiredToken navigation={navigation} />
+            <Tab.Navigator
+                initialRouteName="Home"
+                screenOptions={{
+                    tabBarActiveTintColor: '#e91e63',
+                    tabBarHideOnKeyboard: 'true',
                 }}
-            />
-            <Tab.Screen
-                name="Voucher"
-                component={Voucher}
-                options={{
-                    headerShown: false,
-                    tabBarLabel: '',
-                    tabBarIcon: () => (
-                        <Image
-                            style={{ width: 37, height: 37, marginTop: '15%' }}
-                            source={require('../assets/icons/coupon.png')}
-                        />
-                    ),
-                }}
-            />
-            <Tab.Screen
-                name="History"
-                component={History}
-                options={{
-                    headerShown: false,
-                    tabBarLabel: '',
-                    tabBarIcon: () => (
-                        <Image
-                            style={{ width: 38, height: 37, marginTop: '15%' }}
-                            source={require('../assets/icons/history.png')}
-                        />
-                    ),
-                }}
-            />
-            <Tab.Screen
-                name="Profile"
-                component={Profile}
-                options={{
-                    headerShown: false,
-                    tabBarLabel: '',
-                    tabBarIcon: () => (
-                        <Image
-                            style={{ width: 38, height: 38, marginTop: '15%' }}
-                            source={require('../assets/icons/profile.png')}
-                        />
-                    ),
-                }}
-            />
-        </Tab.Navigator>
+            >
+                <Tab.Screen
+                    name="Home"
+                    component={PinCreationScreen}
+                    options={{
+                        headerShown: false,
+                        tabBarLabel: '',
+                        tabBarIcon: () => (
+                            <Image
+                                style={{
+                                    width: 38,
+                                    height: 38,
+                                    marginTop: '15%',
+                                }}
+                                source={require('../assets/icons/direction.png')}
+                            />
+                        ),
+                    }}
+                />
+                <Tab.Screen
+                    name="Voucher"
+                    component={Voucher}
+                    options={{
+                        headerShown: false,
+                        tabBarLabel: '',
+                        tabBarIcon: () => (
+                            <Image
+                                style={{
+                                    width: 37,
+                                    height: 37,
+                                    marginTop: '15%',
+                                }}
+                                source={require('../assets/icons/coupon.png')}
+                            />
+                        ),
+                    }}
+                />
+                <Tab.Screen
+                    name="History"
+                    component={History}
+                    options={{
+                        headerShown: false,
+                        tabBarLabel: '',
+                        tabBarIcon: () => (
+                            <Image
+                                style={{
+                                    width: 38,
+                                    height: 37,
+                                    marginTop: '15%',
+                                }}
+                                source={require('../assets/icons/history.png')}
+                            />
+                        ),
+                    }}
+                />
+                <Tab.Screen
+                    name="Profile"
+                    component={Profile}
+                    options={{
+                        headerShown: false,
+                        tabBarLabel: '',
+                        tabBarIcon: () => (
+                            <Image
+                                style={{
+                                    width: 38,
+                                    height: 38,
+                                    marginTop: '15%',
+                                }}
+                                source={require('../assets/icons/profile.png')}
+                            />
+                        ),
+                    }}
+                />
+            </Tab.Navigator>
+        </>
     );
 };

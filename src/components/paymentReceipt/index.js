@@ -14,6 +14,9 @@ function PaymentReceipt({
     onPress,
     disabled,
 }) {
+    const imageUrl =
+        'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
+
     const isDisabled = disabled ? 0.5 : 1;
     return (
         <View
@@ -56,7 +59,11 @@ function PaymentReceipt({
                         borderRadius: 20,
                         marginTop: '9%',
                     }}
-                    source={{ uri: `data:image/jpeg;base64,${image}` }}
+                    source={
+                        image
+                            ? { uri: `data:image/jpeg;base64,${image}` }
+                            : { uri: imageUrl }
+                    }
                 />
 
                 <Text
@@ -95,7 +102,7 @@ function PaymentReceipt({
                     title={titleButton}
                     titleStyle={{
                         fontSize: 32,
-                        fontWeight: '700',
+                        fontWeight: '900',
                         color: '#000',
                     }}
                     disabled={disabled}

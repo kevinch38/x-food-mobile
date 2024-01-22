@@ -36,6 +36,7 @@ import SplitBillSuccess from '../screens/SplitBill/SplitBillSuccess';
 import SplitBillTrack from '../screens/SplitBill/SplitBillTrack';
 import SetupNewPin from "../screens/Pin/SetupNewPin";
 import UpdateNewPin from "../screens/Pin/UpdateNewPin";
+import TopUpDetail from "../screens/TopUp/TopUpDetail";
 
 const Stack = createStackNavigator();
 
@@ -90,6 +91,8 @@ const Navigation = () => {
 
                 <Stack.Screen name="EReceipt" component={EReceipt} />
                 <Stack.Screen name="Complete" component={Complete} />
+                <Stack.Screen name="TopUpDetail" component={TopUpDetail} />
+
                 <Stack.Screen
                     name="MerchantConfirm"
                     component={MerchantConfirm}
@@ -118,7 +121,7 @@ const Navigation = () => {
                     name="SplitBillTrack"
                     component={SplitBillTrack}
                 />
-                 <Stack.Screen name="AddFriend" component={AddFriend} />
+                <Stack.Screen name="AddFriend" component={AddFriend} />
             </Stack.Navigator>
         </NavigationContainer>
     );

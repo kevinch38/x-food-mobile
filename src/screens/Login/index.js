@@ -82,27 +82,40 @@ export default function Login({ navigation }) {
                     <TextInput
                         style={styles.phoneNumberInput}
                         placeholder="(+62)"
-                        keyboardType="phone-pad"
+                        keyboardType="numeric"
                         maxLength={15}
                         onChangeText={(text) => {
-                            let formattedText = text;
-                            if (text.startsWith('08')) {
-                                formattedText = `+62${text.substr(1)}`;
+                            const numericText = text.replace(/[^0-9+]/g, '');
+                            let formattedText = numericText;
+                            if (numericText.startsWith('08')) {
+                                formattedText = `+62${numericText.substr(1)}`;
                             }
-
                             setFieldValue('phoneNumber', formattedText);
                         }}
                         onBlur={handleBlur('phoneNumber')}
                         value={phoneNumber}
-                    ></TextInput>
+                    />
+
                     {errors.phoneNumber && (
                         <Text style={styles.errorText}>
                             {errors.phoneNumber}
                         </Text>
                     )}
                     <TouchableOpacity
-                        style={styles.button}
+                        style={[
+                            styles.button,
+                            {
+                                opacity:
+                                    phoneNumber.length < 10 ||
+                                    phoneNumber.length > 16
+                                        ? 0.5
+                                        : 1,
+                            },
+                        ]}
                         onPress={handleSubmit}
+                        disabled={
+                            phoneNumber.length < 10 || phoneNumber.length > 16
+                        }
                     >
                         <Text style={styles.textButton}>
                             Receive OTP via SMS
@@ -158,3 +171,6 @@ const styles = StyleSheet.create({
         marginTop: 5,
     },
 });
+
+
+

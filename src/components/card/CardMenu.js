@@ -15,9 +15,9 @@ const CardMenu = ({
 
     // const display = itemStock <= 0 ? '' : 'none';
 
-    const opacity = itemStock <= 0 ? 0.7 : 1;
+    const opacity = itemStock <= 0 ? 0.4 : 1;
     const isOutOfStock =
-        itemStock <= 0 ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,1)';
+        itemStock <= 0 ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,1)';
 
     return (
         <TouchableOpacity onPress={onPress} disabled={itemStock <= 0}>
@@ -30,8 +30,11 @@ const CardMenu = ({
                 >
                     <View
                         style={{
+                            width: 'max-content',
                             flexDirection: 'row',
-                            marginLeft: '15%',
+                            marginHorizontal: '2%',
+                            justifyContent: 'center',
+                            alignItems: 'center',
                         }}
                     >
                         <Text style={styles.price}>Rp</Text>
@@ -41,17 +44,6 @@ const CardMenu = ({
                                 : initialPrice.toLocaleString()}
                         </Text>
                     </View>
-
-                    {/*<View*/}
-                    {/*    style={[*/}
-                    {/*        styles.stock,*/}
-                    {/*        { backgroundColor: isOutOfStock, display: display },*/}
-                    {/*    ]}*/}
-                    {/*>*/}
-                    {/*    <Text style={{ fontWeight: '700' }}>*/}
-                    {/*        {itemStock <= 0 ? 'Out of Stock' : ''}*/}
-                    {/*    </Text>*/}
-                    {/*</View>*/}
                 </View>
 
                 <Image
@@ -98,7 +90,7 @@ export default CardMenu;
 const styles = StyleSheet.create({
     card: {
         width: '90%',
-        height: 240,
+        height: 'min-content',
         marginHorizontal: '5%',
         borderRadius: 10,
         shadowColor: '#000',
@@ -117,12 +109,13 @@ const styles = StyleSheet.create({
         top: 10,
         left: 5,
         zIndex: 1,
-        width: 'max-content',
-        height: 45,
+        width: 'min-content',
+        height: 'min-content',
         borderRadius: 104 / 2,
         marginLeft: '2%',
     },
     price: {
+        width: 'auto',
         fontSize: 20,
         fontWeight: '900',
         marginTop: '7%',

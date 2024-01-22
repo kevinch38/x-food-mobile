@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { userAction, userRegisterAction } from '../../slices/userSlice';
 import { ServiceContext } from '../../context/ServiceContext';
 import { theme } from '../../theme';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 export default function Register({ navigation }) {
     const [focusedInput, setFocusedInput] = useState(null);
     const dispatch = useDispatch();
@@ -190,163 +191,170 @@ export default function Register({ navigation }) {
 
     return (
         <SafeAreaView style={styles.wrapper}>
-            <View>
-                <Image
-                    style={styles.wall2}
-                    source={require('../../assets/images/rightTop.png')}
-                />
-            </View>
-            <View>
-                <Image
-                    style={styles.wall1}
-                    source={require('../../assets/images/leftTop2.png')}
-                />
-                <Image source={require('../../assets/images/leftTop1.png')} />
-            </View>
-
-            <TouchableOpacity style={styles.buttonBack}>
-                <Text style={styles.backIcon}>
-                    <Icon
-                        color="#111719"
-                        name="chevron-left"
-                        size={22}
-                        type="fontawsome"
-                    />
-                </Text>
-            </TouchableOpacity>
-            <View>
-                <Text style={styles.titleStyle}>Get Started</Text>
-            </View>
-            <View style={styles.container}>
+            <StatusBar barStyle={'dark-content'} />
+            <KeyboardAwareScrollView>
                 <View>
+                    <Image
+                        style={styles.wall2}
+                        source={require('../../assets/images/rightTop.png')}
+                    />
+                </View>
+                <View>
+                    <Image
+                        style={styles.wall1}
+                        source={require('../../assets/images/leftTop2.png')}
+                    />
+                    <Image
+                        source={require('../../assets/images/leftTop1.png')}
+                    />
+                </View>
+
+                <View>
+                    <Text style={styles.titleStyle}>Get Started</Text>
+                </View>
+                <View style={styles.container}>
                     <View>
-                        <View style={styles.wrapperTitle}>
-                            <Text style={styles.labelStyle}>First Name </Text>
-                            <Text style={styles.labelRequired}>*</Text>
+                        <View>
+                            <View style={styles.wrapperTitle}>
+                                <Text style={styles.labelStyle}>
+                                    First Name{' '}
+                                </Text>
+                                <Text style={styles.labelRequired}>*</Text>
+                            </View>
+                            <TextInput
+                                style={[
+                                    styles.input,
+                                    {
+                                        borderColor:
+                                            focusedInput === 'firstName'
+                                                ? Color.primary
+                                                : '#000000',
+                                        borderWidth:
+                                            focusedInput === 'firstName'
+                                                ? 1
+                                                : 0.3,
+                                    },
+                                ]}
+                                onFocus={() => handleInputFocus('firstName')}
+                                placeholder="John"
+                                onChangeText={handleChange('firstName')}
+                                onBlur={handleBlur('firstName')}
+                                value={values.firstName}
+                                maxLength={30}
+                            />
+                            {touched.firstName && errors.firstName && (
+                                <Text style={styles.errorText}>
+                                    {errors.firstName}
+                                </Text>
+                            )}
                         </View>
-                        <TextInput
-                            style={[
-                                styles.input,
-                                {
-                                    borderColor:
-                                        focusedInput === 'firstName'
-                                            ? Color.primary
-                                            : '#000000',
-                                    borderWidth:
-                                        focusedInput === 'firstName' ? 1 : 0.3,
-                                },
-                            ]}
-                            onFocus={() => handleInputFocus('firstName')}
-                            placeholder="John"
-                            onChangeText={handleChange('firstName')}
-                            onBlur={handleBlur('firstName')}
-                            value={values.firstName}
-                            maxLength={30}
-                        />
-                        {touched.firstName && errors.firstName && (
-                            <Text style={styles.errorText}>
-                                {errors.firstName}
-                            </Text>
-                        )}
-                    </View>
-                    <View>
-                        <Text style={styles.labelStyle}>Last Name</Text>
-                        <TextInput
-                            style={[
-                                styles.input,
-                                {
-                                    borderColor:
-                                        focusedInput === 'lastName'
-                                            ? Color.primary
-                                            : '#000000',
-                                    borderWidth:
-                                        focusedInput === 'lastName' ? 1 : 0.3,
-                                },
-                            ]}
-                            onFocus={() => handleInputFocus('lastName')}
-                            placeholder="Doe"
-                            onChangeText={handleChange('lastName')}
-                            onBlur={handleBlur('lastName')}
-                            value={values.lastName}
-                            maxLength={30}
-                        />
-                        {touched.lastName && errors.lastName && (
-                            <Text style={styles.errorText}>
-                                {errors.lastName}
-                            </Text>
-                        )}
-                    </View>
-                    <View>
-                        <View style={styles.wrapperTitle}>
-                            <Text style={styles.labelStyle}>Email</Text>
-                            <Text style={styles.labelRequired}>*</Text>
+                        <View>
+                            <Text style={styles.labelStyle}>Last Name</Text>
+                            <TextInput
+                                style={[
+                                    styles.input,
+                                    {
+                                        borderColor:
+                                            focusedInput === 'lastName'
+                                                ? Color.primary
+                                                : '#000000',
+                                        borderWidth:
+                                            focusedInput === 'lastName'
+                                                ? 1
+                                                : 0.3,
+                                    },
+                                ]}
+                                onFocus={() => handleInputFocus('lastName')}
+                                placeholder="Doe"
+                                onChangeText={handleChange('lastName')}
+                                onBlur={handleBlur('lastName')}
+                                value={values.lastName}
+                                maxLength={30}
+                            />
+                            {touched.lastName && errors.lastName && (
+                                <Text style={styles.errorText}>
+                                    {errors.lastName}
+                                </Text>
+                            )}
                         </View>
-                        <TextInput
-                            style={[
-                                styles.input,
-                                {
-                                    borderColor:
-                                        focusedInput === 'accountEmail'
-                                            ? Color.primary
-                                            : '#000000',
-                                    borderWidth:
-                                        focusedInput === 'accountEmail'
-                                            ? 1
-                                            : 0.3,
-                                },
-                            ]}
-                            onFocus={() => handleInputFocus('accountEmail')}
-                            placeholder="johndoe@address.com"
-                            onChangeText={handleChange('accountEmail')}
-                            onBlur={handleBlur('accountEmail')}
-                            value={values.accountEmail}
-                            keyboardType="email-address"
-                        />
-                        {touched.accountEmail && errors.accountEmail && (
-                            <Text style={styles.errorText}>
-                                {errors.accountEmail}
-                            </Text>
-                        )}
-                    </View>
-                    <View style={styles.checkBox}>
-                        <CheckBox
-                            textStyle={{
-                                color: values.aggrement
-                                    ? theme.dark
-                                    : theme.grey,
-                            }}
-                            title={
-                                'I agree to our Terms and Conditions and Privacy Policy'
-                            }
-                            checked={values.aggrement}
-                            onPress={() =>
-                                setFieldValue('aggrement', !values.aggrement)
-                            }
-                            checkedColor="grey"
-                        />
-                        {touched.aggrement && errors.aggrement && (
-                            <Text style={styles.errorTextAgg}>
-                                {errors.aggrement}
-                            </Text>
-                        )}
-                    </View>
-                    {renderPopup()}
-                    <View style={styles.wrapperButton}>
-                        <TouchableOpacity
-                            style={[
-                                styles.button,
-                                { backgroundColor: isDisabled },
-                            ]}
-                            onPress={handleSubmit}
-                            disabled={
-                                !isValid || !dirty || values.aggrement !== true
-                            }
-                        >
-                            <Text style={styles.textStyle}>LOGIN</Text>
-                        </TouchableOpacity>
+                        <View>
+                            <View style={styles.wrapperTitle}>
+                                <Text style={styles.labelStyle}>Email</Text>
+                                <Text style={styles.labelRequired}>*</Text>
+                            </View>
+                            <TextInput
+                                style={[
+                                    styles.input,
+                                    {
+                                        borderColor:
+                                            focusedInput === 'accountEmail'
+                                                ? Color.primary
+                                                : '#000000',
+                                        borderWidth:
+                                            focusedInput === 'accountEmail'
+                                                ? 1
+                                                : 0.3,
+                                    },
+                                ]}
+                                onFocus={() => handleInputFocus('accountEmail')}
+                                placeholder="johndoe@address.com"
+                                onChangeText={handleChange('accountEmail')}
+                                onBlur={handleBlur('accountEmail')}
+                                value={values.accountEmail}
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                            />
+                            {touched.accountEmail && errors.accountEmail && (
+                                <Text style={styles.errorText}>
+                                    {errors.accountEmail}
+                                </Text>
+                            )}
+                        </View>
+                        <View style={styles.checkBox}>
+                            <CheckBox
+                                textStyle={{
+                                    color: values.aggrement
+                                        ? theme.dark
+                                        : theme.grey,
+                                }}
+                                title={
+                                    'I agree to our Terms and Conditions and Privacy Policy'
+                                }
+                                checked={values.aggrement}
+                                onPress={() =>
+                                    setFieldValue(
+                                        'aggrement',
+                                        !values.aggrement,
+                                    )
+                                }
+                                checkedColor="grey"
+                            />
+                            {touched.aggrement && errors.aggrement && (
+                                <Text style={styles.errorTextAgg}>
+                                    {errors.aggrement}
+                                </Text>
+                            )}
+                        </View>
+                        {renderPopup()}
+                        <View style={styles.wrapperButton}>
+                            <TouchableOpacity
+                                style={[
+                                    styles.button,
+                                    { backgroundColor: isDisabled },
+                                ]}
+                                onPress={handleSubmit}
+                                disabled={
+                                    !isValid ||
+                                    !dirty ||
+                                    values.aggrement !== true
+                                }
+                            >
+                                <Text style={styles.textStyle}>LOGIN</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
-            </View>
+            </KeyboardAwareScrollView>
         </SafeAreaView>
     );
 }
@@ -354,7 +362,6 @@ export default function Register({ navigation }) {
 const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
-        paddingTop: StatusBar.currentHeight,
         height: '100%',
         backgroundColor: '#fff',
     },
@@ -377,10 +384,11 @@ const styles = StyleSheet.create({
     wrapperButton: {
         width: 350,
         height: 'min-content',
+        marginBottom: 36,
     },
     button: {
         borderRadius: 1000 / 2,
-        padding: 15,
+        justifyContent: 'center',
         height: '30%',
         width: '100%',
     },

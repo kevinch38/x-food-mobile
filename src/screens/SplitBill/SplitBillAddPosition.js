@@ -12,6 +12,7 @@ import Button from '../../components/button';
 import React, { useState } from 'react';
 import * as Icon from 'react-native-feather';
 import Color from '../../assets/Color';
+import { formatIDRCurrency } from '../../utils/utils';
 
 function SplitBillAddPosition({ navigation, route }) {
     const friends = route.params?.avatarData;
@@ -19,6 +20,7 @@ function SplitBillAddPosition({ navigation, route }) {
     const orderItems = route.params?.order.orderItems;
     const [selectedFriend, setSelectedFriend] = useState({
         friendName: friends[0].accountFirstName2,
+        friendLasName: friends[0].accountLastName2,
         friendID: friends[0].accountID2,
         friendImage: friends[0].imageAccount2,
     });
@@ -40,6 +42,7 @@ function SplitBillAddPosition({ navigation, route }) {
             imageAccount: f.imageAccount1,
             friendAccountID: f.accountID2,
             friendName: f.accountFirstName2,
+            friendLastName: f.accountLastName2,
             imageFriend: f.imageAccount2,
             orderItems: [],
         })),
@@ -146,7 +149,7 @@ function SplitBillAddPosition({ navigation, route }) {
                         ) : (
                             <Image
                                 source={{
-                                    uri: imageUrl,
+                                    uri: `https://ui-avatars.com/api/?name=${selectedFriend.friendName}+${selectedFriend.friendLasName}`,
                                 }}
                                 style={styles.avatar}
                             />
@@ -165,7 +168,7 @@ function SplitBillAddPosition({ navigation, route }) {
                             <Text style={styles.item}>{item.itemName}</Text>
                             <View style={styles.priceContainer}>
                                 <Text style={styles.price}>
-                                    Rp. {item.newPrice}
+                                    {formatIDRCurrency(item.newPrice)}
                                 </Text>
                                 <Text style={styles.price}>
                                     {item.quantity}x
@@ -236,7 +239,7 @@ function SplitBillAddPosition({ navigation, route }) {
                                     ) : (
                                         <Image
                                             source={{
-                                                uri: imageUrl,
+                                                uri: `https://ui-avatars.com/api/?name=${friend.accountFirstName2}+${friend.accountLastName2}`,
                                             }}
                                             style={styles.imageChoiceAvatar}
                                         />
@@ -365,7 +368,7 @@ const styles = StyleSheet.create({
     },
     price: {
         fontSize: 14,
-        fontWeight: '200',
+        fontWeight: '400',
     },
     counterContainer: {
         flexDirection: 'row',

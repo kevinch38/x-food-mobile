@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import * as Icon from 'react-native-feather';
 import React, { useState } from 'react';
+import { formatIDRCurrency } from '../../utils/utils';
 
 function SplitBillTrack({ navigation, route }) {
     const [requestPayment, setRequestPayment] = useState(
@@ -87,7 +88,7 @@ function SplitBillTrack({ navigation, route }) {
                                 ) : (
                                     <Image
                                         source={{
-                                            uri: imageUrl,
+                                            uri: `https://ui-avatars.com/api/?name=${friendRequestsWithSameFriendID[0].friendName}+${friendRequestsWithSameFriendID[0].friendLastName}`,
                                         }}
                                         style={styles.avatar}
                                     />
@@ -147,15 +148,18 @@ function SplitBillTrack({ navigation, route }) {
                                         </Text>
                                         <View style={styles.priceContainer}>
                                             <Text style={styles.price}>
-                                                Rp {groupedItem.newPrice}
+                                                {formatIDRCurrency(
+                                                    groupedItem.newPrice,
+                                                )}
                                             </Text>
                                             <Text style={styles.price}>
                                                 {groupedItem.quantity}x
                                             </Text>
                                             <Text style={styles.priceTotal}>
-                                                Rp{' '}
-                                                {groupedItem.newPrice *
-                                                    groupedItem.quantity}
+                                                {formatIDRCurrency(
+                                                    groupedItem.newPrice *
+                                                        groupedItem.quantity,
+                                                )}
                                             </Text>
                                         </View>
                                     </View>
@@ -291,7 +295,7 @@ const styles = StyleSheet.create({
     },
     price: {
         fontSize: 14,
-        fontWeight: '200',
+        fontWeight: '400',
     },
     priceTotal: {
         fontSize: 16,

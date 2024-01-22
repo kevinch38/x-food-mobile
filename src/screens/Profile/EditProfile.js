@@ -22,6 +22,7 @@ import BackButton from '../../components/backButton';
 import * as yup from 'yup';
 import bgProfile from '../../assets/images/bg-profile.png';
 import Color from '../../assets/Color';
+import Loading from '../../components/loading';
 
 function EditProfile({ navigation }) {
     const dispatch = useDispatch();
@@ -30,9 +31,9 @@ function EditProfile({ navigation }) {
     const route = useRoute();
     const phoneNumbers = route.params?.users.phoneNumber;
     const [image, setImage] = useState();
+    const [isLoading, setIsLoading] = useState(true);
 
-    const imageUrl =
-        'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
+    const imageUrl = `https://ui-avatars.com/api/?name=${users?.firstName}+${users?.lastName}`;
 
     const schema = yup.object().shape({
         firstName: yup
@@ -101,37 +102,46 @@ function EditProfile({ navigation }) {
     });
 
     useEffect(() => {
-        if (phoneNumbers) {
-            dispatch(
-                userAction(async () => {
-                    const result =
-                        await userService.fetchUserByPhoneNumber(phoneNumbers);
+        try {
+            setIsLoading(true);
+            if (phoneNumbers) {
+                dispatch(
+                    userAction(async () => {
+                        const result =
+                            await userService.fetchUserByPhoneNumber(
+                                phoneNumbers,
+                            );
 
-                    if (result.data.profilePhoto) {
-                        setImage(
-                            `data:image/jpeg;base64,${result.data.profilePhoto}`,
-                        );
-                    } else {
-                        setImage(imageUrl);
-                    }
+                        if (result.data.profilePhoto) {
+                            setImage(
+                                `data:image/jpeg;base64,${result.data.profilePhoto}`,
+                            );
+                        } else {
+                            setImage(imageUrl);
+                        }
 
-                    const updateData = {
-                        ...result.data,
-                    };
+                        const updateData = {
+                            ...result.data,
+                        };
 
-                    const values = {
-                        accountID: updateData.accountID,
-                        ktpID: updateData.ktpID,
-                        accountEmail: updateData.accountEmail,
-                        firstName: updateData.firstName,
-                        lastName: updateData.lastName,
-                        dateOfBirth: updateData.dateOfBirth,
-                        phoneNumber: updateData.phoneNumber,
-                    };
-                    await setValues(values);
-                    return result;
-                }),
-            );
+                        const values = {
+                            accountID: updateData.accountID,
+                            ktpID: updateData.ktpID,
+                            accountEmail: updateData.accountEmail,
+                            firstName: updateData.firstName,
+                            lastName: updateData.lastName,
+                            dateOfBirth: updateData.dateOfBirth,
+                            phoneNumber: updateData.phoneNumber,
+                        };
+                        await setValues(values);
+                        return result;
+                    }),
+                );
+            }
+        } catch (e) {
+            console.error('Error fetching user data: ', e);
+        } finally {
+            setIsLoading(false);
         }
     }, [dispatch, userService, setValues]);
 
@@ -254,14 +264,18 @@ function EditProfile({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-            >
-                {renderHeader()}
-                {renderEditProfile()}
-                {renderButtonSave()}
-            </ScrollView>
+            {isLoading ? (
+                <Loading />
+            ) : (
+                <ScrollView
+                    showsHorizontalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {renderHeader()}
+                    {renderEditProfile()}
+                    {renderButtonSave()}
+                </ScrollView>
+            )}
         </SafeAreaView>
     );
 }
@@ -269,7 +283,6 @@ function EditProfile({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: StatusBar.currentHeight,
         backgroundColor: '#fff',
     },
     wrapperName: {

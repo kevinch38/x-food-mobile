@@ -7,7 +7,7 @@ import {
     StyleSheet,
     Text,
     View,
-    ScrollView,
+    ScrollView
 } from 'react-native';
 import BackButton from '../../components/backButton';
 import { theme } from '../../theme';
@@ -18,6 +18,7 @@ import { useEffect, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
 import OrderService from '../../services/OrderService';
 import { formatIDRCurrency } from '../../utils/utils';
+import Loading from '../../components/loading';
 
 function EReceipt({ navigation }) {
     const orderService = OrderService();
@@ -26,6 +27,11 @@ function EReceipt({ navigation }) {
     const [order, setOrder] = useState();
     const sale = useSelector((state) => state.cart.sale);
     const [discounts, setDiscounts] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
+    const {users}  = useSelector((state) => state.user);
+
+    // console.log("ini otp", users.otpID);
+
     useEffect(() => {
         const backHandler = BackHandler.addEventListener(
             'hardwareBackPress',
@@ -34,22 +40,30 @@ function EReceipt({ navigation }) {
         return () => backHandler.remove();
     }, [order]);
 
-    useEffect(() => {
-        fetchOrderByID();
+    useEffect( () => {
+        fetchOrderByID()
     }, []);
 
     useEffect(() => {
         if (order && (sale !== 0 || sale !== null || sale !== '')) {
             getDiscount();
+            getDiscountValue();
         }
     }, [order, sale]);
 
+    // console.log("ini sale", sale);
+    // console.log("ini tipe nya", typeof sale);
+
+
     const fetchOrderByID = async () => {
         try {
+            setIsLoading(true);
             const getOrder = await orderService.getOrderById(orderId);
             setOrder(getOrder);
         } catch (error) {
             console.error('Error fetching user data1:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
     const dataOrder = order?.data;
@@ -58,20 +72,20 @@ function EReceipt({ navigation }) {
         dataOrder?.orderItems.forEach((o) => {
             setDiscounts((prevState) => ({
                 ...prevState,
-                [o.orderID]: countDiscount * o?.price,
+                [o.itemName]: countDiscount * o?.price,
             }));
         });
     };
 
     const getDiscountValue = () => {
         let initialValue = 0;
-        dataOrder?.orderItems.map((o) => {
-            initialValue += o?.price;
-        });
+        dataOrder?.orderItems.map((o)=> {
+            initialValue += o?.price
+        })
 
         let orderValue = dataOrder?.orderValue;
         return orderValue - initialValue;
-    };
+    }
 
     const orderItemsAssign = Object.values(
         (dataOrder?.orderItems || []).reduce((groupedItems, order) => {
@@ -82,7 +96,7 @@ function EReceipt({ navigation }) {
                     orderItemID: order?.orderItemID,
                     orderID: order?.orderID,
                     itemName: order?.itemName,
-                    price: discounts[order?.orderID],
+                    price: discounts[order?.itemName],
                     orderItemSubVarieties: [],
                     createdAt: order?.createdAt,
                     updatedAt: order?.updatedAt,
@@ -93,7 +107,7 @@ function EReceipt({ navigation }) {
             }
 
             return groupedItems;
-        }, {}),
+        }, {})
     );
 
     const dataAssigned = {
@@ -108,12 +122,14 @@ function EReceipt({ navigation }) {
         pointAmount: dataOrder?.pointAmount,
         orderItems: orderItemsAssign.map((item) => ({
             ...item,
-            quantity: item.quantity,
-            newPrice: item.quantity * item.price,
+            quantity: item.quantity ,
+            newPrice : item.quantity * item.price
         })),
         createdAt: dataOrder?.createdAt,
         updatedAt: dataOrder?.updatedAt,
     };
+
+    // console.log("ini data assign",dataAssigned.orderItems);
     const handleToHome = () => {
         navigation.navigate('Tabs');
     };
@@ -142,6 +158,7 @@ function EReceipt({ navigation }) {
         return (
             <View style={{ alignItems: 'center', height: '60%', width: '90%' }}>
                 <View style={styles.struckContainer}>
+
                     <View
                         style={{
                             position: 'absolute',
@@ -193,9 +210,7 @@ function EReceipt({ navigation }) {
                     >
                         <Image
                             style={{ width: 130, height: 130 }}
-                            source={{
-                                uri: `data:image/jpeg;base64,${dataAssigned?.image}`,
-                            }}
+                            source={{ uri: `data:image/jpeg;base64,${dataAssigned?.image}` }}
                         />
                         <Text
                             style={{
@@ -206,99 +221,80 @@ function EReceipt({ navigation }) {
                         >
                             Order Completed
                         </Text>
-
-                        {dataAssigned?.orderItems.map((order, index) => (
-                            <View
-                                key={index}
-                                style={{ width: '100%', marginTop: '5%' }}
-                            >
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-evenly',
-                                    }}
+                        <View style={{height:"30%"}}>
+                            {dataAssigned?.orderItems.map((order, index) => (
+                                <ScrollView
+                                    showsHorizontalScrollIndicator={false}
+                                    showsVerticalScrollIndicator={false}
                                 >
-                                    <Text
-                                        style={{
-                                            fontSize: 16,
-                                            fontWeight: 400,
-                                        }}
-                                    >
-                                        {order.itemName}
-                                    </Text>
-                                    <Text
-                                        style={{
-                                            fontSize: 14,
-                                            fontWeight: 400,
-                                            marginLeft: 10,
-                                        }}
-                                    >
-                                        x{order.quantity}
-                                    </Text>
-                                    <Text
-                                        style={{
-                                            fontWeight: '700',
-                                            fontSize: 16,
-                                            marginLeft: 10,
-                                        }}
-                                    >
-                                        {formatIDRCurrency(order.newPrice)}
-                                    </Text>
-                                </View>
-                                <View style={{ marginLeft: '9%' }}>
-                                    {order.orderItemSubVarieties.length > 0 && (
-                                        <Text
+                                    <View key={index} style={{ width: '100%', marginTop: '5%' }}>
+                                        <View
                                             style={{
-                                                fontSize: 14,
-                                                fontWeight: 400,
-                                                marginTop: 10,
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-evenly',
                                             }}
                                         >
-                                            [
-                                            {order.orderItemSubVarieties
-                                                .map(
-                                                    (or) =>
-                                                        or.subVariety
-                                                            .subVarName,
-                                                )
-                                                .join(', ')}
-                                            ]
-                                        </Text>
-                                    )}
-                                </View>
-                            </View>
-                        ))}
+                                            <Text
+                                                style={{
+                                                    fontSize: 16,
+                                                    fontWeight: 400,
+                                                }}
+                                            >
+                                                {order.itemName}
+                                            </Text>
+                                            <Text style={{ fontSize: 14, fontWeight: 400, marginLeft:10 }}>
+                                                x{order.quantity}
+                                            </Text>
+                                            <Text style={{ fontWeight: '700', fontSize: 16, marginLeft:10 }}>
+                                                {formatIDRCurrency(order.newPrice)}
+                                            </Text>
+                                        </View>
+                                        <View style={{ marginLeft: '9%' }}>
+                                            {order.orderItemSubVarieties.length > 0 && (
+                                                <Text
+                                                    style={{
+                                                        fontSize: 14,
+                                                        fontWeight: 400,
+                                                        marginTop: 10,
+                                                    }}
+                                                >
+                                                    [
+                                                    {order.orderItemSubVarieties
+                                                        .map(
+                                                            (or) =>
+                                                                or.subVariety
+                                                                    .subVarName,
+                                                        )
+                                                        .join(', ')}
+                                                    ]
+                                                </Text>
+                                            )}
+                                        </View>
+                                    </View>
+                                </ScrollView>
+
+                            ))}
+                        </View>
                         {/*<Text>{dataOrder?.orderValue - }</Text>*/}
-                        {getDiscountValue() === 0 ? (
-                            ``
-                        ) : (
+                        {getDiscountValue() === 0 ? `` :
                             <View
                                 style={{
                                     flexDirection: 'row',
                                     justifyContent: 'space-evenly',
-                                    marginTop: '5%',
+                                    marginTop: '5%'
                                 }}
                             >
-                                <Text>Discount</Text>
-                                <Text
-                                    style={{
-                                        marginLeft: 100,
-                                        fontWeight: '700',
-                                        fontSize: 16,
-                                        color: '#F94D63',
-                                    }}
-                                >
+                                <Text>
+                                    Discount
+                                </Text>
+                                <Text style={{marginLeft:100, fontWeight: '700', fontSize: 16, color:'#F94D63'}}>
                                     {formatIDRCurrency(getDiscountValue())}
                                 </Text>
                             </View>
-                        )}
+                        }
 
                         <View
-                            style={{
-                                flexDirection: 'row',
-                                marginTop: 20,
-                                marginLeft: '40%',
-                            }}
+                            style={{ flexDirection: "row", marginTop: 13, marginLeft: '40%' }}
                         >
                             <Text
                                 style={{
@@ -315,9 +311,12 @@ function EReceipt({ navigation }) {
                         </View>
                     </View>
                 </View>
+
             </View>
         );
     };
+
+
 
     const renderFooter = () => {
         return (
@@ -365,11 +364,14 @@ function EReceipt({ navigation }) {
 
     return (
         <SafeAreaView style={styles.controller}>
-            <View style={{ height: '100%', alignItems: 'center' }}>
-                {/*{renderHeader()}*/}
-                {renderContent()}
-                {renderFooter()}
-            </View>
+            {isLoading ? (
+                <Loading />
+            ) : (
+                <View style={{ height: '100%', alignItems: 'center' }}>
+                    {renderContent()}
+                    {renderFooter()}
+                </View>
+            )}
         </SafeAreaView>
     );
 }
@@ -377,7 +379,6 @@ function EReceipt({ navigation }) {
 const styles = StyleSheet.create({
     controller: {
         flex: 1,
-        paddingTop: StatusBar.currentHeight,
         backgroundColor: '#EC9D3F',
     },
     imageController: {
@@ -443,7 +444,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 24,
         borderRadius: 20,
-        height: 500,
+        height:500
     },
 });
 export default EReceipt;

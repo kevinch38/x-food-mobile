@@ -15,6 +15,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ServiceContext } from '../../context/ServiceContext';
 import { splitBillAction } from '../../slices/splitBillSlice';
+import { formatIDRCurrency } from '../../utils/utils';
 
 function SplitBillPosition({ navigation, route }) {
     const dispatch = useDispatch();
@@ -61,6 +62,7 @@ function SplitBillPosition({ navigation, route }) {
             }, 0);
 
             delete req.friendName;
+            delete req.friendLastName;
             delete req.imageFriend;
             delete req.imageAccount;
             delete req.image;
@@ -171,7 +173,7 @@ function SplitBillPosition({ navigation, route }) {
                             ) : (
                                 <Image
                                     source={{
-                                        uri: imageUrl,
+                                        uri: `https://ui-avatars.com/api/?name=${friendRequestsWithSameFriendID[0].friendName}+${friendRequestsWithSameFriendID[0].friendLastName}`,
                                     }}
                                     style={styles.avatar}
                                 />
@@ -224,15 +226,18 @@ function SplitBillPosition({ navigation, route }) {
                                         </Text>
                                         <View style={styles.priceContainer}>
                                             <Text style={styles.price}>
-                                                Rp {groupedItem.newPrice}
+                                                {formatIDRCurrency(
+                                                    groupedItem.newPrice,
+                                                )}
                                             </Text>
                                             <Text style={styles.price}>
                                                 {groupedItem.quantity}x
                                             </Text>
                                             <Text style={styles.priceTotal}>
-                                                Rp{' '}
-                                                {groupedItem.newPrice *
-                                                    groupedItem.quantity}
+                                                {formatIDRCurrency(
+                                                    groupedItem.newPrice *
+                                                        groupedItem.quantity,
+                                                )}
                                             </Text>
                                         </View>
                                     </View>
@@ -359,7 +364,7 @@ const styles = StyleSheet.create({
     },
     price: {
         fontSize: 14,
-        fontWeight: '200',
+        fontWeight: '400',
     },
     priceTotal: {
         fontSize: 16,
