@@ -133,7 +133,10 @@ const Voucher = () => {
                     <Text style={{ fontSize: 18, fontWeight: '700' }}>
                         My Vouchers
                     </Text>
-                    <ScrollView>
+                    <ScrollView
+                        showsHorizontalScrollIndicator={false}
+                        showsVerticalScrollIndicator={false}
+                    >
                         {Array.isArray(userData.vouchers) &&
                             userData.vouchers.length > 0 &&
                             userData.vouchers.map((item, idx) => {

@@ -14,6 +14,7 @@ import { userAction } from '../../slices/userSlice';
 import PaymentService from '../../services/PaymentService';
 import Loading from '../../components/loading/index';
 import { formatIDRCurrency } from '../../utils/utils';
+import Image1 from '../../assets/images/avatar-1.png';
 
 function CompletePaymentSpiltBill({ navigation, route }) {
     const dispatch = useDispatch();
@@ -29,8 +30,8 @@ function CompletePaymentSpiltBill({ navigation, route }) {
     // useEffect(() => {
     //     const timer = setTimeout(() => {
     //         navigation.navigate('Tabs');
-    //     }, 1000000);
-
+    //     }, 10000);
+    //
     //     return () => clearTimeout(timer);
     // }, []);
 
@@ -98,7 +99,12 @@ function CompletePaymentSpiltBill({ navigation, route }) {
     const renderUser = () => {
         return (
             <View style={styles.userArea}>
-                <View style={{ alignItems: 'center' }}>
+                <View
+                    style={{
+                        alignItems: 'center',
+                        marginRight: '3%',
+                    }}
+                >
                     <Text style={styles.textStyle}>From :</Text>
                     <Image
                         source={{
@@ -108,7 +114,7 @@ function CompletePaymentSpiltBill({ navigation, route }) {
                     />
                     <Text style={styles.textStyle}>{users?.firstName}</Text>
                 </View>
-                <View style={{ alignItems: 'center' }}>
+                <View style={{ alignItems: 'center', marginLeft: '5%' }}>
                     <Text style={styles.textStyle}>To :</Text>
                     <Image
                         source={{
@@ -128,7 +134,7 @@ function CompletePaymentSpiltBill({ navigation, route }) {
         return (
             <View style={{ marginTop: '5%' }}>
                 <Text style={styles.textStyle}>Amount Sent</Text>
-                <Text style={styles.textStyle}>
+                <Text style={styles.priceStyle}>
                     {formatIDRCurrency(splitBill.paymentAmount)}
                 </Text>
             </View>
@@ -137,7 +143,9 @@ function CompletePaymentSpiltBill({ navigation, route }) {
     return (
         <SafeAreaView style={styles.wrapper}>
             {isLoading ? (
-                <Loading />
+                <Loading
+                    style={{ backgroundColor: Color.primary, color: '#fff' }}
+                />
             ) : (
                 <>
                     {renderHeader()}
@@ -157,7 +165,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     confirmStyle: { width: 190, height: 190 },
-    textStyle: { fontSize: 22, fontWeight: '700', textAlign: 'center' },
+    textStyle: {
+        fontSize: 20,
+        fontWeight: '700',
+        textAlign: 'center',
+        marginTop: '2%',
+        marginBottom: '2%',
+    },
+    priceStyle: {
+        fontSize: 22,
+        fontWeight: '500',
+        textAlign: 'center',
+        marginTop: '1%',
+    },
     userArea: {
         width: '50%',
         marginTop: '10%',
@@ -165,10 +185,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     avatarStyle: {
-        width: 80,
-        height: 80,
+        width: 100,
+        height: 100,
         borderRadius: 27,
-        marginVertical: '10%',
     },
 });
 

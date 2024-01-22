@@ -1,31 +1,32 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
     Image,
+    Pressable,
     StyleSheet,
     Text,
     TextInput,
-    View,
-    Pressable,
     TouchableOpacity,
+    View,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import Color from '../assets/Color';
-import BackButton from '../components/backButton';
 import UserService from '../services/UserService';
-import axios from 'axios'; // Import UserService
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../api/axiosInstance';
 import { apiBaseUrl } from '../api/xfood';
+import { userAction } from '../slices/userSlice';
+import { ServiceContext } from '../context/ServiceContext';
 
-const VerificationCodeScreen = () => {
+const VerificationCodeScreen = ({ navigation }) => {
+    const dispatch = useDispatch();
+    const { userService2 } = useContext(ServiceContext);
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
     const [focusedInput, setFocusedInput] = useState(null);
     const [isValidCode, setIsValidCode] = useState(false);
     const [otpID, setOtpID] = useState(null);
     const [firstName, setFirstName] = useState('');
-    const navigation = useNavigation();
     const route = useRoute();
     const userService = UserService();
     const inputRefs = [useRef(), useRef(), useRef(), useRef()];
@@ -38,6 +39,24 @@ const VerificationCodeScreen = () => {
         });
         fetchOtpID(phoneNumber);
     }, [phoneNumber]);
+
+    useEffect(() => {
+        onGetUserByPhoneNumber();
+    }, []);
+
+    const onGetUserByPhoneNumber = () => {
+        try {
+            dispatch(
+                userAction(async () => {
+                    const result =
+                        await userService2.fetchUserByPhoneNumber(phoneNumber);
+                    return result;
+                }),
+            );
+        } catch (e) {
+            console.error('Error fetching user data: ', e);
+        }
+    };
 
     const fetchOtpID = async (phoneNumber) => {
         try {
@@ -105,10 +124,16 @@ const VerificationCodeScreen = () => {
                     if (data.data.check && firstName === '') {
                         setIsValidCode(true);
                         // console.log('Code is valid. Navigating to Register.');
-                        navigation.navigate('Register');
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Register' }],
+                        });
                     } else if (data.data.check && firstName !== '') {
                         setIsValidCode(true);
-                        navigation.navigate('Tabs');
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Tabs' }],
+                        });
                     } else {
                         setIsValidCode(false);
                         // console.log('Code is invalid.');

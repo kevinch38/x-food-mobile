@@ -255,7 +255,7 @@ function Profile({ navigation }) {
                     onPress: async () => {
                         await AsyncStorage.clear();
                         dispatch(logout());
-                        await dispatch(clearLoyaltyPoint());
+                        dispatch(clearLoyaltyPoint());
                         dispatch(clearBalance());
                         navigation.replace('Login');
                     },

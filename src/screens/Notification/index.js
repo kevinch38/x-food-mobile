@@ -127,7 +127,7 @@ function Notification() {
                 payment.paymentStatus === 'PENDING' &&
                 payment.accountID !== users.accountID
             ) {
-                content = 'Your Friend Requested';
+                content = 'Incoming Request Payment';
                 title = 'You Receive A Split Bill From';
                 titleButton = 'Pay';
             } else if (
@@ -135,7 +135,7 @@ function Notification() {
                 payment.paymentStatus === 'PENDING' &&
                 payment.accountID === users.accountID
             ) {
-                content = 'Incoming Request Payment';
+                content = 'Request Sent';
                 title = 'You Send Request Payment to';
                 titleButton = 'Done';
             } else if (
