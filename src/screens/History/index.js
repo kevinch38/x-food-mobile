@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     button: {
         flex: 1,
         padding: '1%',
-        margin: '6%',
+        margin: '5%',
         height:'50%',
         borderRadius: 30,
     },

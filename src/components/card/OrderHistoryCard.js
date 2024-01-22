@@ -64,7 +64,7 @@ const OrderHistoryCard = ({
                                         marginTop: 3,
                                     }}
                                 >
-                                    {isSplit ? `` : `Split`}
+                                    {isSplit ? `Split` : ``}
                                 </Text>
                             </View>
                             <Text
