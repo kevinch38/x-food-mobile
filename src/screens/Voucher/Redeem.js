@@ -196,23 +196,36 @@ const Redeem = ({ navigation }) => {
                     {promotions.map((promotion) => (
                         <RedeemCard
                             key={promotion.promotionID}
-                            image={promotion.logoImage}
-                            vouchersLeft={vouchersLeftData[promotion.promotionID] ? vouchersLeftData[promotion.promotionID].toString() : '0'}
+                            image={promotion.merchantLogo}
+                            vouchersLeft={
+                                vouchersLeftData[promotion.promotionID]
+                                    ? vouchersLeftData[
+                                          promotion.promotionID
+                                      ].toString()
+                                    : '0'
+                            }
                             points={promotion.cost.toString()}
                             items={promotion.quantity.toString()}
                             expired={promotion.expiredDate}
                             title={promotion.promotionName}
-                            maxRedeem = {promotion.maxRedeem}
-                            isMaxRedeemed={isMaxRedeemed[promotion.promotionID] || false}
-                            voucherEmpty={isVoucherEmpty[promotion.promotionID] || false}
-                            percenOff={formatIDRCurrency(promotion.promotionValue)}
-                            loyaltyPoint = {loyaltyPoints.loyaltyPointAmount}
+                            maxRedeem={promotion.maxRedeem}
+                            isMaxRedeemed={
+                                isMaxRedeemed[promotion.promotionID] || false
+                            }
+                            voucherEmpty={
+                                isVoucherEmpty[promotion.promotionID] || false
+                            }
+                            percenOff={formatIDRCurrency(
+                                promotion.promotionValue,
+                            )}
+                            loyaltyPoint={loyaltyPoints.loyaltyPointAmount}
                             accountID={id}
                             promotionID={promotion.promotionID}
-                            onRedeemPress={() => handleRedeemPress(promotion.promotionID)}
+                            onRedeemPress={() =>
+                                handleRedeemPress(promotion.promotionID)
+                            }
                         />
                     ))}
-
                 </ScrollView>
             </View>
         </>

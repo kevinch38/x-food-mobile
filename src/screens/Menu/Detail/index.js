@@ -54,6 +54,7 @@ const Detail = ({ navigation }) => {
             handleIncrease();
         }
     }, []);
+
     const handleIncrease = () => {
         // if (
         //     tempItems.length > 0 &&
@@ -86,7 +87,6 @@ const Detail = ({ navigation }) => {
     };
 
     const handleVariety = (checked, varietyPrice, subVariety) => {
-        console.log(checked);
         setPrice((price) => price + (checked ? varietyPrice : -varietyPrice));
 
         if (checked) {
@@ -206,7 +206,6 @@ const Detail = ({ navigation }) => {
                                           (s, idx) => {
                                               const [isChecked, setIsChecked] =
                                                   useState(true);
-
                                               return (
                                                   <TouchableOpacity
                                                       onPress={() => {
@@ -221,7 +220,11 @@ const Detail = ({ navigation }) => {
                                                               s.subVarStock,
                                                           );
                                                       }}
-                                                      disabled={tempItems <= 0}
+                                                      disabled={
+                                                          tempItems <= 0 ||
+                                                          s.subVariety
+                                                              .subVarStock <= 0
+                                                      }
                                                   >
                                                       <View
                                                           key={idx}
@@ -318,7 +321,11 @@ const Detail = ({ navigation }) => {
                                                               s.subVarStock,
                                                           );
                                                       }}
-                                                      disabled={tempItems <= 0}
+                                                      disabled={
+                                                          tempItems <= 0 ||
+                                                          s.subVariety
+                                                              .subVarStock <= 0
+                                                      }
                                                   >
                                                       <View
                                                           key={idx}

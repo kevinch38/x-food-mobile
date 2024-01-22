@@ -14,10 +14,9 @@ const RedeemCard = ({image, title, percenOff, vouchersLeft, expired, points, isM
 
     const handleRedeem = async () => {
         try {
-
             const voucherService = VoucherService();
             await voucherService.createVoucher(promotionID, accountID);
-            console.log('Voucher redeemed successfully!');
+            // console.log('Voucher redeemed successfully!');
         } catch (error) {
             alert("Vouchers empty or your point not enough !!");
             console.error('Error redeeming voucher:', error);
@@ -32,43 +31,113 @@ const RedeemCard = ({image, title, percenOff, vouchersLeft, expired, points, isM
 
     return (
         // <>
-            <View style={styles.card}>
-                <View style={{flexDirection:"row"}}>
-                    <View style={{marginTop:"3%"}}>
-                        <View style={styles.image}>
-                            <Image source={{ uri: `data:image/jpeg;base64,${image}` }}/>
-                        </View>
-                        <Text style={{marginTop:"-22%", fontSize:13}}>Vouchers Left : {vouchersLeft}</Text>
-                        <Text style={{marginTop:"20%", fontSize:11}}>Expired Date:{formattedExpiredDate}</Text>
+        <View style={styles.card}>
+            <View style={{ flexDirection: 'row' }}>
+                <View style={{ marginTop: '3%' }}>
+                    <View style={styles.image}>
+                        <Image
+                            source={{ uri: `data:image/jpeg;base64,${image}` }}
+                            style={{ height: '100%', width: '100%' }}
+                        />
                     </View>
-                    <View>
-                    <View style={{flexDirection:"row", marginLeft:"-22%", marginTop:"6%"}}>
-                        <View style={{flexDirection:'row'}}>
-                            <Text style={{fontSize:12, color:'#9796A1'}}>{percenOff} Off</Text>
-                            <Text style={{marginLeft:"6%", fontSize:12, color:'#9796A1'}}>{maxRedeem} Items</Text>
-                        </View>
-                            <Text style={{marginLeft:"19%", color:'#4EE476'}}>{points}</Text>
-                    </View>
-                        <Text style={{fontWeight:900, fontSize:16, marginLeft:"-22%"}}>{title}</Text>
-                    </View>
-                    {isMaxRedeemed || voucherEmpty || vouchersLeft==='0' || isExpired || loyaltyPoint < points ?
-                        <TouchableOpacity style={{marginTop:"25%", marginLeft:'50%', position: 'absolute'}} onPress={handleRedeemAndFetchVoucher} disabled={true}>
-                            <View style={[styles.button, {backgroundColor: theme.grey}]}>
-                                <Text style={{textAlign:"center", color:"white"}}>{isExpired?`Expired`: `Redeemed`}</Text>
-                            </View>
-                        </TouchableOpacity> :
-                        <TouchableOpacity style={{marginTop:"25%", marginLeft:'50%', position: 'absolute'}} onPress={handleRedeemAndFetchVoucher} disabled={false}>
-                            <View style={[styles.button, {backgroundColor: "#F08D18"}]}>
-                                <Text style={{textAlign:"center", color:"white"}}>Redeem</Text>
-                            </View>
-                        </TouchableOpacity>
-                    }
+                    <Text style={{ marginTop: '-22%', fontSize: 13 }}>
+                        Vouchers Left : {vouchersLeft}
+                    </Text>
+                    <Text style={{ marginTop: '20%', fontSize: 11 }}>
+                        Expired Date:{formattedExpiredDate}
+                    </Text>
                 </View>
-
-
+                <View>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            marginLeft: '-22%',
+                            marginTop: '6%',
+                        }}
+                    >
+                        <View style={{ flexDirection: 'row' }}>
+                            <Text style={{ fontSize: 12, color: '#9796A1' }}>
+                                {percenOff} Off
+                            </Text>
+                            <Text
+                                style={{
+                                    marginLeft: '6%',
+                                    fontSize: 12,
+                                    color: '#9796A1',
+                                }}
+                            >
+                                {maxRedeem} Items
+                            </Text>
+                        </View>
+                        <Text style={{ marginLeft: '19%', color: '#4EE476' }}>
+                            {points}
+                        </Text>
+                    </View>
+                    <Text
+                        style={{
+                            fontWeight: 900,
+                            fontSize: 16,
+                            marginLeft: '-22%',
+                        }}
+                    >
+                        {title}
+                    </Text>
+                </View>
+                {isMaxRedeemed ||
+                voucherEmpty ||
+                vouchersLeft === '0' ||
+                isExpired ||
+                loyaltyPoint < points ? (
+                    <TouchableOpacity
+                        style={{
+                            marginTop: '25%',
+                            marginLeft: '50%',
+                            position: 'absolute',
+                        }}
+                        onPress={handleRedeemAndFetchVoucher}
+                        disabled={true}
+                    >
+                        <View
+                            style={[
+                                styles.button,
+                                { backgroundColor: theme.grey },
+                            ]}
+                        >
+                            <Text
+                                style={{ textAlign: 'center', color: 'white' }}
+                            >
+                                {isExpired ? `Expired` : `Redeemed`}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity
+                        style={{
+                            marginTop: '25%',
+                            marginLeft: '50%',
+                            position: 'absolute',
+                        }}
+                        onPress={handleRedeemAndFetchVoucher}
+                        disabled={false}
+                    >
+                        <View
+                            style={[
+                                styles.button,
+                                { backgroundColor: '#F08D18' },
+                            ]}
+                        >
+                            <Text
+                                style={{ textAlign: 'center', color: 'white' }}
+                            >
+                                Redeem
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                )}
             </View>
+        </View>
         // </>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
