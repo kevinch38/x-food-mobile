@@ -37,7 +37,6 @@ const AddFriend = ({ navigation, route }) => {
     const [userId, setUserId] = useState();
     const [isMessage, setIsMessage] = useState(false);
     const [isInvitationSuccess, setIsInvitationSuccess] = useState(false);
-    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
     const schema = Yup.object({
         phoneNumber: Yup.string().test(
@@ -67,6 +66,13 @@ const AddFriend = ({ navigation, route }) => {
                 );
                 if (!userResponse.data) {
                     setFieldError('phoneNumber', 'User not found');
+                    return;
+                }
+                if (userResponse.data.phoneNumber === phoneNumberRedux) {
+                    setFieldError(
+                        'phoneNumber',
+                        'You cannot add your own number',
+                    );
                     return;
                 }
                 const user =

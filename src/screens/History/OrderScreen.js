@@ -1,9 +1,9 @@
 import {
     View,
     ScrollView,
-    BackHandler,
-    TouchableOpacity,
     Pressable,
+    ActivityIndicator,
+    StyleSheet,
 } from 'react-native';
 import OrderHistoryCard from '../../components/card/OrderHistoryCard';
 import { useSelector } from 'react-redux';
@@ -12,17 +12,18 @@ import React, { useEffect, useState } from 'react';
 import HistoryService from '../../services/HistoryService';
 import { format } from 'date-fns';
 import { useNavigation } from '@react-navigation/native';
-import { formatIDRCurrency} from "../../utils/utils";
+import { formatIDRCurrency } from '../../utils/utils';
+import Color from '../../assets/Color';
 
 const OrderScreen = () => {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
     const userService = UserService();
     const historyService = HistoryService();
-    const [isLoading, setIsLoading] = React.useState(false);
     const [id, setId] = useState('');
     const [order, setOrder] = useState([]);
     const [status, setStatus] = useState({});
     const navigation = useNavigation();
+    const { isLoading } = useSelector((state) => state.ui);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -50,7 +51,9 @@ const OrderScreen = () => {
         try {
             const historyOrder =
                 await historyService.getAllOrderByAccountId(id);
-            const sortedOrder = historyOrder.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const sortedOrder = historyOrder.data.sort(
+                (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+            );
             setOrder(sortedOrder);
         } catch (error) {
             console.error('Error fetching user data2:', error);
@@ -83,31 +86,38 @@ const OrderScreen = () => {
 
     return (
         <View style={{ margin: 5 }}>
-            <ScrollView
-                style={{marginBottom:250}}
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-            >
+            {isLoading ? (
+                <View style={styles.loading}>
+                    <ActivityIndicator color={Color.primary} size={'large'} />
+                </View>
+            ) : (
+                <ScrollView
+                    style={{ marginBottom: 250 }}
+                    showsHorizontalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
+                >
                     {order.map((orderItem, index) => (
                         <Pressable
                             key={index}
                             onPress={() => {
                                 navigation.navigate('EReceipt', {
                                     orderID: orderItem.orderID,
-                                    image : orderItem.image,
-                                    date : format(
+                                    image: orderItem.image,
+                                    date: format(
                                         new Date(orderItem.createdAt),
                                         'dd MMM, HH:mm',
                                     ),
-                                    total : orderItem.orderValue,
-                                    orderItems : orderItem.orderItems,
-                                    isSplit : orderItem.isSplit
+                                    total: orderItem.orderValue,
+                                    orderItems: orderItem.orderItems,
+                                    isSplit: orderItem.isSplit,
                                 });
                             }}
-
-                            disabled={orderItem.orderStatus === "WAITING_FOR_PAYMENT" || orderItem.orderStatus === "REJECTED"}
+                            disabled={
+                                orderItem.orderStatus ===
+                                    'WAITING_FOR_PAYMENT' ||
+                                orderItem.orderStatus === 'REJECTED'
+                            }
                         >
-
                             <OrderHistoryCard
                                 image={orderItem.image}
                                 items={orderItem.quantity}
@@ -117,16 +127,24 @@ const OrderScreen = () => {
                                     'dd MMM, HH:mm',
                                 )}
                                 status={status[orderItem.orderID]}
-                                orderValue={formatIDRCurrency(orderItem.orderValue)}
+                                orderValue={formatIDRCurrency(
+                                    orderItem.orderValue,
+                                )}
                                 isSplit={orderItem.isSplit}
                             />
-
                         </Pressable>
                     ))}
-
-            </ScrollView>
+                </ScrollView>
+            )}
         </View>
     );
 };
 
+const styles = StyleSheet.create({
+    loading: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1,
+    },
+});
 export default OrderScreen;
