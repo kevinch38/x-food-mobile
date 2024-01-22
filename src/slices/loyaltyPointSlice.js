@@ -11,6 +11,11 @@ const loyaltyPointSlice = createSlice({
     initialState: {
         loyaltyPoints: [],
     },
+    reducers: {
+        clearLoyaltyPoint: (state) => {
+            state.loyaltyPoints = [];
+        },
+    },
     extraReducers: (builder) => {
         builder.addCase(loyaltyPointAction.fulfilled, (state, { payload }) => {
             if (payload) {
@@ -19,4 +24,6 @@ const loyaltyPointSlice = createSlice({
         });
     },
 });
+
+export const { clearLoyaltyPoint } = loyaltyPointSlice.actions;
 export default loyaltyPointSlice;

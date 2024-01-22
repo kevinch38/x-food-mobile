@@ -26,13 +26,13 @@ function CompletePaymentSpiltBill({ navigation, route }) {
     // const { completePaymentSplit } = PaymentService;
     const completePayment = PaymentService();
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            navigation.navigate('Tabs');
-        }, 10000);
+    // useEffect(() => {
+    //     const timer = setTimeout(() => {
+    //         navigation.navigate('Tabs');
+    //     }, 1000000);
 
-        return () => clearTimeout(timer);
-    }, []);
+    //     return () => clearTimeout(timer);
+    // }, []);
 
     useEffect(async () => {
         try {
@@ -126,10 +126,9 @@ function CompletePaymentSpiltBill({ navigation, route }) {
 
     const renderAmount = () => {
         return (
-            <View style={{ marginTop: '20%' }}>
+            <View style={{ marginTop: '5%' }}>
                 <Text style={styles.textStyle}>Amount Sent</Text>
                 <Text style={styles.textStyle}>
-                    {' '}
                     {formatIDRCurrency(splitBill.paymentAmount)}
                 </Text>
             </View>
@@ -158,10 +157,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     confirmStyle: { width: 190, height: 190 },
-    textStyle: { fontSize: 22, fontWeight: '700' },
+    textStyle: { fontSize: 22, fontWeight: '700', textAlign: 'center' },
     userArea: {
         width: '50%',
-        marginTop: '15%',
+        marginTop: '10%',
         flexDirection: 'row',
         justifyContent: 'space-between',
     },

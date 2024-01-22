@@ -42,13 +42,7 @@ const Home = ({ navigation }) => {
 
     const [search, setSearch] = useState('');
     const [items, setItems] = useState([]);
-    const [cityId, setCityId] = useState(() => {
-        const findCity = items.find(
-            (item) => item.cityName === 'Kota Administrasi Jakarta Selatan',
-        );
-        console.log('findCityID:', findCity);
-        return findCity ? findCity.cityID : '';
-    });
+    const [cityId, setCityId] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [userLoad, setUserLoad] = useState(false);
 
@@ -107,7 +101,7 @@ const Home = ({ navigation }) => {
         };
 
         onGetUserByPhoneNumber();
-    }, [phoneNumber]);
+    }, [dispatch, userService, phoneNumber]);
 
     const filteredMerchants = merchants.filter((merchant) => {
         const branches = merchant.merchantBranches || [];
@@ -131,7 +125,7 @@ const Home = ({ navigation }) => {
               );
 
     const handleCard = (id) => {
-        navigation.navigate('Merchant', { id });
+        navigation.navigate('Merchant', { id, cityId });
     };
 
     const handleTopUp = () => {
@@ -233,21 +227,23 @@ const Home = ({ navigation }) => {
     };
 
     const renderSearch = () => {
-        <View style={styles.areaSearchBar}>
-            <View style={styles.searchBar}>
-                <SearchBar
-                    platform="android"
-                    onChangeText={(newVal) => setSearch(newVal)}
-                    onClearText={() => console.log(onClearText())}
-                    placeholder="Find for food or restaurant..."
-                    placeholderTextColor="#888"
-                    cancelButtonTitle="Cancel"
-                    fontSize={14}
-                    value={search}
-                    round={true}
-                />
+        return (
+            <View style={styles.areaSearchBar}>
+                <View style={styles.searchBar}>
+                    <SearchBar
+                        platform="android"
+                        onChangeText={(newVal) => setSearch(newVal)}
+                        onClearText={() => console.log(onClearText())}
+                        placeholder="Find for food or restaurant..."
+                        placeholderTextColor="#888"
+                        cancelButtonTitle="Cancel"
+                        fontSize={14}
+                        value={search}
+                        round={true}
+                    />
+                </View>
             </View>
-        </View>;
+        );
     };
 
     const renderAccountSummary = () => {

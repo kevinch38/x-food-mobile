@@ -18,13 +18,19 @@ import Loading from '../../components/loading';
 
 const Merchant = ({ navigation }) => {
     const dispatch = useDispatch();
-    const merchant = useSelector((state) => state.merchant.selectedMerchant);
-    const { merchantService, merchantBranchService } =
-        useContext(ServiceContext);
     const route = useRoute();
+    const merchant = useSelector((state) => state.merchant.selectedMerchant);
+    const { merchantService } = useContext(ServiceContext);
     const receivedId = route.params?.id;
-    const [branches, setBranches] = useState([]);
+    const [cityId, setCityId] = useState(route.params?.cityID);
     const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (route.params?.cityId) {
+            setCityId(route.params.cityId);
+        }
+    }, [route.params?.cityID]);
+
     const handleBack = () => {
         navigation.navigate('Tabs');
     };
@@ -124,7 +130,8 @@ const Merchant = ({ navigation }) => {
                             .filter(
                                 (branch) =>
                                     branch.status === 'ACTIVE' &&
-                                    branch.items.length > 0,
+                                    branch.items.length > 0 &&
+                                    branch.city.cityID === cityId,
                             )
                             .map((branch, idx) => {
                                 return (

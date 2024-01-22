@@ -1,4 +1,5 @@
 import {
+    BackHandler,
     Image,
     Pressable,
     SafeAreaView,
@@ -14,7 +15,6 @@ import BackButton from '../../../components/backButton';
 import Button from '../../../components/button';
 import Color from '../../../assets/Color';
 import iconBag from '../../../assets/icons/bag.png';
-import { RoundedCheckbox } from 'react-native-rounded-checkbox';
 import { useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -55,14 +55,22 @@ const Detail = ({ navigation }) => {
         }
     }, []);
 
+    useEffect(() => {
+        const backHandlerListener = BackHandler.addEventListener(
+            'hardwareBackPress',
+            handleBackPress,
+        );
+
+        return () => backHandlerListener.remove();
+    }, []);
+
+    const handleBackPress = () => {
+        dispatch(emptyTempCart());
+        navigation.navigate('Menu');
+        return true;
+    };
+
     const handleIncrease = () => {
-        // if (
-        //     tempItems.length > 0 &&
-        //     hasRequiredVarieties &&
-        //     itemVariety.length === 0
-        // ) {
-        //     alert('Variety is Required');
-        // } else {
         const tempCartItem = {
             ...item,
             mergeID: mergeID,
@@ -70,8 +78,8 @@ const Detail = ({ navigation }) => {
             itemVarieties: itemVariety.length > 0 ? itemVariety : [],
         };
         dispatch(addToTempCart(tempCartItem));
-        // }
     };
+
     const handleDecrease = () => {
         dispatch(
             removeFromTempCart({
@@ -138,7 +146,6 @@ const Detail = ({ navigation }) => {
                 <Text style={styles.textName}>{item.itemName}</Text>
                 <View style={styles.tagPrice}>
                     <Text style={styles.price}>
-                        {/*Rp. {price * qty}*/}
                         Rp.{' '}
                         {item.isDiscounted
                             ? item.discountedPrice.toLocaleString()

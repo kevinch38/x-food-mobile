@@ -14,7 +14,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import React, { useContext, useEffect, useState } from 'react';
 import { ServiceContext } from '../../context/ServiceContext';
 import { userAction } from '../../slices/userSlice';
-import { loyaltyPointAction } from '../../slices/loyaltyPointSlice';
+import {
+    clearLoyaltyPoint,
+    loyaltyPointAction,
+} from '../../slices/loyaltyPointSlice';
 import Button from '../../components/button';
 import * as ImagePicker from 'expo-image-picker';
 import * as Icon from 'react-native-feather';
@@ -25,7 +28,7 @@ import dollar from '../../assets/icons/dollar.png';
 import basket from '../../assets/icons/basket.png';
 import Color from '../../assets/Color';
 import camera from '../../assets/icons/camera.png';
-import { fetchBalanceAction } from '../../slices/balanceSlice';
+import { clearBalance, fetchBalanceAction } from '../../slices/balanceSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../../api/axiosInstance';
 import { formatIDRCurrency } from '../../utils/utils';
@@ -250,9 +253,10 @@ function Profile({ navigation }) {
                 {
                     text: 'Log out',
                     onPress: async () => {
-                        await authService.logout();
-                        await AsyncStorage.removeItem('phoneNumber');
+                        await AsyncStorage.clear();
                         dispatch(logout());
+                        await dispatch(clearLoyaltyPoint());
+                        dispatch(clearBalance());
                         navigation.replace('Login');
                     },
                 },

@@ -11,6 +11,11 @@ const balanceSlice = createSlice({
     initialState: {
         balance: '',
     },
+    reducers: {
+        clearBalance: (state) => {
+            state.balance = '';
+        },
+    },
     extraReducers: (builder) => {
         builder.addCase(fetchBalanceAction.fulfilled, (state, { payload }) => {
             if (payload) {
@@ -20,4 +25,5 @@ const balanceSlice = createSlice({
     },
 });
 
+export const { clearBalance } = balanceSlice.actions;
 export default balanceSlice;

@@ -19,6 +19,8 @@ import Account from '../../components/account';
 import BackButton from '../../components/backButton';
 import Loading from '../../components/loading';
 import BalanceService from '../../services/BalanceService';
+import NotifCard from '../../components/card/NotifCard';
+import moment from 'moment/moment';
 
 function Notification() {
     const phoneNumber = useSelector((state) => state.ui.phoneNumber);
@@ -125,7 +127,7 @@ function Notification() {
                 payment.paymentStatus === 'PENDING' &&
                 payment.accountID !== users.accountID
             ) {
-                content = 'Request Payment';
+                content = 'Your Friend Requested';
                 title = 'You Receive A Split Bill From';
                 titleButton = 'Pay';
             } else if (
@@ -141,15 +143,15 @@ function Notification() {
                 payment.paymentStatus === 'SUCCESS' &&
                 payment.accountID !== users.accountID
             ) {
-                content = 'Money Sent';
-                title = 'Money Sent';
+                content = 'Payment Sent';
+                title = 'Payment Sent';
                 titleButton = 'Done';
             } else if (
                 payment.paymentType === 'FRIEND' &&
                 payment.paymentStatus === 'SUCCESS' &&
                 payment.accountID === users.accountID
             ) {
-                content = 'Money Received';
+                content = 'Payment Received';
                 title = 'Your Received A Payment from';
                 titleButton = 'Done';
             } else if (
@@ -307,11 +309,10 @@ function Notification() {
                         key={index}
                         onPress={() => handleButtonPress('button1', payment)}
                     >
-                        <HistoryCard
-                            date={format(
-                                new Date(payment.createdAt),
-                                'dd MMM, HH:mm',
-                            )}
+                        <NotifCard
+                            date={moment(new Date(payment.createdAt))
+                                .locale('id-ID')
+                                .format('DD MMM, HH:mm')}
                             title={
                                 payment.accountID === users.accountID
                                     ? payment.friend.accountFirstName2
