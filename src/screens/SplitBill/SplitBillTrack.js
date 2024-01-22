@@ -130,7 +130,7 @@ function SplitBillTrack({ navigation, route }) {
                                         } else {
                                             acc.push({
                                                 itemName: r.itemName,
-                                                newPrice: r.newPrice,
+                                                itemPrice: r.itemPrice,
                                                 quantity: 1,
                                             });
                                         }
@@ -149,7 +149,7 @@ function SplitBillTrack({ navigation, route }) {
                                         <View style={styles.priceContainer}>
                                             <Text style={styles.price}>
                                                 {formatIDRCurrency(
-                                                    groupedItem.newPrice,
+                                                    groupedItem.itemPrice,
                                                 )}
                                             </Text>
                                             <Text style={styles.price}>
@@ -157,7 +157,7 @@ function SplitBillTrack({ navigation, route }) {
                                             </Text>
                                             <Text style={styles.priceTotal}>
                                                 {formatIDRCurrency(
-                                                    groupedItem.newPrice *
+                                                    groupedItem.itemPrice *
                                                         groupedItem.quantity,
                                                 )}
                                             </Text>

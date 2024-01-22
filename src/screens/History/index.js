@@ -1,12 +1,18 @@
-import React, { useState } from "react";
-import {TouchableOpacity, View, Text, StyleSheet, Image, SafeAreaView} from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import OrderScreen from "./OrderScreen";
-import PaymentScreen from "./PaymentScreen";
-import TopUpScreen from "./TopUpScreen";
+import React, { useState } from 'react';
+import {
+    TouchableOpacity,
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    SafeAreaView,
+} from 'react-native';
+import OrderScreen from './OrderScreen';
+import PaymentScreen from './PaymentScreen';
+import TopUpScreen from './TopUpScreen';
 import { useSelector } from 'react-redux';
 
-const History = ({navigation}) => {
+const History = ({ navigation }) => {
     const users = useSelector((state) => state.user.users);
     const [activeButton, setActiveButton] = useState('button1');
     const handleBack = () => {
@@ -34,41 +40,27 @@ const History = ({navigation}) => {
             break;
     }
 
-    return (
-        <SafeAreaView>
-            <View
-                style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginBottom: -60,
-                }}
-            >
-                <TouchableOpacity style={styles.button} onPress={handleBack}>
-                    <Image
-                        source={require('../../../assets/images/button.png')}
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
-                    <Text
-                        style={{
-                            textAlign: 'center',
-                            marginTop: 20,
-                            fontSize: 16,
-                        }}
-                    >
-                        History
-                    </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.button}>
+    const renderHeader = () => {
+        return (
+            <View style={styles.headerContainer}>
+                <View style={styles.titleHeader}>
+                    <Text style={styles.title}>History</Text>
+                </View>
+                <View style={styles.imageHeader}>
                     <Image
                         source={{
                             uri: `data:image/jpeg;base64,${users.profilePhoto}`,
                         }}
                         style={styles.imageStyle}
                     />
-                </TouchableOpacity>
+                </View>
             </View>
+        );
+    };
+
+    return (
+        <SafeAreaView style={{ backgroundColor: '#fff', flex: 1 }}>
+            {renderHeader()}
             <View style={styles.container}>
                 <TouchableOpacity
                     onPress={() => handleButtonPress('button1')}
@@ -113,7 +105,7 @@ const History = ({navigation}) => {
                     <Text style={styles.font}>Payment</Text>
                 </TouchableOpacity>
             </View>
-            <View style={{ margin: 40}}>{selectedComponent}</View>
+            <View style={{ margin: 40 }}>{selectedComponent}</View>
         </SafeAreaView>
     );
 };
@@ -124,17 +116,34 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 16,
     },
+    headerContainer: {
+        marginTop: 37,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 28,
+    },
+    imageHeader: {
+        position: 'absolute',
+        right: 27,
+    },
+    titleHeader: {
+        width: '100%',
+    },
+    title: {
+        textAlign: 'center',
+        fontSize: 16,
+        fontWeight: '500',
+    },
     button: {
         flex: 1,
         padding: '1%',
         margin: '6%',
-        height:'50%',
+        height: '50%',
         borderRadius: 30,
     },
     imageStyle: {
-        flex: 1,
-        padding: 10,
-        margin: 20,
+        height: 38,
+        width: 38,
         borderRadius: 10,
     },
 

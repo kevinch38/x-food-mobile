@@ -1,10 +1,10 @@
 import {
+    ActivityIndicator,
     Alert,
     Platform,
     Pressable,
     SafeAreaView,
     ScrollView,
-    StatusBar,
     StyleSheet,
     Text,
     View,
@@ -34,6 +34,7 @@ function CompleteProfile({ navigation }) {
     const [isNikVerified, setIsNikVerified] = useState(false);
     const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState(true);
     const [isVisibleButton, setIsVisibleButton] = useState(false);
+    const { isLoading } = useSelector((state) => state.ui);
 
     const [dob, setDOB] = useState('');
     const [date, setDate] = useState(new Date());
@@ -342,14 +343,20 @@ function CompleteProfile({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-            >
-                {renderHeader()}
-                {renderInput()}
-                {renderButtonSave()}
-            </ScrollView>
+            {isLoading ? (
+                <View style={styles.loading}>
+                    <ActivityIndicator color={Color.primary} size={'large'} />
+                </View>
+            ) : (
+                <ScrollView
+                    showsHorizontalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {renderHeader()}
+                    {renderInput()}
+                    {renderButtonSave()}
+                </ScrollView>
+            )}
         </SafeAreaView>
     );
 }
@@ -358,6 +365,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+    },
+    loading: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
     },
     title: {
         marginTop: 45,

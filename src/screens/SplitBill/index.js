@@ -1,4 +1,5 @@
 import {
+    ActivityIndicator,
     Image,
     SafeAreaView,
     ScrollView,
@@ -26,20 +27,17 @@ function SplitBill({ navigation, route }) {
     const order = route.params?.dataAssigned;
     const [avatarData, setAvatarData] = useState([]);
     const [image, setImage] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
+    const { isLoading } = useSelector((state) => state.ui);
 
     const imageUrl =
         'https://pixabay.com/get/g1905cc00441dc61d2c96b34edd2216241e5cdb87dfebe3fa18c7ee099198466cf6c52eed7f0fdd476deefee6b71574ecf0813154b02c103e1a0d4ed36be602b72906916bfc382c102a0b45d5b70a99ce_640.png';
 
     const img = async () => {
         try {
-            setIsLoading(true);
             const i = await friends[0].imageAccount1;
             setImage(i);
         } catch (e) {
             console.log(e);
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -60,7 +58,6 @@ function SplitBill({ navigation, route }) {
 
     useEffect(() => {
         try {
-            setIsLoading(true);
             dispatch(
                 friendAction(async () => {
                     const result = friendService.fetchFriend(order.accountID);
@@ -69,8 +66,6 @@ function SplitBill({ navigation, route }) {
             );
         } catch (e) {
             console.error('Error fetching friend data: ', e);
-        } finally {
-            setIsLoading(false);
         }
 
         img();
@@ -209,7 +204,9 @@ function SplitBill({ navigation, route }) {
     return (
         <SafeAreaView style={styles.container}>
             {isLoading ? (
-                <Loading />
+                <View style={styles.loading}>
+                    <ActivityIndicator color={Color.primary} size={'large'} />
+                </View>
             ) : (
                 <ScrollView
                     showsHorizontalScrollIndicator={false}
@@ -259,6 +256,11 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingTop: StatusBar.currentHeight,
         backgroundColor: '#fff',
+    },
+    loading: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
     },
     headerContainer: {
         flexDirection: 'row',

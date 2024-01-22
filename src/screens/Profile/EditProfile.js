@@ -1,9 +1,9 @@
 import {
+    ActivityIndicator,
     Alert,
     Image,
     SafeAreaView,
     ScrollView,
-    StatusBar,
     StyleSheet,
     Text,
     View,
@@ -31,7 +31,7 @@ function EditProfile({ navigation }) {
     const route = useRoute();
     const phoneNumbers = route.params?.users.phoneNumber;
     const [image, setImage] = useState();
-    const [isLoading, setIsLoading] = useState(true);
+    const { isLoading } = useSelector((state) => state.ui);
 
     const imageUrl = `https://ui-avatars.com/api/?name=${users?.firstName}+${users?.lastName}`;
 
@@ -103,7 +103,6 @@ function EditProfile({ navigation }) {
 
     useEffect(() => {
         try {
-            setIsLoading(true);
             if (phoneNumbers) {
                 dispatch(
                     userAction(async () => {
@@ -140,8 +139,6 @@ function EditProfile({ navigation }) {
             }
         } catch (e) {
             console.error('Error fetching user data: ', e);
-        } finally {
-            setIsLoading(false);
         }
     }, [dispatch, userService, setValues]);
 
@@ -265,7 +262,9 @@ function EditProfile({ navigation }) {
     return (
         <SafeAreaView style={styles.container}>
             {isLoading ? (
-                <Loading />
+                <View style={styles.loading}>
+                    <ActivityIndicator color={Color.primary} size={'large'} />
+                </View>
             ) : (
                 <ScrollView
                     showsHorizontalScrollIndicator={false}
@@ -284,6 +283,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+    },
+    loading: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
     },
     wrapperName: {
         alignItems: 'center',

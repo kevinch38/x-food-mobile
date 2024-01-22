@@ -5,7 +5,6 @@ import {
     TextInput,
     Image,
     SafeAreaView,
-    StatusBar,
     TouchableOpacity,
     BackHandler,
     Animated,
@@ -191,7 +190,6 @@ export default function Register({ navigation }) {
 
     return (
         <SafeAreaView style={styles.wrapper}>
-            <StatusBar barStyle={'dark-content'} />
             <KeyboardAwareScrollView>
                 <View>
                     <Image
