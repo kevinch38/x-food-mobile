@@ -30,7 +30,7 @@ function SplitBillSuccess({ navigation, route }) {
             }
             groupedItems[itemName].push({
                 itemName: itemName,
-                price: item.newPrice,
+                price: item.itemPrice,
             });
         });
     });
@@ -60,14 +60,14 @@ function SplitBillSuccess({ navigation, route }) {
                     items: [
                         {
                             itemName: itemName,
-                            price: item.newPrice,
+                            price: item.itemPrice,
                         },
                     ],
                 });
             } else {
                 friendEntry.items.push({
                     itemName: itemName,
-                    price: item.newPrice,
+                    price: item.itemPrice,
                 });
             }
         });

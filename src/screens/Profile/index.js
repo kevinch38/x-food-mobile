@@ -3,12 +3,12 @@ import {
     Image,
     SafeAreaView,
     ScrollView,
-    StatusBar,
     StyleSheet,
     Text,
     TouchableOpacity,
     View,
     Modal,
+    ActivityIndicator,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import React, { useContext, useEffect, useState } from 'react';
@@ -32,7 +32,6 @@ import { formatIDRCurrency } from '../../utils/utils';
 import { logout } from '../../slices/userSlice';
 import { apiBaseUrl } from '../../api/xfood';
 import { useIsFocused } from '@react-navigation/native';
-import Loading from '../../components/loading';
 
 function Profile({ navigation }) {
     const dispatch = useDispatch();
@@ -45,7 +44,7 @@ function Profile({ navigation }) {
     const [image, setImage] = useState();
     const [modalVisible, setModalVisible] = useState(false);
     const { authService } = useContext(ServiceContext);
-    const [isLoading, setIsLoading] = useState(true);
+    const { isLoading } = useSelector((state) => state.ui);
 
     const imageUrl = `https://ui-avatars.com/api/?name=${users?.firstName}+${users?.lastName}`;
 
@@ -58,7 +57,6 @@ function Profile({ navigation }) {
     useEffect(() => {
         const onGetLoyaltyPointAmount = async () => {
             try {
-                setIsLoading(true);
                 dispatch(
                     loyaltyPointAction(async () => {
                         const result =
@@ -70,14 +68,11 @@ function Profile({ navigation }) {
                 );
             } catch (e) {
                 console.error('Error fetching loyalty point data: ', e);
-            } finally {
-                setIsLoading(false);
             }
         };
 
         const onGetBalanceUser = async () => {
             try {
-                setIsLoading(true);
                 dispatch(
                     fetchBalanceAction(async () => {
                         const result = await balanceService.fetchBalance(
@@ -88,15 +83,11 @@ function Profile({ navigation }) {
                 );
             } catch (e) {
                 console.error('Error fetching balance data: ', e);
-            } finally {
-                setIsLoading(false);
             }
         };
 
         const onGetUserByPhoneNumber = async () => {
             try {
-                setIsLoading(true);
-
                 dispatch(
                     userAction(async () => {
                         const result =
@@ -116,8 +107,6 @@ function Profile({ navigation }) {
                 );
             } catch (e) {
                 console.error('Error fetching user data: ', e);
-            } finally {
-                setIsLoading(false);
             }
         };
 
@@ -137,7 +126,6 @@ function Profile({ navigation }) {
 
     const onGetUserByPhoneNumber = () => {
         try {
-            setIsLoading(true);
             dispatch(
                 userAction(async () => {
                     const result =
@@ -155,8 +143,6 @@ function Profile({ navigation }) {
             );
         } catch (e) {
             console.error('Error fetching user data: ', e);
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -475,7 +461,9 @@ function Profile({ navigation }) {
     return (
         <SafeAreaView style={styles.container}>
             {isLoading ? (
-                <Loading />
+                <View style={styles.loading}>
+                    <ActivityIndicator color={Color.primary} size={'large'} />
+                </View>
             ) : (
                 <ScrollView
                     showsHorizontalScrollIndicator={false}
@@ -510,6 +498,11 @@ function Profile({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',
+    },
+    loading: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
     },
     wrapper: {
         paddingHorizontal: 20,

@@ -67,7 +67,7 @@ function SplitBillAddPosition({ navigation, route }) {
         });
         tempRequest.orderItems.push({
             itemName: item.itemName,
-            newPrice: item.newPrice,
+            itemPrice: item.itemPrice,
             orderItemID: item.orderItemID,
         });
     };
@@ -168,7 +168,7 @@ function SplitBillAddPosition({ navigation, route }) {
                             <Text style={styles.item}>{item.itemName}</Text>
                             <View style={styles.priceContainer}>
                                 <Text style={styles.price}>
-                                    {formatIDRCurrency(item.newPrice)}
+                                    {formatIDRCurrency(item.itemPrice)}
                                 </Text>
                                 <Text style={styles.price}>
                                     {item.quantity}x

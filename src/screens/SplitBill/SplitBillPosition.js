@@ -46,7 +46,7 @@ function SplitBillPosition({ navigation, route }) {
                         } else {
                             acc.push({
                                 itemName: r.itemName,
-                                newPrice: r.newPrice,
+                                itemPrice: r.itemPrice,
                                 quantity: 1,
                             });
                         }
@@ -58,7 +58,7 @@ function SplitBillPosition({ navigation, route }) {
 
         request = request.map((req, index) => {
             const totalPrice = itemInfo[index].reduce((total, item) => {
-                return total + item.newPrice * item.quantity;
+                return total + item.itemPrice * item.quantity;
             }, 0);
 
             delete req.friendName;
@@ -208,7 +208,7 @@ function SplitBillPosition({ navigation, route }) {
                                         } else {
                                             acc.push({
                                                 itemName: r.itemName,
-                                                newPrice: r.newPrice,
+                                                itemPrice: r.itemPrice,
                                                 quantity: 1,
                                             });
                                         }
@@ -227,7 +227,7 @@ function SplitBillPosition({ navigation, route }) {
                                         <View style={styles.priceContainer}>
                                             <Text style={styles.price}>
                                                 {formatIDRCurrency(
-                                                    groupedItem.newPrice,
+                                                    groupedItem.itemPrice,
                                                 )}
                                             </Text>
                                             <Text style={styles.price}>
@@ -235,7 +235,7 @@ function SplitBillPosition({ navigation, route }) {
                                             </Text>
                                             <Text style={styles.priceTotal}>
                                                 {formatIDRCurrency(
-                                                    groupedItem.newPrice *
+                                                    groupedItem.itemPrice *
                                                         groupedItem.quantity,
                                                 )}
                                             </Text>

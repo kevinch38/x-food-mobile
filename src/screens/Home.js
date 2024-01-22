@@ -4,7 +4,6 @@ import {
     Pressable,
     SafeAreaView,
     ScrollView,
-    StatusBar,
     StyleSheet,
     Text,
     View,
@@ -272,7 +271,6 @@ const Home = ({ navigation }) => {
 
     return (
         <SafeAreaView style={styles.wrapper}>
-            <StatusBar barStyle={'light-content'} />
             {isLoading ? (
                 <Loading style={{ zIndex: 999 }} />
             ) : (
