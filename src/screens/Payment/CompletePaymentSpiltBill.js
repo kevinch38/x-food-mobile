@@ -27,13 +27,13 @@ function CompletePaymentSpiltBill({ navigation, route }) {
     // const { completePaymentSplit } = PaymentService;
     const completePayment = PaymentService();
 
-    // useEffect(() => {
-    //     const timer = setTimeout(() => {
-    //         navigation.navigate('Tabs');
-    //     }, 10000);
-    //
-    //     return () => clearTimeout(timer);
-    // }, []);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            navigation.navigate('Tabs');
+        }, 10000);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     useEffect(async () => {
         try {
@@ -89,7 +89,7 @@ function CompletePaymentSpiltBill({ navigation, route }) {
                     source={require('../../assets/icons/confirm-icon.png')}
                     style={styles.confirmStyle}
                 />
-                <View style={{ marginTop: '10%' }}>
+                <View style={{ marginTop: '5%' }}>
                     <Text style={styles.textStyle}>Money Sent!</Text>
                 </View>
             </View>
@@ -102,7 +102,7 @@ function CompletePaymentSpiltBill({ navigation, route }) {
                 <View
                     style={{
                         alignItems: 'center',
-                        marginRight: '3%',
+                        marginRight: '2%',
                     }}
                 >
                     <Text style={styles.textStyle}>From :</Text>
@@ -132,7 +132,7 @@ function CompletePaymentSpiltBill({ navigation, route }) {
 
     const renderAmount = () => {
         return (
-            <View style={{ marginTop: '5%' }}>
+            <View style={{ marginTop: '3%' }}>
                 <Text style={styles.textStyle}>Amount Sent</Text>
                 <Text style={styles.priceStyle}>
                     {formatIDRCurrency(splitBill.paymentAmount)}
